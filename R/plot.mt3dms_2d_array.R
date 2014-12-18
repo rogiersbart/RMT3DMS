@@ -1,0 +1,99 @@
+#' Plot a MODFLOW 2D array
+#' 
+#' \code{plot.mt3dms_2d_array} plots a MODFLOW 2D array.
+#' 
+#' @param mt3dms_2d_array An object of class mt3dms_2d_array, or a 2D matrix
+#' @param ibound An ibound array with 1 or TRUE indicating active cells, and 0 or F indicating inactive cells
+#' @param color.palette A color palette for imaging the parameter values
+#' @param zlim
+#' @param levels
+#' @param nlevels
+#' @param main
+#' @return None
+#' @method plot mt3dms_2d_array
+#' @export
+#' @import ggplot2 directlabels akima rgl RTOOLZ
+plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, ibound=mt3dms_2d_array*0+1, color.palette=rev_rainbow, zlim = range(mt3dms_2d_array[which(ibound!=0)], finite=TRUE), levels = pretty(zlim, nlevels), nlevels = 7, main='MF ARRAY plot', type='fill', add=FALSE,xOrigin=0,yOrigin=0,plot3d=FALSE,height.exageration=100,binwidth=1,label=TRUE,prj=NULL,target_CRS=NULL,alpha=1)
+{
+  if(plot3d)
+  {
+    x <- (cumsum(btn$DELR)-btn$DELR/2)
+    y <- sum(btn$DELC) - (cumsum(btn$DELC)-btn$DELC/2)
+    z <- t(mt3dms_2d_array)*height.exageration
+    if(!add) open3d()
+    colorlut <- color.palette(nlevels) # height color lookup table
+    
+    col <- colorlut[ round(approx(seq(zlim[1],zlim[2],length=nlevels+1),seq(0.5,nlevels+0.5,length=nlevels+1),xout=c(z/height.exageration),rule=2)$y) ] # assign colors to heights for each point
+    surface3d(x,y,z,color=col,back='lines') 
+  } else
+  {
+    xy <- expand.grid(cumsum(btn$DELR)-btn$DELR/2,sum(btn$DELC)-(cumsum(btn$DELC)-btn$DELC/2))
+    names(xy) <- c('x','y')
+    xy$x <- xy$x + xOrigin
+    xy$y <- xy$y + yOrigin
+    ibound[which(ibound==0)] <- NA
+    
+    if(type=='fill')
+    {  
+      ids <- factor(1:(btn$NROW*btn$NCOL))
+      xWidth <- rep(btn$DELR,btn$NROW)
+      yWidth <- rep(btn$DELC,each=btn$NCOL)
+      positions <- data.frame(id = rep(ids, each=4),x=rep(xy$x,each=4),y=rep(xy$y,each=4))
+      positions$x[(seq(1,nrow(positions),4))] <- positions$x[(seq(1,nrow(positions),4))] - xWidth/2
+      positions$x[(seq(2,nrow(positions),4))] <- positions$x[(seq(2,nrow(positions),4))] - xWidth/2
+      positions$x[(seq(3,nrow(positions),4))] <- positions$x[(seq(3,nrow(positions),4))] + xWidth/2
+      positions$x[(seq(4,nrow(positions),4))] <- positions$x[(seq(4,nrow(positions),4))] + xWidth/2
+      positions$y[(seq(1,nrow(positions),4))] <- positions$y[(seq(1,nrow(positions),4))] - yWidth/2
+      positions$y[(seq(2,nrow(positions),4))] <- positions$y[(seq(2,nrow(positions),4))] + yWidth/2
+      positions$y[(seq(3,nrow(positions),4))] <- positions$y[(seq(3,nrow(positions),4))] + yWidth/2
+      positions$y[(seq(4,nrow(positions),4))] <- positions$y[(seq(4,nrow(positions),4))] - yWidth/2
+      values <- data.frame(id = ids,value = c(t(mt3dms_2d_array*ibound^2)))
+      if(!is.null(prj))
+      {
+        new_positions <- coord_grid_to_real(x=positions$x,y=positions$y,prj)
+        positions$x <- new_positions$x
+        positions$y <- new_positions$y
+      }
+      if(!is.null(target_CRS))
+      {
+        new_positions <- addosmmerc(data.frame(x=positions$x,y=positions$y),CRS_from=CRS(prj$projection),CRS_to=target_CRS)
+        positions$x <- new_positions$Xosmmerc
+        positions$y <- new_positions$Yosmmerc                    
+      }
+      datapoly <- merge(values, positions, by=c("id"))
+      datapoly <- na.omit(datapoly)
+      if(add)
+      {
+        return(geom_polygon(aes(x=x,y=y,fill=value, group=id),data=datapoly,alpha=alpha)) # +
+          #scale_fill_gradientn(colours=color.palette(nlevels),limits=zlim))
+      } else {
+        return(ggplot(datapoly, aes(x=x, y=y)) +
+          geom_polygon(aes(fill=value, group=id),alpha=alpha) +
+          scale_fill_gradientn(colours=color.palette(nlevels),limits=zlim))
+      }
+    }
+    if(type=='contour')
+    {
+      xy$z <- c(t(mt3dms_2d_array*ibound^2))
+      xyBackup <- xy
+      xy <- na.omit(xy)
+      xy <- interp(xy$x,xy$y,xy$z,xo=seq(min(xy$x),max(xy$x),length=ceiling(sum(btn$DELR)/min(btn$DELR))),yo=seq(min(xy$y),sum(max(xy$y)),length=ceiling(sum(btn$DELC)/min(btn$DELC))))
+      xy$x <- rep(xy$x,ceiling(sum(btn$DELC)/min(btn$DELC)))
+      xy$y <- rep(xy$y,each=ceiling(sum(btn$DELR)/min(btn$DELR)))
+      xy$z <- c(xy$z)
+      xy <- as.data.frame(xy)
+      xy <- xy[which(xy$z >= zlim[1] & xy$z <= zlim[2]),]
+      closestGridPoints <- apply(xy[,c('x','y')],1,function(x) which.min((x[1]-xyBackup$x)^2 + (x[2]-xyBackup$y)^2))
+      xy$z[which(is.na(xyBackup$z[closestGridPoints]))] <- NA
+      rm(xyBackup)
+      if(add)
+      {
+        if(label) return(stat_contour(aes(x=x,y=y,z=z,colour = ..level..),data=xy,binwidth=binwidth))
+        if(!label) return(stat_contour(aes(x=x,y=y,z=z),colour='black',data=xy,binwidth=binwidth))
+      } else {
+        if(label) return(direct.label(ggplot(xy, aes(x=x, y=y, z=z)) + stat_contour(aes(colour = ..level..),binwidth=binwidth)))
+        if(!label) return(ggplot(xy, aes(x=x, y=y, z=z)) + stat_contour(colour = 'black',binwidth=binwidth))
+      }
+    }
+  }
+}
