@@ -4,10 +4,11 @@
 #' 
 #' @param file Filename; typically *.ssm
 #' @return Object of class ssm
+#' @importFrom readr read_lines
 #' @export
 read_ssm <- function(file, btn)
 {
-  ssm.lines <- scan(file, what=character(), sep='\n')
+  ssm.lines <- read_lines(file)
   ssm <- NULL
   
   # Data set D1
@@ -50,7 +51,7 @@ read_ssm <- function(file, btn)
     # Data set D4
       if(ssm$FRCH & (ssm$INCRCH[stress_period] >= 0))
       {
-        dataSetD4 <- int_int_get_mt3dms_array(ssm.lines,btn$NROW,btn$NCOL,btn$NCOMP)
+        dataSetD4 <- int_get_mt3dms_array(ssm.lines,btn$NROW,btn$NCOL,btn$NCOMP)
         ssm.lines <- dataSetD4$remaining.lines
         ssm$CRCH[[stress_period]] <- dataSetD4$mfarray
         rm(dataSetD4)
@@ -76,11 +77,11 @@ read_ssm <- function(file, btn)
       ssm$NSS[stress_period] <- as.numeric(remove_empty_strings(strsplit(ssm.lines[1],' ')[[1]]))
       ssm.lines <- ssm.lines[-1] 
     
-    ssm$KSS[[stress_period]] <- NULL
-    ssm$ISS[[stress_period]] <- NULL
-    ssm$JSS[[stress_period]] <- NULL
-    ssm$CSS[[stress_period]] <- NULL
-    ssm$ITYPE[[stress_period]] <- NULL
+    ssm$KSS[[stress_period]] <- rep(NA,ssm$NSS[stress_period])
+    ssm$ISS[[stress_period]] <- ssm$KSS
+    ssm$JSS[[stress_period]] <- ssm$KSS
+    ssm$CSS[[stress_period]] <- ssm$KSS
+    ssm$ITYPE[[stress_period]] <- ssm$KSS
     ssm$CSSMS[[stress_period]] <- list()
     
     # Data set D8

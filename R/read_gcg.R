@@ -4,10 +4,11 @@
 #' 
 #' @param file Filename; typically *.gcg
 #' @return Object of class gcg
+#' @importFrom readr read_lines
 #' @export
 read_gcg <- function(file)
 {
-  gcg.lines <- scan(file, what=character(), sep='\n')
+  gcg.lines <- read_lines(file)
   gcg <- NULL
   
   # Data set F1

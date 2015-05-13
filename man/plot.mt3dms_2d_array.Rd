@@ -3,18 +3,18 @@
 \alias{plot.mt3dms_2d_array}
 \title{Plot a MODFLOW 2D array}
 \usage{
-\method{plot}{mt3dms_2d_array}(mt3dms_2d_array, btn, ibound = mt3dms_2d_array
-  * 0 + 1, color.palette = rev_rainbow,
-  zlim = range(mt3dms_2d_array[which(ibound != 0)], finite = TRUE),
-  levels = pretty(zlim, nlevels), nlevels = 7, main = "MF ARRAY plot",
-  type = "fill", add = FALSE, xOrigin = 0, yOrigin = 0,
-  plot3d = FALSE, height.exageration = 100, binwidth = 1, label = TRUE,
-  prj = NULL, target_CRS = NULL, alpha = 1)
+\method{plot}{mt3dms_2d_array}(mt3dms_2d_array, btn, mask = btn$ICBUND[, , 1],
+  color.palette = rev_rainbow, zlim = range(mt3dms_2d_array[which(mask !=
+  0)], finite = TRUE), levels = pretty(zlim, nlevels), nlevels = 7,
+  main = "MF ARRAY plot", type = "fill", add = FALSE, xOrigin = 0,
+  yOrigin = 0, plot3d = FALSE, height.exageration = 100, binwidth = 1,
+  label = TRUE, prj = NULL, target_CRS = NULL, alpha = 1,
+  height = NULL)
 }
 \arguments{
 \item{mt3dms_2d_array}{An object of class mt3dms_2d_array, or a 2D matrix}
 
-\item{ibound}{An ibound array with 1 or TRUE indicating active cells, and 0 or F indicating inactive cells}
+\item{mask}{An icbund array with 1 or TRUE indicating active cells, and 0 or F indicating inactive cells}
 
 \item{color.palette}{A color palette for imaging the parameter values}
 

@@ -1,7 +1,11 @@
-#' Provide cell centers
+#' Get cell center z coordinates from a btn file
 #' 
+#' @return \code{NULL}
+#'
+#' @rdname cell_centers
+#' @method cell_centers btn
 #' @export
-coord_cell_centers <- function(btn)
+cell_centers.btn <- function(btn)
 {
   cell_centers <- btn$DZ*NA
   cell_centers[,,1] <- btn$HTOP-btn$DZ[,,1]/2

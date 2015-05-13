@@ -4,10 +4,11 @@
 #' 
 #' @param file Filename; typically *.btn
 #' @return Object of class btn
+#' @importFrom readr read_lines
 #' @export
 read_btn <- function(file)
 {
-  btn.lines <- scan(file, what=character(), sep='\n')
+  btn.lines <- read_lines(file)
   btn <- NULL
   
   # Data set A1

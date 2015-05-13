@@ -10,6 +10,8 @@ Description: The RMT3DMS package provides a set of tools for solute transport
 License: GPL (>= 2)
 Imports:
     ggplot2,
-    RMODFLOW,
-    RTOOLZ
+    RTOOLZ,
+    readr
+Depends:
+    RMODFLOW
 URL: https://github.com/rogiersbart/RMT3DMS

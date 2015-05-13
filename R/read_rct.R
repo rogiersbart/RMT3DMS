@@ -4,10 +4,11 @@
 #' 
 #' @param file Filename; typically *.rct
 #' @return Object of class rct
+#' @importFrom readr read_lines
 #' @export
 read_rct <- function(file, btn)
 {
-  rct.lines <- scan(file, what=character(), sep='\n')
+  rct.lines <- read_lines(file)
   rct <- NULL
   
   # Data set E1

@@ -4,10 +4,11 @@
 #' 
 #' @param file Filename; typically *.dsp
 #' @return Object of class dsp
+#' @importFrom readr read_lines
 #' @export
 read_dsp <- function(file, btn)
 {
-  dsp.lines <- scan(file, what=character(), sep='\n')
+  dsp.lines <- read_lines(file)
   dsp <- NULL
   
   # MultiDiffusion option

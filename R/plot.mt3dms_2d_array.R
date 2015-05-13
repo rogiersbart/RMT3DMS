@@ -3,7 +3,7 @@
 #' \code{plot.mt3dms_2d_array} plots a MODFLOW 2D array.
 #' 
 #' @param mt3dms_2d_array An object of class mt3dms_2d_array, or a 2D matrix
-#' @param ibound An ibound array with 1 or TRUE indicating active cells, and 0 or F indicating inactive cells
+#' @param mask An icbund array with 1 or TRUE indicating active cells, and 0 or F indicating inactive cells
 #' @param color.palette A color palette for imaging the parameter values
 #' @param zlim
 #' @param levels
@@ -13,25 +13,27 @@
 #' @method plot mt3dms_2d_array
 #' @export
 #' @import ggplot2 directlabels akima rgl RTOOLZ
-plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, ibound=mt3dms_2d_array*0+1, color.palette=rev_rainbow, zlim = range(mt3dms_2d_array[which(ibound!=0)], finite=TRUE), levels = pretty(zlim, nlevels), nlevels = 7, main='MF ARRAY plot', type='fill', add=FALSE,xOrigin=0,yOrigin=0,plot3d=FALSE,height.exageration=100,binwidth=1,label=TRUE,prj=NULL,target_CRS=NULL,alpha=1)
+plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], color.palette=rev_rainbow, zlim = range(mt3dms_2d_array[which(mask!=0)], finite=TRUE), levels = pretty(zlim, nlevels), nlevels = 7, main='MF ARRAY plot', type='fill', add=FALSE,xOrigin=0,yOrigin=0,plot3d=FALSE,height.exageration=100,binwidth=1,label=TRUE,prj=NULL,target_CRS=NULL,alpha=1,height=NULL)
 {
   if(plot3d)
   {
     x <- (cumsum(btn$DELR)-btn$DELR/2)
     y <- sum(btn$DELC) - (cumsum(btn$DELC)-btn$DELC/2)
-    z <- t(mt3dms_2d_array)*height.exageration
+    z <- t(height)*height.exageration
     if(!add) open3d()
     colorlut <- color.palette(nlevels) # height color lookup table
-    
     col <- colorlut[ round(approx(seq(zlim[1],zlim[2],length=nlevels+1),seq(0.5,nlevels+0.5,length=nlevels+1),xout=c(z/height.exageration),rule=2)$y) ] # assign colors to heights for each point
-    surface3d(x,y,z,color=col,back='lines') 
+    alpha <- rep(1,length(col))
+    alpha[which(c(t(mask))==0)] <- 0
+    if(type=='fill') surface3d(x,y,z,color=col,alpha=alpha,back='lines',smooth=FALSE) 
+    if(type=='grid') surface3d(x,y,z,front='lines',alpha=alpha,back='lines',smooth=FALSE) 
   } else
   {
     xy <- expand.grid(cumsum(btn$DELR)-btn$DELR/2,sum(btn$DELC)-(cumsum(btn$DELC)-btn$DELC/2))
     names(xy) <- c('x','y')
     xy$x <- xy$x + xOrigin
     xy$y <- xy$y + yOrigin
-    ibound[which(ibound==0)] <- NA
+    mask[which(mask==0)] <- NA
     
     if(type=='fill')
     {  
@@ -47,7 +49,7 @@ plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, ibound=mt3dms_2d_array*0+
       positions$y[(seq(2,nrow(positions),4))] <- positions$y[(seq(2,nrow(positions),4))] + yWidth/2
       positions$y[(seq(3,nrow(positions),4))] <- positions$y[(seq(3,nrow(positions),4))] + yWidth/2
       positions$y[(seq(4,nrow(positions),4))] <- positions$y[(seq(4,nrow(positions),4))] - yWidth/2
-      values <- data.frame(id = ids,value = c(t(mt3dms_2d_array*ibound^2)))
+      values <- data.frame(id = ids,value = c(t(mt3dms_2d_array*mask^2)))
       if(!is.null(prj))
       {
         new_positions <- coord_grid_to_real(x=positions$x,y=positions$y,prj)
@@ -74,7 +76,7 @@ plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, ibound=mt3dms_2d_array*0+
     }
     if(type=='contour')
     {
-      xy$z <- c(t(mt3dms_2d_array*ibound^2))
+      xy$z <- c(t(mt3dms_2d_array*mask^2))
       xyBackup <- xy
       xy <- na.omit(xy)
       xy <- interp(xy$x,xy$y,xy$z,xo=seq(min(xy$x),max(xy$x),length=ceiling(sum(btn$DELR)/min(btn$DELR))),yo=seq(min(xy$y),sum(max(xy$y)),length=ceiling(sum(btn$DELC)/min(btn$DELC))))

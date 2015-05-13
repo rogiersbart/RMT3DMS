@@ -4,10 +4,11 @@
 #' 
 #' @param file Filename; typically *.adv
 #' @return Object of class adv
+#' @importFrom readr read_lines
 #' @export
 read_adv <- function(file)
 {
-  adv.lines <- scan(file, what=character(), sep='\n')
+  adv.lines <- read_lines(file)
   adv <- NULL
  
   # Data set B1
