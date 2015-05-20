@@ -3,15 +3,12 @@
 \alias{run_mt3dms}
 \title{Run an MT3DMS model}
 \usage{
-run_mt3dms(nam, dir = getwd(), mt3dmsVersion = "mt3dms5b")
+run_mt3dms(file, mt3dms_executable = "mt3dms5b")
 }
 \arguments{
-\item{file}{Filename; typically *.btn}
-}
-\value{
-Object of class btn
+\item{file}{Path to name file; typically "*.nam"}
 }
 \description{
-\code{read.btn} reads in an MT3DMS basic transport package file and returns it as an \code{\link{RMT3DMS}} btn object.
+\code{run_mt3dms} runs an MT3DMS model.
 }
 
