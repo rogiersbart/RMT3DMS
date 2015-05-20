@@ -166,7 +166,11 @@ read_btn <- function(file)
       btn$PERLEN[i] <- as.numeric(dataSetA21[1])
       btn$NSTP[i] <- as.numeric(dataSetA21[2])
       btn$TSMULT[i] <- as.numeric(dataSetA21[3])
-      if(btn$NPER==1) btn$SSTATE <- ifelse(as.character(dataSetA21[4])=='SSTATE',TRUE,FALSE)
+      if(btn$NPER==1)
+      {
+        btn$SSTATE <- ifelse(as.character(dataSetA21[4])=='SSTATE',TRUE,FALSE)
+        if(is.na(btn$SSTATE)) btn$SSTATE <- FALSE
+      }
       btn.lines <- btn.lines[-1]
       rm(dataSetA21)
   
