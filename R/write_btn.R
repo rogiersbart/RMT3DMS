@@ -57,6 +57,7 @@ write_btn <- function(btn, file, info='No additional information provided', IPRN
   # Data set A13
     for(species in 1:btn$NCOMP)
     {
+      btn$SCONC[[species]][which(is.na(btn$SCONC[[species]]))] <- btn$CINACT
       for(i in 1:dim(btn$SCONC[[species]])[3])
       {
         cat(paste('       103         1           (NOTUSED)', formatC(IPRN,width=10), '\n', sep=''), file=file, append=TRUE)

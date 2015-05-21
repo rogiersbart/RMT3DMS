@@ -36,7 +36,7 @@ run_mt3dms_ss <- function(file,threshold,report=TRUE,report_plot=TRUE,maxit=100,
     if(report_plot) print(plot(ss))
     if(!convergence)
     {
-      btn$SCONC[[1]][which(!is.na(ucn$CNEW[[1]]))] <- ucn$CNEW[[1]][which(!is.na(ucn$CNEW[[1]]))]
+      # btn$SCONC[[1]][which(!is.na(ucn$CNEW[[1]]))] <- ucn$CNEW[[1]][which(!is.na(ucn$CNEW[[1]]))]
       write_btn(btn,file=paste0(dir,'/',nam$Fname[which(nam$Ftype=='BTN')]))
     }
     it <- it+1
