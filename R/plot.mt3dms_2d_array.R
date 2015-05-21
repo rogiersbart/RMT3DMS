@@ -52,7 +52,7 @@ plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], col
       values <- data.frame(id = ids,value = c(t(mt3dms_2d_array*mask^2)))
       if(!is.null(prj))
       {
-        new_positions <- coord_grid_to_real(x=positions$x,y=positions$y,prj)
+        new_positions <- convert_btn_to_real(x=positions$x,y=positions$y,prj)
         positions$x <- new_positions$x
         positions$y <- new_positions$y
       }
