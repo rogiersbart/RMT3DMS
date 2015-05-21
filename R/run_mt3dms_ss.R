@@ -3,15 +3,22 @@
 #' \code{run_mt3dms_ss} keeps on running an MT3DMS model until convergence is reached
 #' 
 #' @param file Path to name file; typically "*.nam"
+#' @param threshold threshold giving the maximum concentration difference for two consecutive simulations
+#' @param report logical, should information be printed after each iteration
+#' @param report_plot logical, should information be plotted after each iteration
+#' @param maxit maximum number of iterations
+#' @param ss ss object, to continue a simulation
+#' @param ... parameters passed to \code{run_mt3dms}
 #' @export
-run_mt3dms_ss <- function(file,threshold,report=TRUE,report_plot=TRUE,...)
+run_mt3dms_ss <- function(file,threshold,report=TRUE,report_plot=TRUE,maxit=100,ss=NULL,...)
 {
   dir <- dirname(file)
   file <- basename(file)
-  ss <- data.frame(run=0,time=0,max_conc_diff=NA)
+  if(is.null(ss)) ss <- data.frame(run=0,time=0,max_conc_diff=NA)
   attr(ss,'threshold') <- threshold
   class(ss) <- c('ss','data.frame')
   convergence <- FALSE
+  it <- 0
   while(!convergence)
   {
     run_mt3dms(paste0(dir,'/',file),...)
@@ -32,6 +39,8 @@ run_mt3dms_ss <- function(file,threshold,report=TRUE,report_plot=TRUE,...)
       btn$SCONC[[1]][which(!is.na(ucn$CNEW[[1]]))] <- ucn$CNEW[[1]][which(!is.na(ucn$CNEW[[1]]))]
       write_btn(btn,file=paste0(dir,'/',nam$Fname[which(nam$Ftype=='BTN')]))
     }
+    it <- it+1
+    if(it >= maxit) break
   }
   return(ss)
 }

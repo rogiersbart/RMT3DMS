@@ -3,10 +3,23 @@
 \alias{run_mt3dms_ss}
 \title{Run an MT3DMS model}
 \usage{
-run_mt3dms_ss(file, threshold, report = TRUE, report_plot = TRUE, ...)
+run_mt3dms_ss(file, threshold, report = TRUE, report_plot = TRUE,
+  maxit = 100, ss = NULL, ...)
 }
 \arguments{
 \item{file}{Path to name file; typically "*.nam"}
+
+\item{threshold}{threshold giving the maximum concentration difference for two consecutive simulations}
+
+\item{report}{logical, should information be printed after each iteration}
+
+\item{report_plot}{logical, should information be plotted after each iteration}
+
+\item{maxit}{maximum number of iterations}
+
+\item{ss}{ss object, to continue a simulation}
+
+\item{...}{parameters passed to \code{run_mt3dms}}
 }
 \description{
 \code{run_mt3dms_ss} keeps on running an MT3DMS model until convergence is reached
