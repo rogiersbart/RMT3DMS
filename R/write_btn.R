@@ -1,13 +1,13 @@
 #' Write an MT3DMS file
 #' 
 #' @export
-write_btn <- function(btn, file, info='No additional information provided', IPRN=-1)
+write_btn <- function(btn, file, IPRN=-1)
 {
   # Data set A1
-    cat('# MT3DMS BTN file created by RMT3DMS\n', file=file)
+    cat(paste(btn$HEADNG[1], '\n'), file=file, append=TRUE)
   
   # Data set A2
-    cat(paste('#', info, '\n'), file=file, append=TRUE)
+    cat(paste(btn$HEADNG[2], '\n'), file=file, append=TRUE)
   
   # Data set A3
     cat(paste0(c(prettyNum(c(btn$NLAY, btn$NROW, btn$NCOL, btn$NPER, btn$NCOMP, btn$MCOMP),width=10), '\n'),collapse=''), file=file, append=TRUE)

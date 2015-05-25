@@ -3,7 +3,7 @@
 \alias{write_btn}
 \title{Write an MT3DMS file}
 \usage{
-write_btn(btn, file, info = "No additional information provided", IPRN = -1)
+write_btn(btn, file, IPRN = -1)
 }
 \description{
 Write an MT3DMS file

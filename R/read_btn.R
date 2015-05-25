@@ -12,10 +12,12 @@ read_btn <- function(file)
   btn <- NULL
   
   # Data set A1
-    btn.lines <- remove_comments_from_lines(btn.lines)
+    btn$HEADNG[1] <- btn.lines[1]
+    btn.lines <- btn.lines[-1]
   
   # Data set A2
-    btn.lines <- remove_comments_from_lines(btn.lines)
+    btn$HEADNG[2] <- btn.lines[1]
+    btn.lines <- btn.lines[-1]
   
   # Data set A3
     dataSetA3 <- remove_empty_strings(strsplit(btn.lines[1],' ')[[1]])
