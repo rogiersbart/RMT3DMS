@@ -4,7 +4,7 @@
 write_btn <- function(btn, file, IPRN=-1)
 {
   # Data set A1
-    cat(paste(btn$HEADNG[1], '\n'), file=file, append=TRUE)
+    cat(paste(btn$HEADNG[1], '\n'), file=file, append=FALSE)
   
   # Data set A2
     cat(paste(btn$HEADNG[2], '\n'), file=file, append=TRUE)
