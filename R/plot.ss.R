@@ -1,7 +1,8 @@
 #' Plot an MT3DMS ss object
 #' 
-#' \code{plot.ss} plots an MT3DMS ss object.
+#' \code{plot.ss} plots an RMT3DMS ss object
 #' 
+#' @param ss ss object
 #' @method plot ss
 #' @export
 #' @import ggplot2

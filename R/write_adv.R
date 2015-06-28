@@ -1,5 +1,9 @@
-#' Write an MT3DMS file
+#' Write an MT3DMS advection package file
 #' 
+#' @param adv an \code{\link{RMT3DMS}} adv object
+#' @param file filename to write to; typically '*.adv'
+#' @param IPRN format code for printing arrays in the listing file; defaults to -1 (no printing)
+#' @return \code{NULL}
 #' @export
 write_adv <- function(adv, file, IPRN=-1)
 {

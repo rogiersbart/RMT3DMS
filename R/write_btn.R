@@ -1,5 +1,9 @@
-#' Write an MT3DMS file
+#' Write an MT3DMS basic transport package file
 #' 
+#' @param btn an \code{\link{RMT3DMS}} btn object
+#' @param file filename to write to; typically '*.btn'
+#' @param IPRN format code for printing arrays in the listing file; defaults to -1 (no printing)
+#' @return \code{NULL}
 #' @export
 write_btn <- function(btn, file, IPRN=-1)
 {

@@ -2,12 +2,12 @@
 #' 
 #' \code{run_mt3dms_ss} keeps on running an MT3DMS model until convergence is reached
 #' 
-#' @param file Path to name file; typically "*.nam"
+#' @param file path to name file; typically '*.nam'
 #' @param threshold threshold giving the maximum concentration difference for two consecutive simulations
 #' @param report logical, should information be printed after each iteration
 #' @param report_plot logical, should information be plotted after each iteration
 #' @param maxit maximum number of iterations
-#' @param ss ss object, to continue a simulation
+#' @param ss ss object, to continue a simulation from a previous call to \code{run_mt3dms_ss}
 #' @param ... parameters passed to \code{run_mt3dms}
 #' @export
 run_mt3dms_ss <- function(file,threshold,report=TRUE,report_plot=TRUE,maxit=100,ss=NULL,...)

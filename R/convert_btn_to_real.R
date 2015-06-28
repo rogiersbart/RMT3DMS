@@ -1,13 +1,17 @@
 #' Convert mt3dms coordinates to real world coordinates
 #' 
+#' @param x mt3dms x coordinate
+#' @param y mt3dms y coordinate
+#' @param z mt3dms z coordinate
+#' @param i mt3dms row number
+#' @param j mt3dms column number
+#' @param k mt3dms layer number
+#' @param prj prj object
+#' @param btn btn object
+#' @details Provide either xyz or ijk
+#' @return data frame with real world x and y coordinates
 #' @export
-convert_btn_to_real <- function(x,y,prj,z=NULL)
+convert_btn_to_real <- function(x=NULL,y=NULL,z=NULL,i=NULL,j=NULL,k=NULL,prj,btn=NULL)
 {
-  angle <- atan(y/x)*180/pi+prj$rotation
-  angle[which(is.na(angle))] <- prj$rotation + 90
-  s <- sqrt(x^2+y^2)
-  x <- prj$origin[1]+ cos(angle*pi/180)*s
-  y <- prj$origin[2]+ sin(angle*pi/180)*s
-  if(!is.null(z)) z <- prj$origin[3]+z
-  ifelse(!is.null(z),return(data.frame(x=x,y=y,z=z)),return(data.frame(x=x,y=y)))
+  convert_real_to_dis(x=x,y=y,z=z,i=i,j=j,k=k,prj=prj,dis=btn)
 }

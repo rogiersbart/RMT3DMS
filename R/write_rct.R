@@ -1,5 +1,10 @@
 #' Write an MT3DMS file
 #' 
+#' @param rct an \code{\link{RMT3DMS}} rct object
+#' @param file filename to write to; typically '*.rct'
+#' @param btn an \code{\link{RMT3DMS}} btn object
+#' @param IPRN format code for printing arrays in the listing file; defaults to -1 (no printing)
+#' @return \code{NULL}
 #' @export
 write_rct <- function(rct, file, btn, IPRN=-1)
 {

@@ -1,9 +1,9 @@
 #' Read an MT3DMS advection package file
 #' 
-#' \code{read.adv} reads in an MT3DMS advection package file and returns it as an \code{\link{RMT3DMS}} adv object.
+#' \code{read_adv} reads in an MT3DMS advection package file and returns it as an \code{\link{RMT3DMS}} adv object.
 #' 
-#' @param file Filename; typically *.adv
-#' @return Object of class adv
+#' @param file filename; typically '*.adv'
+#' @return object of class adv
 #' @importFrom readr read_lines
 #' @export
 read_adv <- function(file)

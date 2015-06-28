@@ -1,7 +1,8 @@
-#' Get cell center z coordinates from a btn file
+#' Get cell center z coordinates from a btn object
 #' 
-#' @return \code{NULL}
-#'
+#' @param btn btn object
+#' @return 3d array with cell center z coordinates
+#' 
 #' @rdname cell_centers
 #' @method cell_centers btn
 #' @export

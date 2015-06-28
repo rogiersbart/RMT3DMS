@@ -1,9 +1,10 @@
 #' Read an MT3DMS unformatted concentration file
 #' 
-#' \code{read.ucn} reads in an MT3DMS unformatted concentration file and returns it as an \code{\link{RMT3DMS}} ucn object.
+#' \code{read_ucn} reads in an MT3DMS unformatted concentration file and returns it as an \code{\link{RMT3DMS}} ucn object.
 #' 
-#' @param file Filename; typically *.ucn
-#' @return Object of class ucn
+#' @param file filename; typically '*.ucn'
+#' @param btn basic transport package file object
+#' @return object of class ucn
 #' @export
 read_ucn <- function(file,btn)
 {

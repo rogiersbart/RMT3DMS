@@ -1,9 +1,10 @@
 #' Read an MT3DMS dispersion package file
 #' 
-#' \code{read.dsp} reads in an MT3DMS dispersion package file and returns it as an \code{\link{RMT3DMS}} dsp object.
+#' \code{read_dsp} reads in an MT3DMS dispersion package file and returns it as an \code{\link{RMT3DMS}} dsp object.
 #' 
-#' @param file Filename; typically *.dsp
-#' @return Object of class dsp
+#' @param file filename; typically '*.dsp'
+#' @param btn basic transport package file object
+#' @return object of class dsp
 #' @importFrom readr read_lines
 #' @export
 read_dsp <- function(file, btn)

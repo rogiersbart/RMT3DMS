@@ -2,27 +2,37 @@
 #' 
 #' \code{plot.mt3dms_2d_array} plots a MODFLOW 2D array.
 #' 
-#' @param mt3dms_2d_array An object of class mt3dms_2d_array, or a 2D matrix
-#' @param mask An icbund array with 1 or TRUE indicating active cells, and 0 or F indicating inactive cells
-#' @param color.palette A color palette for imaging the parameter values
-#' @param zlim
-#' @param levels
-#' @param nlevels
-#' @param main
-#' @return None
+#' @param mt3dms_2d_array an object of class mt3dms_2d_array, or a 2D matrix
+#' @param btn basic transport file object
+#' @param mask a 2D array with 0 or F indicating inactive cells; defaults to the first layer of btn$ICBUND
+#' @param colour_palette a colour palette for imaging the array values
+#' @param zlim vector of minimum and maximum value for the colour scale
+#' @param levels levels to indicate on the colour scale; defaults to nlevels pretty breakpoints
+#' @param nlevels number of levels for the colour scale; defaults to 7
+#' @param type plot type: 'fill' (default), 'grid' or 'contour'
+#' @param add logical; if TRUE, provide ggplot2 layers instead of object, or add 3D plot to existing rgl device; defaults to FALSE
+#' @param height_exaggeration height exaggeration for 3D plot; optional
+#' @param binwidth binwidth for contour plot; defaults to 1/20 of zlim
+#' @param label logical; should labels be added to contour plot
+#' @param prj projection file object
+#' @param target_CRS coordinate reference system for the plot
+#' @param alpha transparency value; defaults to 1
+#' @param plot3d logical; should a 3D plot be made
+#' @param height 2D array for specifying the 3D plot z coordinate
+#' @return ggplot2 object or layer; if plot3D is TRUE, nothing is returned and the plot is made directly
 #' @method plot mt3dms_2d_array
 #' @export
 #' @import ggplot2 directlabels akima rgl RTOOLZ
-plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], color.palette=rev_rainbow, zlim = range(mt3dms_2d_array[which(mask!=0)], finite=TRUE), levels = pretty(zlim, nlevels), nlevels = 7, main='MF ARRAY plot', type='fill', add=FALSE,xOrigin=0,yOrigin=0,plot3d=FALSE,height.exageration=100,binwidth=1,label=TRUE,prj=NULL,target_CRS=NULL,alpha=1,height=NULL)
+plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], colour_palette=rev_rainbow, zlim = range(mt3dms_2d_array[which(mask!=0)], finite=TRUE), levels = pretty(zlim, nlevels), nlevels = 7, type='fill', add=FALSE,plot3d=FALSE,height_exaggeration=100,binwidth=1,label=TRUE,prj=NULL,target_CRS=NULL,alpha=1,height=NULL)
 {
   if(plot3d)
   {
     x <- (cumsum(btn$DELR)-btn$DELR/2)
     y <- sum(btn$DELC) - (cumsum(btn$DELC)-btn$DELC/2)
-    z <- t(height)*height.exageration
+    z <- t(height)*height_exaggeration
     if(!add) open3d()
-    colorlut <- color.palette(nlevels) # height color lookup table
-    col <- colorlut[ round(approx(seq(zlim[1],zlim[2],length=nlevels+1),seq(0.5,nlevels+0.5,length=nlevels+1),xout=c(z/height.exageration),rule=2)$y) ] # assign colors to heights for each point
+    colorlut <- colour_palette(nlevels) # height color lookup table
+    col <- colorlut[round(approx(seq(zlim[1],zlim[2],length=nlevels+1),seq(0.5,nlevels+0.5,length=nlevels+1),xout=c(z/height_exaggeration),rule=2)$y) ] # assign colors to heights for each point
     alpha <- rep(1,length(col))
     alpha[which(c(t(mask))==0)] <- 0
     if(type=='fill') surface3d(x,y,z,color=col,alpha=alpha,back='lines',smooth=FALSE) 
@@ -31,8 +41,6 @@ plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], col
   {
     xy <- expand.grid(cumsum(btn$DELR)-btn$DELR/2,sum(btn$DELC)-(cumsum(btn$DELC)-btn$DELC/2))
     names(xy) <- c('x','y')
-    xy$x <- xy$x + xOrigin
-    xy$y <- xy$y + yOrigin
     mask[which(mask==0)] <- NA
     
     if(type=='fill')
@@ -67,11 +75,11 @@ plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], col
       if(add)
       {
         return(geom_polygon(aes(x=x,y=y,fill=value, group=id),data=datapoly,alpha=alpha)) # +
-          #scale_fill_gradientn(colours=color.palette(nlevels),limits=zlim))
+          #scale_fill_gradientn(colours=colour_palette(nlevels),limits=zlim))
       } else {
         return(ggplot(datapoly, aes(x=x, y=y)) +
           geom_polygon(aes(fill=value, group=id),alpha=alpha) +
-          scale_fill_gradientn(colours=color.palette(nlevels),limits=zlim))
+          scale_fill_gradientn(colours=colour_palette(nlevels),limits=zlim))
       }
     }
     if(type=='contour')

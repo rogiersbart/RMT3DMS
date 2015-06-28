@@ -1,8 +1,8 @@
 Package: RMT3DMS
 Type: Package
 Title: Pre- and post-processing of MT3DMS files
-Version: 0.2.0
-Date: 2015-04-13
+Version: 0.3.0
+Date: 2015-06-28
 Author: Bart Rogiers <brogiers@sckcen.be>
 Maintainer: Bart Rogiers <brogiers@sckcen.be>
 Description: The RMT3DMS package provides a set of tools for solute transport

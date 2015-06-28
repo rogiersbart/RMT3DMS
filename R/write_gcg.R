@@ -1,5 +1,9 @@
-#' Write an MT3DMS file
+#' Write an MT3DMS generalized conjugate gradient solver package file
 #' 
+#' @param gcg an \code{\link{RMT3DMS}} gcg object
+#' @param file filename to write to; typically '*.gcg'
+#' @param IPRN format code for printing arrays in the listing file; defaults to -1 (no printing)
+#' @return \code{NULL}
 #' @export
 write_gcg <- function(gcg, file, IPRN=-1)
 {

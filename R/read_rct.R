@@ -1,9 +1,10 @@
 #' Read an MT3DMS chemical reaction package file
 #' 
-#' \code{read.rct} reads in an MT3DMS dispersion package file and returns it as an \code{\link{RMT3DMS}} rct object.
+#' \code{read_rct} reads in an MT3DMS dispersion package file and returns it as an \code{\link{RMT3DMS}} rct object.
 #' 
-#' @param file Filename; typically *.rct
-#' @return Object of class rct
+#' @param file filename; typically '*.rct'
+#' @param btn basic transport package file object
+#' @return object of class rct
 #' @importFrom readr read_lines
 #' @export
 read_rct <- function(file, btn)

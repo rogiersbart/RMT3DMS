@@ -1,9 +1,10 @@
 #' Read an MT3DMS sink & source mixing package file
 #' 
-#' \code{read.ssm} reads in an MT3DMS sink & source mixing package file and returns it as an \code{\link{RMT3DMS}} ssm object.
+#' \code{read_ssm} reads in an MT3DMS sink & source mixing package file and returns it as an \code{\link{RMT3DMS}} ssm object.
 #' 
-#' @param file Filename; typically *.ssm
-#' @return Object of class ssm
+#' @param file filename; typically '*.ssm'
+#' @param btn basic transport package file object
+#' @return object of class ssm
 #' @importFrom readr read_lines
 #' @export
 read_ssm <- function(file, btn)

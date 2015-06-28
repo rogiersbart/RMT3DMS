@@ -2,15 +2,17 @@
 #' 
 #' \code{plot.mt3dms_3d_array} plots a 2D section through a MT3DMS 3D array.
 #' 
-#' @param mt3dms_3d_array An object of class mt3dms_3d_array, or a 3D array
-#' @param mask A 3D icbund array with 1 or TRUE indicating active cells, and 0 or F indicating inactive cells
-#' @param layer The number of the layer to plot
+#' @param mt3dms_3d_array an object of class mt3dms_3d_array, or a 3D array
+#' @param i row number to plot
+#' @param j column number to plot
+#' @param k layer number to plot
+#' @param btn basic transport file object
+#' @param mask a 3D array with 0 or F indicating inactive cells; defaults to btn$ICBUND
+#' @param zlim vector of minimum and maximum value for the colour scale
 #' @param color.palette A color palette for imaging the parameter values
-#' @param zlim
-#' @param levels
-#' @param nlevels
-#' @param main
-#' @return None
+#' @param nlevels number of levels for the colour scale; defaults to 7
+#' @param ... arguments provided to plot.mt3dms_2d_array
+#' @return ggplot2 object or layer; if plot3D is TRUE, nothing is returned and the plot is made directly
 #' @method plot mt3dms_3d_array
 #' @export
 plot.mt3dms_3d_array <- function(mt3dms_3d_array, i=NULL, j=NULL, k=NULL, btn, mask=btn$ICBUND, zlim = range(mt3dms_3d_array[ifelse0(is.null(i),c(1:dim(mt3dms_3d_array)[1]),i),ifelse0(is.null(j),c(1:dim(mt3dms_3d_array)[2]),j),ifelse0(is.null(k),c(1:dim(mt3dms_3d_array)[3]),k)], finite=TRUE), color.palette=rev_rainbow, nlevels = 7, ...)

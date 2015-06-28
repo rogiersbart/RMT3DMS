@@ -1,9 +1,9 @@
 #' Read an MT3DMS generalized conjugate gradient solver package file
 #' 
-#' \code{read.gcg} reads in an MT3DMS generalized conjugate gradient solver package file and returns it as an \code{\link{RMT3DMS}} gcg object.
+#' \code{read_gcg} reads in an MT3DMS generalized conjugate gradient solver package file and returns it as an \code{\link{RMT3DMS}} gcg object.
 #' 
-#' @param file Filename; typically *.gcg
-#' @return Object of class gcg
+#' @param file filename; typically '*.gcg'
+#' @return object of class gcg
 #' @importFrom readr read_lines
 #' @export
 read_gcg <- function(file)

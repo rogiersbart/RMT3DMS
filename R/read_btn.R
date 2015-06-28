@@ -1,9 +1,9 @@
 #' Read an MT3DMS basic transport package file
 #' 
-#' \code{read.btn} reads in an MT3DMS basic transport package file and returns it as an \code{\link{RMT3DMS}} btn object.
+#' \code{read_btn} reads in an MT3DMS basic transport package file and returns it as an \code{\link{RMT3DMS}} btn object.
 #' 
-#' @param file Filename; typically *.btn
-#' @return Object of class btn
+#' @param file filename; typically '*.btn'
+#' @return object of class btn
 #' @importFrom readr read_lines
 #' @export
 read_btn <- function(file)

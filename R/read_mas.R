@@ -1,9 +1,9 @@
 #' Read an MT3DMS mass balance summary file
 #' 
-#' \code{read.mas} reads in an MT3DMS mass balance summary file and returns it as an \code{\link{RMT3DMS}} mas object.
+#' \code{read_mas} reads in an MT3DMS mass balance summary file and returns it as an \code{\link{RMT3DMS}} mas object.
 #' 
-#' @param file Filename; typically *.mas
-#' @return Object of class mas
+#' @param file filename; typically '*.mas'
+#' @return object of class mas
 #' @export
 read_mas <- function(file)
 {
