@@ -13,5 +13,5 @@
 #' @export
 convert_btn_to_real <- function(x=NULL,y=NULL,z=NULL,i=NULL,j=NULL,k=NULL,prj,btn=NULL)
 {
-  convert_real_to_dis(x=x,y=y,z=z,i=i,j=j,k=k,prj=prj,dis=btn)
+  convert_dis_to_real(x=x,y=y,z=z,i=i,j=j,k=k,prj=prj,dis=btn)
 }
