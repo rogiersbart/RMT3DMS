@@ -61,7 +61,7 @@ plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], col
         positions$y <- new_positions$y
       }
       if(!is.null(target_CRS)) {
-        positions <- convert_coordinates(data.frame(x=positions$x,y=positions$y),from=CRS(prj$projection),to=target_CRS)
+        positions <- convert_coordinates(positions,from=CRS(prj$projection),to=target_CRS)
       }
       datapoly <- merge(values, positions, by=c("id"))
       datapoly <- na.omit(datapoly)
