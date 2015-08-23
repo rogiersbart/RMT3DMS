@@ -25,26 +25,23 @@
 #' @import ggplot2 directlabels akima rgl RTOOLZ
 plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], colour_palette=rev_rainbow, zlim = range(mt3dms_2d_array[which(mask!=0)], finite=TRUE), levels = pretty(zlim, nlevels), nlevels = 7, type='fill', add=FALSE,plot3d=FALSE,height_exaggeration=100,binwidth=1,label=TRUE,prj=NULL,target_CRS=NULL,alpha=1,height=NULL)
 {
-  if(plot3d)
-  {
+  if(plot3d) {
     x <- (cumsum(btn$DELR)-btn$DELR/2)
     y <- sum(btn$DELC) - (cumsum(btn$DELC)-btn$DELC/2)
     z <- t(height)*height_exaggeration
-    if(!add) open3d()
+    if(!add) rgl::open3d()
     colorlut <- colour_palette(nlevels) # height color lookup table
     col <- colorlut[round(approx(seq(zlim[1],zlim[2],length=nlevels+1),seq(0.5,nlevels+0.5,length=nlevels+1),xout=c(z/height_exaggeration),rule=2)$y) ] # assign colors to heights for each point
     alpha <- rep(1,length(col))
     alpha[which(c(t(mask))==0)] <- 0
-    if(type=='fill') surface3d(x,y,z,color=col,alpha=alpha,back='lines',smooth=FALSE) 
-    if(type=='grid') surface3d(x,y,z,front='lines',alpha=alpha,back='lines',smooth=FALSE) 
-  } else
-  {
+    if(type=='fill') rgl::surface3d(x,y,z,color=col,alpha=alpha,back='lines',smooth=FALSE) 
+    if(type=='grid') rgl::surface3d(x,y,z,front='lines',alpha=alpha,back='lines',smooth=FALSE) 
+  } else {
     xy <- expand.grid(cumsum(btn$DELR)-btn$DELR/2,sum(btn$DELC)-(cumsum(btn$DELC)-btn$DELC/2))
     names(xy) <- c('x','y')
     mask[which(mask==0)] <- NA
     
-    if(type=='fill')
-    {  
+    if(type=='fill') {  
       ids <- factor(1:(btn$NROW*btn$NCOL))
       xWidth <- rep(btn$DELR,btn$NROW)
       yWidth <- rep(btn$DELC,each=btn$NCOL)
@@ -58,22 +55,17 @@ plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], col
       positions$y[(seq(3,nrow(positions),4))] <- positions$y[(seq(3,nrow(positions),4))] + yWidth/2
       positions$y[(seq(4,nrow(positions),4))] <- positions$y[(seq(4,nrow(positions),4))] - yWidth/2
       values <- data.frame(id = ids,value = c(t(mt3dms_2d_array*mask^2)))
-      if(!is.null(prj))
-      {
+      if(!is.null(prj)) {
         new_positions <- convert_btn_to_real(x=positions$x,y=positions$y,prj)
         positions$x <- new_positions$x
         positions$y <- new_positions$y
       }
-      if(!is.null(target_CRS))
-      {
-        new_positions <- addosmmerc(data.frame(x=positions$x,y=positions$y),CRS_from=CRS(prj$projection),CRS_to=target_CRS)
-        positions$x <- new_positions$Xosmmerc
-        positions$y <- new_positions$Yosmmerc                    
+      if(!is.null(target_CRS)) {
+        positions <- convert_coordinates(data.frame(x=positions$x,y=positions$y),from=CRS(prj$projection),to=target_CRS)
       }
       datapoly <- merge(values, positions, by=c("id"))
       datapoly <- na.omit(datapoly)
-      if(add)
-      {
+      if(add) {
         return(geom_polygon(aes(x=x,y=y,fill=value, group=id),data=datapoly,alpha=alpha)) # +
           #scale_fill_gradientn(colours=colour_palette(nlevels),limits=zlim))
       } else {
@@ -81,9 +73,7 @@ plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], col
           geom_polygon(aes(fill=value, group=id),alpha=alpha) +
           scale_fill_gradientn(colours=colour_palette(nlevels),limits=zlim))
       }
-    }
-    if(type=='contour')
-    {
+    } else if(type=='contour') {
       xy$z <- c(t(mt3dms_2d_array*mask^2))
       xyBackup <- xy
       xy <- na.omit(xy)
@@ -96,8 +86,7 @@ plot.mt3dms_2d_array <- function(mt3dms_2d_array, btn, mask=btn$ICBUND[,,1], col
       closestGridPoints <- apply(xy[,c('x','y')],1,function(x) which.min((x[1]-xyBackup$x)^2 + (x[2]-xyBackup$y)^2))
       xy$z[which(is.na(xyBackup$z[closestGridPoints]))] <- NA
       rm(xyBackup)
-      if(add)
-      {
+      if(add) {
         if(label) return(stat_contour(aes(x=x,y=y,z=z,colour = ..level..),data=xy,binwidth=binwidth))
         if(!label) return(stat_contour(aes(x=x,y=y,z=z),colour='black',data=xy,binwidth=binwidth))
       } else {
