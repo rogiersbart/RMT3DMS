@@ -40,7 +40,7 @@ read_ssm <- function(file, btn)
   ssm$ITYPE <- list()
   ssm$CSSMS <- list()
   
-  for(stress_period in 1:btn$NPER)
+  for(stress_period in 1:btn$nper)
   {
     # Data set D3
       if(ssm$FRCH)
@@ -52,9 +52,9 @@ read_ssm <- function(file, btn)
     # Data set D4
       if(ssm$FRCH & (ssm$INCRCH[stress_period] >= 0))
       {
-        dataSetD4 <- int_get_mt3dms_array(ssm.lines,btn$NROW,btn$NCOL,btn$NCOMP)
-        ssm.lines <- dataSetD4$remaining.lines
-        ssm$CRCH[[stress_period]] <- dataSetD4$mfarray
+        dataSetD4 <- read_mt3dms_array(ssm.lines,btn$nrow,btn$ncol,btn$ncomp)
+        ssm.lines <- dataSetD4$remaining_lines
+        ssm$CRCH[[stress_period]] <- dataSetD4$array
         rm(dataSetD4)
       }}
     
@@ -68,9 +68,9 @@ read_ssm <- function(file, btn)
     # Data set D6
       if(ssm$FEVT & (ssm$INCEVT[stress_period] >= 0))
       {
-        dataSetD6 <- int_get_mt3dms_array(ssm.lines,btn$NROW,btn$NCOL,btn$NCOMP)
-        ssm.lines <- dataSetD6$remaining.lines
-        ssm$CEVT[[stress_period]] <- dataSetD6$mfarray
+        dataSetD6 <- read_mt3dms_array(ssm.lines,btn$nrow,btn$ncol,btn$ncomp)
+        ssm.lines <- dataSetD6$remaining_lines
+        ssm$CEVT[[stress_period]] <- dataSetD6$array
         rm(dataSetD6)
       }}
     
@@ -96,7 +96,7 @@ read_ssm <- function(file, btn)
           ssm$JSS[[stress_period]][i] <- dataSetD8[3]
           ssm$CSS[[stress_period]][i] <- dataSetD8[4]
           ssm$ITYPE[[stress_period]][i] <- dataSetD8[5]
-          ssm$CSSMS[[stress_period]][[i]] <- dataSetD8[6:(6+btn$NCOMP-1)]
+          ssm$CSSMS[[stress_period]][[i]] <- dataSetD8[6:(6+btn$ncomp-1)]
           ssm.lines <- ssm.lines[-1] 
         }
       }

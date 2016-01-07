@@ -9,5 +9,6 @@ run_mt3dms <- function(file,mt3dms_executable='mt3dms5b')
 {
   dir <- dirname(file)
   file <- basename(file)
-  shell(paste('cd',dir,'&',mt3dms_executable,file),mustWork=TRUE) 
+  if(Sys.info()['sysname']=='Linux') system(paste('cd',dir,'&',modflow_executable,file))
+  if(Sys.info()['sysname']=='Windows') shell(paste('cd',dir,'&',modflow_executable,file),mustWork=TRUE)
 }

@@ -25,26 +25,26 @@ convert_real_to_btn <- function(x,y,prj,z=NULL,btn=NULL)
   {
     if(ncol(dat)==3)
     {
-      btn$BOTM <- btn$TOP <- btn$DZ
-      btn$BOTM[,,1] <- btn$HTOP - btn$DZ[,,1]
-      btn$TOP[,,1] <- btn$HTOP
-      for(k in 2:btn$NLAY)
+      btn$BOTM <- btn$TOP <- btn$dz
+      btn$BOTM[,,1] <- btn$htop - btn$dz[,,1]
+      btn$TOP[,,1] <- btn$htop
+      for(k in 2:btn$nlay)
       {
-        btn$BOTM[,,k] <- btn$BOTM[,,(k-1)] - btn$DZ[,,k]
+        btn$BOTM[,,k] <- btn$BOTM[,,(k-1)] - btn$dz[,,k]
         btn$TOP[,,k] <- btn$BOTM[,,(k-1)]
       }
     }
     for(i in 1:nrow(dat))
     {
-      dat$i[i] <- which(cumsum(btn$DELC) > sum(btn$DELC)-dat$y[i])[1]
-      dat$j[i] <- which(cumsum(btn$DELR) > dat$x[i])[1]
+      dat$i[i] <- which(cumsum(btn$delc) > sum(btn$delc)-dat$y[i])[1]
+      dat$j[i] <- which(cumsum(btn$delr) > dat$x[i])[1]
       
-      dat$roff[i] <- (sum(btn$DELC)-dat$y[i] -(cumsum(btn$DELC) - btn$DELC/2)[dat$i[i]])/btn$DELC[dat$i[i]]
-      dat$coff[i] <- (dat$x[i] -(cumsum(btn$DELR) - btn$DELR/2)[dat$j[i]])/btn$DELR[dat$j[i]]
+      dat$roff[i] <- (sum(btn$delc)-dat$y[i] -(cumsum(btn$delc) - btn$delc/2)[dat$i[i]])/btn$delc[dat$i[i]]
+      dat$coff[i] <- (dat$x[i] -(cumsum(btn$delr) - btn$delr/2)[dat$j[i]])/btn$delr[dat$j[i]]
       if(!is.null(z)) 
       {
         dat$k[i] <- which(btn$BOTM[dat$i[i],dat$j[i],] < dat$z[i])[1]
-        dat$loff[i] <- -(dat$z[i]-(btn$TOP[dat$i[i],dat$j[i],dat$k[i]]+btn$BOTM[dat$i[i],dat$j[i],dat$k[i]])/2)/btn$DZ[dat$i[i],dat$j[i],dat$k[i]]
+        dat$loff[i] <- -(dat$z[i]-(btn$TOP[dat$i[i],dat$j[i],dat$k[i]]+btn$BOTM[dat$i[i],dat$j[i],dat$k[i]])/2)/btn$dz[dat$i[i],dat$j[i],dat$k[i]]
       }
     }
   }

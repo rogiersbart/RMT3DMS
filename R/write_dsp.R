@@ -33,9 +33,9 @@ write_dsp <- function(dsp, file, btn, IPRN=-1)
   # Data set C4
     if(dsp$MultiDiffusion)
     {
-      for(comp in 1:btn$NCOMP)
+      for(comp in 1:btn$ncomp)
       {
-        for(i in 1:btn$NLAY)
+        for(i in 1:btn$nlay)
         {
           cat(paste('       103         1           (NOTUSED)', formatC(IPRN,width=10), '\n', sep=''), file=file, append=TRUE)
           write.table(dsp$DMCOEF[[comp]][,,i], file=file, append=TRUE, sep=' ', col.names=FALSE, row.names=FALSE)       

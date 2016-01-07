@@ -30,13 +30,13 @@ run_mt3dms_ss <- function(file,threshold,report=TRUE,report_plot=TRUE,maxit=100,
     } else {
       ucn <- read_ucn(paste0(dir,'/MT3D001S.UCN'),btn=btn)  
     }
-    ss <- rbind(ss,c(tail(ss[,1],1)+1,tail(ss[,2],1)+btn$PERLEN,max(btn$SCONC[[1]]-ucn$CNEW[[1]],na.rm=TRUE)))
+    ss <- rbind(ss,c(tail(ss[,1],1)+1,tail(ss[,2],1)+btn$perlen,max(btn$sconc[[1]]-ucn$CNEW[[1]],na.rm=TRUE)))
     if(tail(ss[,3],1) <= threshold) convergence <- TRUE
     if(report) print(tail(ss,1),row.names=FALSE)
     if(report_plot) print(plot(ss))
     if(!convergence)
     {
-      btn$SCONC[[1]] <- ucn$CNEW[[1]]
+      btn$sconc[[1]] <- ucn$CNEW[[1]]
       write_btn(btn,file=paste0(dir,'/',nam$Fname[which(nam$Ftype=='BTN')]))
     }
     it <- it+1

@@ -1,17 +1,15 @@
 Package: RMT3DMS
 Type: Package
 Title: Pre- and post-processing of MT3DMS files
-Version: 0.3.0
-Date: 2015-06-28
+Version: 0.3.0.9999
+Date: 2016-01-07
 Author: Bart Rogiers <brogiers@sckcen.be>
 Maintainer: Bart Rogiers <brogiers@sckcen.be>
 Description: The RMT3DMS package provides a set of tools for solute transport
     modelling with MT3DMS.
 License: GPL (>= 2)
 Imports:
+    RMODFLOW,
     ggplot2,
-    RTOOLZ,
     readr
-Depends:
-    RMODFLOW
 URL: https://github.com/rogiersbart/RMT3DMS

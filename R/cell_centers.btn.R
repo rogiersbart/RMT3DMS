@@ -8,11 +8,11 @@
 #' @export
 cell_centers.btn <- function(btn)
 {
-  cell_centers <- btn$DZ*NA
-  cell_centers[,,1] <- btn$HTOP-btn$DZ[,,1]/2
-  for(k in 2:btn$NLAY)
+  cell_centers <- btn$dz*NA
+  cell_centers[,,1] <- btn$htop-btn$dz[,,1]/2
+  for(k in 2:btn$nlay)
   {
-    cell_centers[,,k] <- cell_centers[,,(k-1)] - btn$DZ[,,(k-1)]/2 - btn$DZ[,,k]/2
+    cell_centers[,,k] <- cell_centers[,,(k-1)] - btn$dz[,,(k-1)]/2 - btn$dz[,,k]/2
   }
   return(cell_centers)
 }

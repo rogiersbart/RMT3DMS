@@ -23,18 +23,18 @@ read_rct <- function(file, btn)
   # Data set E2A
     if(rct$ISOTHM %in% c(1,2,3,4,6))
     {
-      dataSetE2A <- int_get_mt3dms_array(rct.lines,btn$NROW,btn$NCOL,btn$NLAY)
-      rct.lines <- dataSetE2A$remaining.lines
-      rct$RHOB <- dataSetE2A$mfarray
+      dataSetE2A <- read_mt3dms_array(rct.lines,btn$nrow,btn$ncol,btn$nlay)
+      rct.lines <- dataSetE2A$remaining_lines
+      rct$RHOB <- dataSetE2A$array
       rm(dataSetE2A)
     }
   
   # Data set E2B
     if(rct$ISOTHM %in% c(5,6))
     {
-      dataSetE2B <- int_get_mt3dms_array(rct.lines,btn$NROW,btn$NCOL,btn$NLAY)
-      rct.lines <- dataSetE2B$remaining.lines
-      rct$PRSITY2 <- dataSetE2B$mfarray
+      dataSetE2B <- read_mt3dms_array(rct.lines,btn$nrow,btn$ncol,btn$nlay)
+      rct.lines <- dataSetE2B$remaining_lines
+      rct$prsity2 <- dataSetE2B$array
       rm(dataSetE2B)
     }
   
@@ -42,11 +42,11 @@ read_rct <- function(file, btn)
     rct$SRCONC <- list()
     if(rct$IGETSC > 0)
     {
-      for(species in 1:btn$NCOMP)
+      for(species in 1:btn$ncomp)
       {
-        dataSetE2C <- int_get_mt3dms_array(rct.lines,btn$NROW,btn$NCOL,btn$NLAY)
-        rct.lines <- dataSetE2C$remaining.lines
-        rct$SRCONC[[species]] <- dataSetE2C$mfarray
+        dataSetE2C <- read_mt3dms_array(rct.lines,btn$nrow,btn$ncol,btn$nlay)
+        rct.lines <- dataSetE2C$remaining_lines
+        rct$SRCONC[[species]] <- dataSetE2C$array
         rm(dataSetE2C)
       }
     }
@@ -55,11 +55,11 @@ read_rct <- function(file, btn)
     rct$SP1 <- list()
     if(rct$ISOTHM > 0)
     {
-      for(species in 1:btn$NCOMP)
+      for(species in 1:btn$ncomp)
       {
-        dataSetE3 <- int_get_mt3dms_array(rct.lines,btn$NROW,btn$NCOL,btn$NLAY)
-        rct.lines <- dataSetE3$remaining.lines
-        rct$SP1[[species]] <- dataSetE3$mfarray
+        dataSetE3 <- read_mt3dms_array(rct.lines,btn$nrow,btn$ncol,btn$nlay)
+        rct.lines <- dataSetE3$remaining_lines
+        rct$SP1[[species]] <- dataSetE3$array
         rm(dataSetE3)
       }
     }
@@ -68,11 +68,11 @@ read_rct <- function(file, btn)
     rct$SP2 <- list()
     if(rct$ISOTHM > 0)
     {
-      for(species in 1:btn$NCOMP)
+      for(species in 1:btn$ncomp)
       {
-        dataSetE4 <- int_get_mt3dms_array(rct.lines,btn$NROW,btn$NCOL,btn$NLAY)
-        rct.lines <- dataSetE4$remaining.lines
-        rct$SP2[[species]] <- dataSetE4$mfarray
+        dataSetE4 <- read_mt3dms_array(rct.lines,btn$nrow,btn$ncol,btn$nlay)
+        rct.lines <- dataSetE4$remaining_lines
+        rct$SP2[[species]] <- dataSetE4$array
         rm(dataSetE4)
       }
     }
@@ -81,11 +81,11 @@ read_rct <- function(file, btn)
     rct$RC1 <- list()
     if(rct$IREACT > 0)
     {
-      for(species in 1:btn$NCOMP)
+      for(species in 1:btn$ncomp)
       {
-        dataSetE5 <- int_get_mt3dms_array(rct.lines,btn$NROW,btn$NCOL,btn$NLAY)
-        rct.lines <- dataSetE5$remaining.lines
-        rct$RC1[[species]] <- dataSetE5$mfarray
+        dataSetE5 <- read_mt3dms_array(rct.lines,btn$nrow,btn$ncol,btn$nlay)
+        rct.lines <- dataSetE5$remaining_lines
+        rct$RC1[[species]] <- dataSetE5$array
         rm(dataSetE5)
       }
     }
@@ -94,11 +94,11 @@ read_rct <- function(file, btn)
     rct$RC2 <- list()
     if(rct$IREACT > 0)
     {
-      for(species in 1:btn$NCOMP)
+      for(species in 1:btn$ncomp)
       {
-        dataSetE6 <- int_get_mt3dms_array(rct.lines,btn$NROW,btn$NCOL,btn$NLAY)
-        rct.lines <- dataSetE6$remaining.lines
-        rct$RC2[[species]] <- dataSetE6$mfarray
+        dataSetE6 <- read_mt3dms_array(rct.lines,btn$nrow,btn$ncol,btn$nlay)
+        rct.lines <- dataSetE6$remaining_lines
+        rct$RC2[[species]] <- dataSetE6$array
         rm(dataSetE6)
       }
     }
