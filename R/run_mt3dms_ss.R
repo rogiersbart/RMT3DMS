@@ -17,26 +17,23 @@ run_mt3dms_ss <- function(file,threshold,report=TRUE,report_plot=TRUE,maxit=100,
   if(is.null(ss)) ss <- data.frame(run=0,time=0,max_conc_diff=NA)
   attr(ss,'threshold') <- threshold
   class(ss) <- c('ss','data.frame')
-  convergence <- FALSE
+  convergence <- FalSE
   it <- 0
-  while(!convergence)
-  {
+  while(!convergence) {
     run_mt3dms(paste0(dir,'/',file),...)
     nam <- read_nam(paste0(dir,'/',file))
-    btn <- read_btn(paste0(dir,'/',nam$Fname[which(nam$Ftype=='BTN')]))
-    if(201 %in% nam$Nunit) 
-    {
-      ucn <- read_ucn(paste0(dir,'/',nam$Fname[which(nam$Nunit==201)]),btn=btn)
+    btn <- read_btn(paste0(dir,'/',nam$Fname[which(nam$ftype=='BTN')]))
+    if(201 %in% nam$nunit) {
+      ucn <- read_ucn(paste0(dir,'/',nam$Fname[which(nam$nunit==201)]),btn=btn)
     } else {
       ucn <- read_ucn(paste0(dir,'/MT3D001S.UCN'),btn=btn)  
     }
-    ss <- rbind(ss,c(tail(ss[,1],1)+1,tail(ss[,2],1)+btn$perlen,max(btn$sconc[[1]]-ucn$CNEW[[1]],na.rm=TRUE)))
+    ss <- rbind(ss,c(tail(ss[,1],1)+1,tail(ss[,2],1)+btn$perlen,max(btn$sconc[[1]]-ucn$cnew[[1]],na.rm=TRUE)))
     if(tail(ss[,3],1) <= threshold) convergence <- TRUE
-    if(report) print(tail(ss,1),row.names=FALSE)
+    if(report) print(tail(ss,1),row.names=FalSE)
     if(report_plot) print(plot(ss))
-    if(!convergence)
-    {
-      btn$sconc[[1]] <- ucn$CNEW[[1]]
+    if(!convergence) {
+      btn$sconc[[1]] <- ucn$cnew[[1]]
       write_btn(btn,file=paste0(dir,'/',nam$Fname[which(nam$Ftype=='BTN')]))
     }
     it <- it+1

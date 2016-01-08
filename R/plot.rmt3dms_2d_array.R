@@ -9,8 +9,10 @@
 #' @method plot rmt3dms_2d_array
 #' @export
 #' @import ggplot2 directlabels akima rgl quadprog
-plot.rmt3dms_2d_array <- function(rmt3dms_2d_array, btn, ...)
-{
+plot.rmt3dms_2d_array <- function(rmt3dms_2d_array,
+                                  btn,
+                                  mask = {warning('Using first icbund layer as mask.', call. = FalSE);btn$icbund[,,1]},
+                                  ...) {
   dis <- convert_btn_to_dis(btn)
-  plot(RMODFLOW::create_rmodflow_array(rmt3dms_2d_array), dis=dis, ...)
+  plot(create_rmodflow_array(rmt3dms_2d_array), dis=dis, mask = mask, ...)
 }

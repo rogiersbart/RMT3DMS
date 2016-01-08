@@ -6,26 +6,26 @@
 #' @return object of class gcg
 #' @importFrom readr read_lines
 #' @export
-read_gcg <- function(file)
-{
-  gcg.lines <- read_lines(file)
+read_gcg <- function(file = {cat('Please select gcg file...\n'); file.choose()}) {
+  
+  gcg_lines <- read_lines(file)
   gcg <- NULL
   
   # Data set F1
-    dataSetF1 <- as.numeric(remove_empty_strings(strsplit(gcg.lines[1],' ')[[1]]))
-    gcg$MXITER <- dataSetF1[1]
-    gcg$ITER1 <- dataSetF1[2]
-    gcg$ISOLVE <- dataSetF1[3]
-    gcg$NCRS <- dataSetF1[4]
-    gcg.lines <- gcg.lines[-1]  
+    data_set_f1 <- as.numeric(remove_empty_strings(strsplit(gcg_lines[1],' ')[[1]]))
+    gcg$mxiter <- data_set_f1[1]
+    gcg$iter1 <- data_set_f1[2]
+    gcg$isolve <- data_set_f1[3]
+    gcg$ncrs <- data_set_f1[4]
+    gcg_lines <- gcg_lines[-1]  
   
   # Data set F2
-    dataSetF2 <- as.numeric(remove_empty_strings(strsplit(gcg.lines[1],' ')[[1]]))
-    gcg$ACCL <- dataSetF2[1]
-    gcg$CCLOSE <- dataSetF2[2]
-    gcg$IPRGCG <- dataSetF2[3]
-    gcg.lines <- gcg.lines[-1]
-    rm(dataSetF2)
+    data_set_f2 <- as.numeric(remove_empty_strings(strsplit(gcg_lines[1],' ')[[1]]))
+    gcg$accl <- data_set_f2[1]
+    gcg$cclose <- data_set_f2[2]
+    gcg$iprgcg <- data_set_f2[3]
+    gcg_lines <- gcg_lines[-1]
+    rm(data_set_f2)
   
   class(gcg) <- c('gcg','mt3dms_package')
   return(gcg)

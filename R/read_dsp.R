@@ -7,53 +7,52 @@
 #' @return object of class dsp
 #' @importFrom readr read_lines
 #' @export
-read_dsp <- function(file, btn)
-{
+read_dsp <- function(file = {cat('Please select dsp file...\n'); file.choose()},
+                     btn = read_btn()) {
+  
   dsp.lines <- read_lines(file)
   dsp <- NULL
   
-  # MultiDiffusion option
+  # multidiffusion option
     multiDiffusionOption <- remove_empty_strings(strsplit(dsp.lines[1],' ')[[1]])
     if(multiDiffusionOption[2]=='MultiDiffusion')
     {
-      dsp$MultiDiffusion <- TRUE
+      dsp$multidiffusion <- TRUE
       dsp.lines <- dsp.lines[-1]
     }
   
   # Data set C1
-    dataSetC1 <- read_mt3dms_array(dsp.lines,btn$nrow,btn$ncol,btn$nlay)
-    dsp$AL <- dataSetC1$array
-    dsp.lines <- dataSetC1$remaining_lines
-    rm(dataSetC1)
+    data_set_c1 <- read_mt3dms_array(dsp.lines,btn$nrow,btn$ncol,btn$nlay)
+    dsp$al <- data_set_c1$array
+    dsp.lines <- data_set_c1$remaining_lines
+    rm(data_set_c1)
  
   # Data set C2
-    dataSetC2 <- read_mt3dms_array(dsp.lines,1,btn$nlay,1)
-    dsp$TRPT <- dataSetC2$array
-    dsp.lines <- dataSetC2$remaining_lines
-    rm(dataSetC2)
+    data_set_c2 <- read_mt3dms_array(dsp.lines,1,btn$nlay,1)
+    dsp$trpt <- data_set_c2$array
+    dsp.lines <- data_set_c2$remaining_lines
+    rm(data_set_c2)
   
   # Data set C3
-    dataSetC3 <- read_mt3dms_array(dsp.lines,1,btn$nlay,1)
-    dsp$TRPV <- dataSetC3$array
-    dsp.lines <- dataSetC3$remaining_lines
-    rm(dataSetC3)
+    data_set_c3 <- read_mt3dms_array(dsp.lines,1,btn$nlay,1)
+    dsp$trpv <- data_set_c3$array
+    dsp.lines <- data_set_c3$remaining_lines
+    rm(data_set_c3)
   
   # Data set C4
-    if(dsp$MultiDiffusion)
-    {
-      dsp$DMCOEF <- list()
-      for(comp in 1:btn$ncomp)
-      {
-        dataSetC4 <- read_mt3dms_array(dsp.lines,btn$nrow,btn$ncol,btn$nlay)
-        dsp$DMCOEF[[comp]] <- dataSetC4$array
-        dsp.lines <- dataSetC4$remaining_lines
+    if(dsp$multidiffusion) {
+      dsp$dmcoef <- list()
+      for(comp in 1:btn$ncomp) {
+        data_set_c4 <- read_mt3dms_array(dsp.lines,btn$nrow,btn$ncol,btn$nlay)
+        dsp$dmcoef[[comp]] <- data_set_c4$array
+        dsp.lines <- data_set_c4$remaining_lines
       }
-      rm(dataSetC4)
+      rm(data_set_c4)
     } else {
-      dataSetC4 <- read_mt3dms_array(dsp.lines,1,btn$LAY,1)
-      dsp$DMCOEF <- dataSetC4$array
-      dsp.lines <- dataSetC4$remaining_lines
-      rm(dataSetC4)
+      data_set_c4 <- read_mt3dms_array(dsp.lines,1,btn$nlay,1)
+      dsp$dmcoef <- data_set_c4$array
+      dsp.lines <- data_set_c4$remaining_lines
+      rm(data_set_c4)
     }
 
   class(dsp) <- c('dsp','mt3dms_package')

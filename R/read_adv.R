@@ -6,60 +6,56 @@
 #' @return object of class adv
 #' @importFrom readr read_lines
 #' @export
-read_adv <- function(file)
-{
-  adv.lines <- read_lines(file)
+read_adv <- function(file = {cat('Please select adv file...\n'); file.choose()}) {
+  
+  adv_lines <- read_lines(file)
   adv <- NULL
  
   # Data set B1
-    dataSetB1 <- remove_empty_strings(strsplit(adv.lines[1],' ')[[1]])
-    adv.lines <- adv.lines[-1]  
-    adv$MIXELM <- as.numeric(dataSetB1[1])
-    adv$PERCEL <- as.numeric(dataSetB1[2])
-    adv$MXPART <- as.numeric(dataSetB1[3])
-    adv$NADVFD <- as.numeric(dataSetB1[4])
-    rm(dataSetB1)
+    data_set_b1 <- remove_empty_strings(strsplit(adv_lines[1],' ')[[1]])
+    adv_lines <- adv_lines[-1]  
+    adv$mixelm <- as.numeric(data_set_b1[1])
+    adv$percel <- as.numeric(data_set_b1[2])
+    adv$mxpart <- as.numeric(data_set_b1[3])
+    adv$nadvfd <- as.numeric(data_set_b1[4])
+    rm(data_set_b1)
   
   # Data set B2
-    if(adv$MIXELM %in% c(1,2,3))
-    {  
-      dataSetB2 <- remove_empty_strings(strsplit(adv.lines[1],' ')[[1]])
-      adv.lines <- adv.lines[-1]  
-      adv$ITRACK <- as.numeric(dataSetB2[1])
-      adv$WD <- as.numeric(dataSetB2[2])
-      rm(dataSetB2)
+    if(adv$mixelm %in% c(1,2,3)) {  
+      data_set_b2 <- remove_empty_strings(strsplit(adv_lines[1],' ')[[1]])
+      adv_lines <- adv_lines[-1]  
+      adv$itrack <- as.numeric(data_set_b2[1])
+      adv$wd <- as.numeric(data_set_b2[2])
+      rm(data_set_b2)
     }
   
   # Data set B3
-    if(adv$MIXELM %in% c(1,3))
-    {  
-      dataSetB3 <- remove_empty_strings(strsplit(adv.lines[1],' ')[[1]])
-      adv.lines <- adv.lines[-1]  
-      adv$DCEPS <- as.numeric(dataSetB3[1])
-      adv$NPLANE <- as.numeric(dataSetB3[2])
-      adv$NPL <- as.numeric(dataSetB3[3])
-      adv$NPH <- as.numeric(dataSetB3[4])
-      adv$NPMIN <- as.numeric(dataSetB3[5])
-      adv$NPMAX <- as.numeric(dataSetB3[6])
-      rm(dataSetB3)
+    if(adv$mixelm %in% c(1,3)) {  
+      data_set_b3 <- remove_empty_strings(strsplit(adv_lines[1],' ')[[1]])
+      adv_lines <- adv_lines[-1]  
+      adv$dceps <- as.numeric(data_set_b3[1])
+      adv$nplane <- as.numeric(data_set_b3[2])
+      adv$npl <- as.numeric(data_set_b3[3])
+      adv$nph <- as.numeric(data_set_b3[4])
+      adv$npmin <- as.numeric(data_set_b3[5])
+      adv$npmax <- as.numeric(data_set_b3[6])
+      rm(data_set_b3)
     }
   
   # Data set B4
-    if(adv$MIXELM %in% c(2,3))
-    {  
-      dataSetB4 <- remove_empty_strings(strsplit(adv.lines[1],' ')[[1]])
-      adv.lines <- adv.lines[-1]  
-      adv$INTERP <- as.numeric(dataSetB4[1])
-      adv$NLSINK <- as.numeric(dataSetB4[2])
-      adv$NPSINK <- as.numeric(dataSetB4[3])
-      rm(dataSetB4)
+    if(adv$mixelm %in% c(2,3)) {  
+      data_set_b4 <- remove_empty_strings(strsplit(adv_lines[1],' ')[[1]])
+      adv_lines <- adv_lines[-1]  
+      adv$interp <- as.numeric(data_set_b4[1])
+      adv$nlsink <- as.numeric(data_set_b4[2])
+      adv$npsink <- as.numeric(data_set_b4[3])
+      rm(data_set_b4)
     }
   
   # Data set B5
-    if(adv$MIXELM==3)
-    {  
-      adv$DCHMOC <- as.numeric(remove_empty_strings(strsplit(adv.lines[1],' ')[[1]]))
-      adv.lines <- adv.lines[-1]  
+    if(adv$mixelm==3) {  
+      adv$dchmoc <- as.numeric(remove_empty_strings(strsplit(adv_lines[1],' ')[[1]]))
+      adv_lines <- adv_lines[-1]  
     }
   
   class(adv) <- c('adv','mt3dms_package')

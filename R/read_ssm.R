@@ -7,97 +7,90 @@
 #' @return object of class ssm
 #' @importFrom readr read_lines
 #' @export
-read_ssm <- function(file, btn)
-{
-  ssm.lines <- read_lines(file)
+read_ssm <- function(file = {cat('Please select ssm file...\n'); file.choose()},
+                     btn = read_btn()) {
+  
+  ssm_lines <- read_lines(file)
   ssm <- NULL
   
   # Data set D1
-    dataSetD1 <- as.logical(remove_empty_strings(strsplit(ssm.lines[1],' ')[[1]]))
-    ssm$FWEL <- dataSetD1[1]
-    ssm$FDRN <- dataSetD1[2]
-    ssm$FRCH <- dataSetD1[3]
-    ssm$FEVT <- dataSetD1[4]
-    ssm$FRIV <- dataSetD1[5]
-    ssm$FGHB <- dataSetD1[6]
-    ssm$FNEW <- dataSetD1[7:10]
-    ssm.lines <- ssm.lines[-1]  
+    data_set_d1 <- as.logical(remove_empty_strings(strsplit(ssm_lines[1],' ')[[1]]))
+    ssm$fwel <- data_set_d1[1]
+    ssm$fdrn <- data_set_d1[2]
+    ssm$frch <- data_set_d1[3]
+    ssm$fevt <- data_set_d1[4]
+    ssm$friv <- data_set_d1[5]
+    ssm$fghb <- data_set_d1[6]
+    ssm$fnew <- data_set_d1[7:10]
+    ssm_lines <- ssm_lines[-1]  
   
   # Data set D2
-    ssm$MXSS <- as.numeric(remove_empty_strings(strsplit(ssm.lines[1],' ')[[1]]))
-    ssm.lines <- ssm.lines[-1]  
+    ssm$mxss <- as.numeric(remove_empty_strings(strsplit(ssm_lines[1],' ')[[1]]))
+    ssm_lines <- ssm_lines[-1]  
   
+  ssm$incrch <- NULL
+  ssm$crch <- list()
+  ssm$incevt <- NULL
+  ssm$cevt <- list()
+  ssm$nss <- NULL
+  ssm$kss <- list()
+  ssm$iss <- list()
+  ssm$jss <- list()
+  ssm$css <- list()
+  ssm$itype <- list()
+  ssm$cssms <- list()
   
-  ssm$INCRCH <- NULL
-  ssm$CRCH <- list()
-  ssm$INCEVT <- NULL
-  ssm$CEVT <- list()
-  ssm$NSS <- NULL
-  ssm$KSS <- list()
-  ssm$ISS <- list()
-  ssm$JSS <- list()
-  ssm$CSS <- list()
-  ssm$ITYPE <- list()
-  ssm$CSSMS <- list()
-  
-  for(stress_period in 1:btn$nper)
-  {
+  for(stress_period in 1:btn$nper) {
     # Data set D3
-      if(ssm$FRCH)
-      {
-        ssm$INCRCH[stress_period] <- as.numeric(remove_empty_strings(strsplit(ssm.lines[1],' ')[[1]]))
-        ssm.lines <- ssm.lines[-1] 
-      
-    
-    # Data set D4
-      if(ssm$FRCH & (ssm$INCRCH[stress_period] >= 0))
-      {
-        dataSetD4 <- read_mt3dms_array(ssm.lines,btn$nrow,btn$ncol,btn$ncomp)
-        ssm.lines <- dataSetD4$remaining_lines
-        ssm$CRCH[[stress_period]] <- dataSetD4$array
-        rm(dataSetD4)
-      }}
+      if(ssm$frch) {
+        ssm$incrch[stress_period] <- as.numeric(remove_empty_strings(strsplit(ssm_lines[1],' ')[[1]]))
+        ssm_lines <- ssm_lines[-1] 
+        
+        # Data set D4
+          if(ssm$frch & (ssm$incrch[stress_period] >= 0)) {
+            data_set_d4 <- read_mt3dms_array(ssm_lines,btn$nrow,btn$ncol,btn$ncomp)
+            ssm_lines <- data_set_d4$remaining_lines
+            ssm$crch[[stress_period]] <- data_set_d4$array
+            rm(data_set_d4)
+          }
+      }
     
     # Data set D5
-      if(ssm$FEVT)
-      {
-        ssm$INCEVT[stress_period] <- as.numeric(remove_empty_strings(strsplit(ssm.lines[1],' ')[[1]]))
-        ssm.lines <- ssm.lines[-1] 
-      
+      if(ssm$fevt) {
+        ssm$incevt[stress_period] <- as.numeric(remove_empty_strings(strsplit(ssm_lines[1],' ')[[1]]))
+        ssm_lines <- ssm_lines[-1] 
     
-    # Data set D6
-      if(ssm$FEVT & (ssm$INCEVT[stress_period] >= 0))
-      {
-        dataSetD6 <- read_mt3dms_array(ssm.lines,btn$nrow,btn$ncol,btn$ncomp)
-        ssm.lines <- dataSetD6$remaining_lines
-        ssm$CEVT[[stress_period]] <- dataSetD6$array
-        rm(dataSetD6)
-      }}
+        # Data set D6
+          if(ssm$fevt & (ssm$incevt[stress_period] >= 0)) {
+            data_set_d6 <- read_mt3dms_array(ssm_lines,btn$nrow,btn$ncol,btn$ncomp)
+            ssm_lines <- data_set_d6$remaining_lines
+            ssm$cevt[[stress_period]] <- data_set_d6$array
+            rm(data_set_d6)
+          }
+      }
     
     # Data set D7
-      ssm$NSS[stress_period] <- as.numeric(remove_empty_strings(strsplit(ssm.lines[1],' ')[[1]]))
-      ssm.lines <- ssm.lines[-1] 
+      ssm$nss[stress_period] <- as.numeric(remove_empty_strings(strsplit(ssm_lines[1],' ')[[1]]))
+      ssm_lines <- ssm_lines[-1] 
     
-    ssm$KSS[[stress_period]] <- rep(NA,ssm$NSS[stress_period])
-    ssm$ISS[[stress_period]] <- ssm$KSS
-    ssm$JSS[[stress_period]] <- ssm$KSS
-    ssm$CSS[[stress_period]] <- ssm$KSS
-    ssm$ITYPE[[stress_period]] <- ssm$KSS
-    ssm$CSSMS[[stress_period]] <- list()
+    ssm$kss[[stress_period]] <- rep(NA,ssm$nss[stress_period])
+    ssm$iss[[stress_period]] <- ssm$kss
+    ssm$jss[[stress_period]] <- ssm$kss
+    ssm$css[[stress_period]] <- ssm$kss
+    ssm$itype[[stress_period]] <- ssm$kss
+    ssm$cssms[[stress_period]] <- list()
     
     # Data set D8
-      if(ssm$NSS > 0)
-      {
-        for(i in 1:ssm$NSS[stress_period])
-        {
-          dataSetD8 <- as.logical(remove_empty_strings(strsplit(ssm.lines[1],' ')[[1]]))
-          ssm$KSS[[stress_period]][i] <- dataSetD8[1]
-          ssm$ISS[[stress_period]][i] <- dataSetD8[2]
-          ssm$JSS[[stress_period]][i] <- dataSetD8[3]
-          ssm$CSS[[stress_period]][i] <- dataSetD8[4]
-          ssm$ITYPE[[stress_period]][i] <- dataSetD8[5]
-          ssm$CSSMS[[stress_period]][[i]] <- dataSetD8[6:(6+btn$ncomp-1)]
-          ssm.lines <- ssm.lines[-1] 
+      if(ssm$nss > 0) {
+        for(i in 1:ssm$nss[stress_period]) {
+          data_set_d8 <- as.logical(remove_empty_strings(strsplit(ssm_lines[1],' ')[[1]]))
+          ssm$kss[[stress_period]][i] <- data_set_d8[1]
+          ssm$iss[[stress_period]][i] <- data_set_d8[2]
+          ssm$jss[[stress_period]][i] <- data_set_d8[3]
+          ssm$css[[stress_period]][i] <- data_set_d8[4]
+          ssm$itype[[stress_period]][i] <- data_set_d8[5]
+          ssm$cssms[[stress_period]][[i]] <- data_set_d8[6:(6+btn$ncomp-1)]
+          ssm_lines <- ssm_lines[-1] 
         }
       }
   }

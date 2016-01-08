@@ -5,10 +5,10 @@
 #' @param file filename; typically '*.mas'
 #' @return object of class mas
 #' @export
-read_mas <- function(file)
-{
+read_mas <- function(file = {cat('Please select mas file...\n'); file.choose()}) {
+  
   mas <- read.table(file,skip=2)
-  names(mas) <- c('TIME','TOTAL_IN','TOTAL_OUT','SOURCES','SINKS','NET_MASS_FROM_FLUID_STORAGE','TOTAL_MASS_IN_AQUIFER','DISCREPANCY_TOTAL_IN_OUT','DISCREPANCY_ALTERNATIVE')
+  names(mas) <- c('TIME','TOTal_IN','TOTal_OUT','SOURCES','SINKS','NET_MASS_FROM_FLUID_STORAGE','TOTal_MASS_IN_AQUIFER','DISCREPANCY_TOTal_IN_OUT','DISCREPANCY_alTERNATIVE')
   class(mas) <- c('mas','mt3dms_package')
   return(mas)
 }

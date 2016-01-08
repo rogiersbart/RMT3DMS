@@ -8,7 +8,7 @@
 write_btn <- function(btn, file, IPRN=-1)
 {
   # Data set A1
-    cat(paste(btn$headng[1], '\n'), file=file, append=FALSE)
+    cat(paste(btn$headng[1], '\n'), file=file, append=FalSE)
   
   # Data set A2
     cat(paste(btn$headng[2], '\n'), file=file, append=TRUE)
@@ -20,7 +20,7 @@ write_btn <- function(btn, file, IPRN=-1)
     cat(paste0(c(prettyChar(c(btn$tunit, btn$lunit, btn$munit),width=4), '\n'),collapse=''), file=file, append=TRUE)
    
   # Data set A5
-    cat(paste0(c(as.character(factor(btn$trnop,levels=c(TRUE,FALSE),labels=c(' T',' F'))), '\n'),collapse=''), file=file, append=TRUE)
+    cat(paste0(c(as.character(factor(btn$trnop,levels=c(TRUE,FalSE),labels=c(' T',' F'))), '\n'),collapse=''), file=file, append=TRUE)
   
   # Data set A6
     cat(paste0(c(prettyNum(c(btn$laycon),width=2), '\n'),collapse=''), file=file, append=TRUE) 
@@ -35,45 +35,45 @@ write_btn <- function(btn, file, IPRN=-1)
   
   # Data set A9
     cat(paste('       103         1           (NOTUSED)', formatC(IPRN,width=10), '\n', sep=''), file=file, append=TRUE)
-    write.table(btn$htop, file=file, append=TRUE, sep=' ', col.names=FALSE, row.names=FALSE)   
+    write.table(btn$htop, file=file, append=TRUE, sep=' ', col.names=FalSE, row.names=FalSE)   
   
   # Data set A10
     for(i in 1:dim(btn$dz)[3])
     {
       cat(paste('       103         1           (NOTUSED)', formatC(IPRN,width=10), '\n', sep=''), file=file, append=TRUE)
-      write.table(btn$dz[,,i], file=file, append=TRUE, sep=' ', col.names=FALSE, row.names=FALSE)       
+      write.table(btn$dz[,,i], file=file, append=TRUE, sep=' ', col.names=FalSE, row.names=FalSE)       
     }
   
   # Data set A11
     for(i in 1:dim(btn$prsity)[3])
     {
       cat(paste('       103         1           (NOTUSED)', formatC(IPRN,width=10), '\n', sep=''), file=file, append=TRUE)
-      write.table(btn$prsity[,,i], file=file, append=TRUE, sep=' ', col.names=FALSE, row.names=FALSE)       
+      write.table(btn$prsity[,,i], file=file, append=TRUE, sep=' ', col.names=FalSE, row.names=FalSE)       
     }
   
   # Data set A12
     for(i in 1:dim(btn$icbund)[3])
     {
       cat(paste('       103         1           (NOTUSED)', formatC(IPRN,width=10), '\n', sep=''), file=file, append=TRUE)
-      write.table(btn$icbund[,,i], file=file, append=TRUE, sep=' ', col.names=FALSE, row.names=FALSE)       
+      write.table(btn$icbund[,,i], file=file, append=TRUE, sep=' ', col.names=FalSE, row.names=FalSE)       
     }
   
   # Data set A13
     for(species in 1:btn$ncomp)
     {
-      btn$sconc[[species]][which(is.na(btn$sconc[[species]]))] <- btn$CINACT
+      btn$sconc[[species]][which(is.na(btn$sconc[[species]]))] <- btn$cinact
       for(i in 1:dim(btn$sconc[[species]])[3])
       {
         cat(paste('       103         1           (NOTUSED)', formatC(IPRN,width=10), '\n', sep=''), file=file, append=TRUE)
-        write.table(btn$sconc[[species]][,,i], file=file, append=TRUE, sep=' ', col.names=FALSE, row.names=FALSE)       
+        write.table(btn$sconc[[species]][,,i], file=file, append=TRUE, sep=' ', col.names=FalSE, row.names=FalSE)       
       }
     }
   
   # Data set A14
-    cat(paste0(c(prettyNum(c(btn$CINACT,btn$THKMIN),width=10), '\n'),collapse=''), file=file, append=TRUE)
+    cat(paste0(c(prettyNum(c(btn$cinact,btn$thkmin),width=10), '\n'),collapse=''), file=file, append=TRUE)
   
   # Data set A15
-    cat(paste0(c(prettyNum(c(btn$IFMTCN,btn$IFMTNP,btn$IFMTRF,btn$IFMTDP),width=10),ifelse(btn$SAVUCN,'         T','         F'), '\n'),collapse=''), file=file, append=TRUE)
+    cat(paste0(c(prettyNum(c(btn$ifmtcn,btn$ifmtnp,btn$ifmtrf,btn$ifmtdp),width=10),ifelse(btn$savucn,'         T','         F'), '\n'),collapse=''), file=file, append=TRUE)
   
   # Data set A16
     cat(paste0(c(prettyNum(c(btn$nprs),width=10), '\n'),collapse=''), file=file, append=TRUE)

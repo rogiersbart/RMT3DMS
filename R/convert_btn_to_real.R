@@ -11,7 +11,13 @@
 #' @details Provide either xyz or ijk
 #' @return data frame with real world x and y coordinates
 #' @export
-convert_btn_to_real <- function(x=NULL,y=NULL,z=NULL,i=NULL,j=NULL,k=NULL,prj,btn=NULL)
-{
-  convert_dis_to_real(x=x,y=y,z=z,i=i,j=j,k=k,prj=prj,dis=btn)
+convert_btn_to_real <- function(x = NULL,
+                                y = NULL,
+                                z = NULL,
+                                i = NULL,
+                                j = NULL,
+                                k = NULL,
+                                prj,
+                                btn = NULL) {
+  RMODFLOW::convert_dis_to_real(x=x,y=y,z=z,i=i,j=j,k=k,prj=prj,dis=convert_btn_to_dis(btn))
 }

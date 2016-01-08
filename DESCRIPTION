@@ -13,3 +13,4 @@ Imports:
     ggplot2,
     readr
 URL: https://github.com/rogiersbart/RMT3DMS
+RoxygenNote: 5.0.1
