@@ -4,7 +4,8 @@
 \alias{read_adv}
 \title{Read an MT3DMS advection package file}
 \usage{
-read_adv(file)
+read_adv(file = {     cat("Please select adv file ...\\n")     file.choose()
+  })
 }
 \arguments{
 \item{file}{filename; typically '*.adv'}

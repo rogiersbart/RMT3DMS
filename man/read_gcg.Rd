@@ -4,7 +4,8 @@
 \alias{read_gcg}
 \title{Read an MT3DMS generalized conjugate gradient solver package file}
 \usage{
-read_gcg(file)
+read_gcg(file = {     cat("Please select gcg file ...\\n")     file.choose()
+  })
 }
 \arguments{
 \item{file}{filename; typically '*.gcg'}

@@ -4,14 +4,16 @@
 \alias{write_gcg}
 \title{Write an MT3DMS generalized conjugate gradient solver package file}
 \usage{
-write_gcg(gcg, file, IPRN = -1)
+write_gcg(gcg, file = {    
+  cat("Please select gcg file to overwrite or provide new filename ...\\n")    
+  file.choose() }, iprn = -1)
 }
 \arguments{
 \item{gcg}{an \code{\link{RMT3DMS}} gcg object}
 
 \item{file}{filename to write to; typically '*.gcg'}
 
-\item{IPRN}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
+\item{iprn}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
 }
 \value{
 \code{NULL}

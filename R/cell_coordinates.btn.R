@@ -8,7 +8,7 @@
 #' @importFrom RMODFLOW cell_coordinates
 #' @export
 cell_coordinates.btn <- function(btn,
-                                 include_faces = FalSE) {
+                                 include_faces = FALSE) {
   dis <- convert_btn_to_dis(btn)
   return(cell_coordinates(dis = dis, include_faces = include_faces))
 }

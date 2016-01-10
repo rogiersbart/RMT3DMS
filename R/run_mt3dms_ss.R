@@ -17,7 +17,7 @@ run_mt3dms_ss <- function(file,threshold,report=TRUE,report_plot=TRUE,maxit=100,
   if(is.null(ss)) ss <- data.frame(run=0,time=0,max_conc_diff=NA)
   attr(ss,'threshold') <- threshold
   class(ss) <- c('ss','data.frame')
-  convergence <- FalSE
+  convergence <- FALSE
   it <- 0
   while(!convergence) {
     run_mt3dms(paste0(dir,'/',file),...)
@@ -30,7 +30,7 @@ run_mt3dms_ss <- function(file,threshold,report=TRUE,report_plot=TRUE,maxit=100,
     }
     ss <- rbind(ss,c(tail(ss[,1],1)+1,tail(ss[,2],1)+btn$perlen,max(btn$sconc[[1]]-ucn$cnew[[1]],na.rm=TRUE)))
     if(tail(ss[,3],1) <= threshold) convergence <- TRUE
-    if(report) print(tail(ss,1),row.names=FalSE)
+    if(report) print(tail(ss,1),row.names=FALSE)
     if(report_plot) print(plot(ss))
     if(!convergence) {
       btn$sconc[[1]] <- ucn$cnew[[1]]

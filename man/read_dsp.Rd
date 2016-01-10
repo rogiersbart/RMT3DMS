@@ -4,7 +4,8 @@
 \alias{read_dsp}
 \title{Read an MT3DMS dispersion package file}
 \usage{
-read_dsp(file, btn)
+read_dsp(file = {     cat("Please select dsp file ...\\n")     file.choose()
+  }, btn = read_btn())
 }
 \arguments{
 \item{file}{filename; typically '*.dsp'}

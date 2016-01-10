@@ -4,14 +4,16 @@
 \alias{write_adv}
 \title{Write an MT3DMS advection package file}
 \usage{
-write_adv(adv, file, IPRN = -1)
+write_adv(adv, file = {    
+  cat("Please select adv file to overwrite or provide new filename ...\\n")    
+  file.choose() }, iprn = -1)
 }
 \arguments{
 \item{adv}{an \code{\link{RMT3DMS}} adv object}
 
 \item{file}{filename to write to; typically '*.adv'}
 
-\item{IPRN}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
+\item{iprn}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
 }
 \value{
 \code{NULL}

@@ -2,11 +2,13 @@
 #' 
 #' @param gcg an \code{\link{RMT3DMS}} gcg object
 #' @param file filename to write to; typically '*.gcg'
-#' @param IPRN format code for printing arrays in the listing file; defaults to -1 (no printing)
+#' @param iprn format code for printing arrays in the listing file; defaults to -1 (no printing)
 #' @return \code{NULL}
 #' @export
-write_gcg <- function(gcg, file, IPRN=-1)
-{
+write_gcg <- function(gcg,
+                      file = {cat('Please select gcg file to overwrite or provide new filename ...\n'); file.choose()},
+                      iprn=-1) {
+  
   # Data set F1
     cat(paste0(c(prettyNum(c(gcg$mxiter,gcg$iter1,gcg$isolve,gcg$ncrs),width=10), '\n'),collapse=''), file=file)
   

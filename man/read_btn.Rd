@@ -4,7 +4,8 @@
 \alias{read_btn}
 \title{Read an MT3DMS basic transport package file}
 \usage{
-read_btn(file = {     cat("Please select btn file...\\n")     file.choose() })
+read_btn(file = {     cat("Please select btn file ...\\n")     file.choose()
+  })
 }
 \arguments{
 \item{file}{filename; typically '*.btn'}

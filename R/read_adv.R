@@ -6,7 +6,7 @@
 #' @return object of class adv
 #' @importFrom readr read_lines
 #' @export
-read_adv <- function(file = {cat('Please select adv file...\n'); file.choose()}) {
+read_adv <- function(file = {cat('Please select adv file ...\n'); file.choose()}) {
   
   adv_lines <- read_lines(file)
   adv <- NULL

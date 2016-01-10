@@ -6,7 +6,7 @@
 #' @return object of class gcg
 #' @importFrom readr read_lines
 #' @export
-read_gcg <- function(file = {cat('Please select gcg file...\n'); file.choose()}) {
+read_gcg <- function(file = {cat('Please select gcg file ...\n'); file.choose()}) {
   
   gcg_lines <- read_lines(file)
   gcg <- NULL

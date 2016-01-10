@@ -7,7 +7,7 @@
 #' @return object of class dsp
 #' @importFrom readr read_lines
 #' @export
-read_dsp <- function(file = {cat('Please select dsp file...\n'); file.choose()},
+read_dsp <- function(file = {cat('Please select dsp file ...\n'); file.choose()},
                      btn = read_btn()) {
   
   dsp.lines <- read_lines(file)

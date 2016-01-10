@@ -4,7 +4,8 @@
 \alias{read_mas}
 \title{Read an MT3DMS mass balance summary file}
 \usage{
-read_mas(file)
+read_mas(file = {     cat("Please select mas file ...\\n")     file.choose()
+  })
 }
 \arguments{
 \item{file}{filename; typically '*.mas'}

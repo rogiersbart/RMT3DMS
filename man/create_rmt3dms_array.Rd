@@ -8,6 +8,8 @@ create_rmt3dms_array(obj = NA, dim = NULL)
 }
 \arguments{
 \item{obj}{object to add class to}
+
+\item{dim}{the dim attribute for the array to be created; by default, dim(obj) is used}
 }
 \description{
 Add rmt3dms array class to object based on object dimensions

@@ -4,14 +4,16 @@
 \alias{write_btn}
 \title{Write an MT3DMS basic transport package file}
 \usage{
-write_btn(btn, file, IPRN = -1)
+write_btn(btn, file = {    
+  cat("Please select btn file to overwrite or provide new filename ...\\n")    
+  file.choose() }, iprn = -1)
 }
 \arguments{
 \item{btn}{an \code{\link{RMT3DMS}} btn object}
 
 \item{file}{filename to write to; typically '*.btn'}
 
-\item{IPRN}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
+\item{iprn}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
 }
 \value{
 \code{NULL}

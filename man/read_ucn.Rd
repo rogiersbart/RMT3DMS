@@ -4,7 +4,8 @@
 \alias{read_ucn}
 \title{Read an MT3DMS unformatted concentration file}
 \usage{
-read_ucn(file, btn)
+read_ucn(file = {     cat("Please select ucn file ...\\n")     file.choose()
+  }, btn = read_btn())
 }
 \arguments{
 \item{file}{filename; typically '*.ucn'}

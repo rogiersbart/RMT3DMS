@@ -2,12 +2,12 @@
 #' 
 #' @param adv an \code{\link{RMT3DMS}} adv object
 #' @param file filename to write to; typically '*.adv'
-#' @param IPRN format code for printing arrays in the listing file; defaults to -1 (no printing)
+#' @param iprn format code for printing arrays in the listing file; defaults to -1 (no printing)
 #' @return \code{NULL}
 #' @export
 write_adv <- function(adv,
-                      file,
-                      IPRN=-1) {
+                      file = {cat('Please select adv file to overwrite or provide new filename ...\n'); file.choose()},
+                      iprn=-1) {
   
   # Data set B1
     cat(paste0(c(prettyNum(c(adv$mixelm,adv$percel,adv$mxpart,adv$nadvfd),width=10), '\n'),collapse=''), file=file)

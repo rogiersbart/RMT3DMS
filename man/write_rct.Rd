@@ -4,7 +4,9 @@
 \alias{write_rct}
 \title{Write an MT3DMS file}
 \usage{
-write_rct(rct, file, btn, IPRN = -1)
+write_rct(rct, file = {    
+  cat("Please select rct file to overwrite or provide new filename ...\\n")    
+  file.choose() }, btn, iprn = -1)
 }
 \arguments{
 \item{rct}{an \code{\link{RMT3DMS}} rct object}
@@ -13,7 +15,7 @@ write_rct(rct, file, btn, IPRN = -1)
 
 \item{btn}{an \code{\link{RMT3DMS}} btn object}
 
-\item{IPRN}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
+\item{iprn}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
 }
 \value{
 \code{NULL}

@@ -7,7 +7,7 @@
 #' @return object of class ssm
 #' @importFrom readr read_lines
 #' @export
-read_ssm <- function(file = {cat('Please select ssm file...\n'); file.choose()},
+read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choose()},
                      btn = read_btn()) {
   
   ssm_lines <- read_lines(file)

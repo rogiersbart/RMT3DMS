@@ -11,8 +11,8 @@
 #' @export
 cell_dimensions.btn <- function(btn,
                                 hed = NULL,
-                                include_volume = FalSE,
-                                include_faces = FalSE) {
+                                include_volume = FALSE,
+                                include_faces = FALSE) {
   dis <- convert_btn_to_dis(btn)
   return(cell_dimensions(dis = dis, hed = hed, include_volume = include_volume, include_faces = include_faces))
 }

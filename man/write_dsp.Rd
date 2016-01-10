@@ -4,7 +4,9 @@
 \alias{write_dsp}
 \title{Write an MT3DMS dispersion package file}
 \usage{
-write_dsp(dsp, file, btn, IPRN = -1)
+write_dsp(dsp, file = {    
+  cat("Please select dsp file to overwrite or provide new filename ...\\n")    
+  file.choose() }, btn, iprn = -1)
 }
 \arguments{
 \item{dsp}{an \code{\link{RMT3DMS}} dsp object}
@@ -13,7 +15,7 @@ write_dsp(dsp, file, btn, IPRN = -1)
 
 \item{btn}{an \code{\link{RMT3DMS}} btn object}
 
-\item{IPRN}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
+\item{iprn}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
 }
 \value{
 \code{NULL}

@@ -7,7 +7,7 @@
 #' @return object of class rct
 #' @importFrom readr read_lines
 #' @export
-read_rct <- function(file = {cat('Please select rct file...\n'); file.choose()},
+read_rct <- function(file = {cat('Please select rct file ...\n'); file.choose()},
                      btn = read_btn()) {
   
   rct_lines <- read_lines(file)

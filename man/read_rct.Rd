@@ -4,7 +4,8 @@
 \alias{read_rct}
 \title{Read an MT3DMS chemical reaction package file}
 \usage{
-read_rct(file, btn)
+read_rct(file = {     cat("Please select rct file ...\\n")     file.choose()
+  }, btn = read_btn())
 }
 \arguments{
 \item{file}{filename; typically '*.rct'}

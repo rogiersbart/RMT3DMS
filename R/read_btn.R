@@ -6,7 +6,7 @@
 #' @return object of class btn
 #' @importFrom readr read_lines
 #' @export
-read_btn <- function(file = {cat('Please select btn file...\n'); file.choose()}) {
+read_btn <- function(file = {cat('Please select btn file ...\n'); file.choose()}) {
   
   btn_lines <- read_lines(file)
   btn <- NULL
@@ -164,8 +164,8 @@ read_btn <- function(file = {cat('Please select btn file...\n'); file.choose()})
       btn$nstp[i] <- as.numeric(data_set_a21[2])
       btn$tsmult[i] <- as.numeric(data_set_a21[3])
       if(btn$nper==1) {
-        btn$sstate <- ifelse(as.character(data_set_a21[4])=='SSTATE',TRUE,FalSE)
-        if(is.na(btn$sstate)) btn$sstate <- FalSE
+        btn$sstate <- ifelse(as.character(data_set_a21[4])=='SSTATE',TRUE,FALSE)
+        if(is.na(btn$sstate)) btn$sstate <- FALSE
       }
       btn_lines <- btn_lines[-1]
       rm(data_set_a21)

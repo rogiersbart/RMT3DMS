@@ -4,7 +4,9 @@
 \alias{write_ssm}
 \title{Write an MT3DMS file}
 \usage{
-write_ssm(ssm, file, btn, IPRN = -1)
+write_ssm(ssm, file = {    
+  cat("Please select ssm file to overwrite or provide new filename ...\\n")    
+  file.choose() }, btn, iprn = -1)
 }
 \arguments{
 \item{ssm}{an \code{\link{RMT3DMS}} ssm object}
@@ -13,7 +15,7 @@ write_ssm(ssm, file, btn, IPRN = -1)
 
 \item{btn}{an \code{\link{RMT3DMS}} btn object}
 
-\item{IPRN}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
+\item{iprn}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
 }
 \value{
 \code{NULL}

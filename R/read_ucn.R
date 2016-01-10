@@ -6,7 +6,7 @@
 #' @param btn basic transport package file object
 #' @return object of class ucn
 #' @export
-read_ucn <- function(file = {cat('Please select ucn file...\n'); file.choose()},
+read_ucn <- function(file = {cat('Please select ucn file ...\n'); file.choose()},
                      btn = read_btn()) {
   
   ucn <- NULL
