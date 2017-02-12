@@ -1,0 +1,7 @@
+templates:
+  params:
+    bootswatch: united
+    
+authors:
+  Bart Rogiers:
+    href: https://rogiersbart.github.io/

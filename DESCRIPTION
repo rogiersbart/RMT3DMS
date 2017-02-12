@@ -3,6 +3,7 @@ Type: Package
 Title: Pre- and post-processing of MT3DMS files
 Version: 0.3.0.9999
 Date: 2016-01-07
+Authors@R: person("Bart", "Rogiers", role = c("aut", "cre"), email = "brogiers@sckcen.be")
 Author: Bart Rogiers <brogiers@sckcen.be>
 Maintainer: Bart Rogiers <brogiers@sckcen.be>
 Description: The RMT3DMS package provides a set of tools for solute transport
@@ -13,4 +14,5 @@ Imports:
     ggplot2,
     readr
 URL: https://github.com/rogiersbart/RMT3DMS
+BugReports: https://github.com/rogiersbart/RMT3DMS/issues
 RoxygenNote: 5.0.1
