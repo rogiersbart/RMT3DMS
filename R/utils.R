@@ -1,52 +1,4 @@
 
-#' Get cell x, y and z coordinates from a btn object
-#' 
-#' @param btn btn object
-#' @param include_faces logical; should face coordinates be included?
-#' @return list with cell coordinate 3d arrays
-#' @rdname cell_coordinates
-#' @method cell_coordinates btn
-#' @importFrom RMODFLOW cell_coordinates
-#' @export
-rmt_cell_coordinates.btn <- function(btn,
-                                 include_faces = FALSE) {
-  dis <- rmt_convert_btn_to_dis(btn)
-  return(RMODFLOW::rmf_cell_coordinates(dis = dis, include_faces = include_faces))
-}
-
-#' @describeIn rmt_cell_coordinates.btn Deprecated function name
-#' @export
-cell_coordinates.btn <- function(...) {
-  .Deprecated(new = "rmt_cell_coordinates.btn", old = "cell_coordinates.btn")
-  rmt_cell_coordinates.btn(...)
-}
-
-#' Get cell dimensions from a btn object
-#' 
-#' @param btn btn object
-#' @param hed hed object, used for calculating the saturated thickness; if not specified, the regular cell thickness is returned
-#' @param include_volume logical; should the cell volumes be included?
-#' @param include_faces logical; should face areas be included?
-#' @return list with cell dimension 3d arrays
-#' @rdname cell_dimensions
-#' @method cell_dimensions btn
-#' @importFrom RMODFLOW cell_dimensions
-#' @export
-rmt_cell_dimensions.btn <- function(btn,
-                                    hed = NULL,
-                                    include_volume = FALSE,
-                                    include_faces = FALSE) {
-  dis <- rmt_convert_btn_to_dis(btn)
-  return(RMODFLOW::rmf_cell_dimensions(dis = dis, hed = hed, include_volume = include_volume, include_faces = include_faces))
-}
-
-#' @describeIn rmt_cell_dimensions.btn Deprecated function name
-#' @export
-cell_dimensions.btn <- function(...) {
-  .Deprecated(new = "rmt_cell_dimensions.btn", old = "cell_dimensions.btn")
-  rmt_cell_dimensions.btn(...)
-}
-
 #' Convert RMT3DMS btn to RMODFLOW dis object
 #' 
 #' @param btn btn object
@@ -83,37 +35,6 @@ convert_btn_to_dis <- function(...) {
   rmt_convert_btn_to_dis(...)
 }
 
-#' Convert mt3dms coordinates to real world coordinates
-#' 
-#' @param x mt3dms x coordinate
-#' @param y mt3dms y coordinate
-#' @param z mt3dms z coordinate
-#' @param i mt3dms row number
-#' @param j mt3dms column number
-#' @param k mt3dms layer number
-#' @param prj prj object
-#' @param btn btn object
-#' @details Provide either xyz or ijk
-#' @return data frame with real world x and y coordinates
-#' @export
-rmt_convert_grid_to_xyz <- function(x = NULL,
-                                    y = NULL,
-                                    z = NULL,
-                                    i = NULL,
-                                    j = NULL,
-                                    k = NULL,
-                                    prj,
-                                    btn = NULL) {
-  RMODFLOW::rmf_convert_grid_to_xyz(x=x,y=y,z=z,i=i,j=j,k=k,prj=prj,dis=rmt_convert_btn_to_dis(btn))
-}
-
-#' @describeIn rmt_convert_grid_to_xyz Deprecated function name
-#' @export
-convert_btn_to_real <- function(...) {
-  .Deprecated(new = "rmt_convert_grid_to_xyz", old = "convert_btn_to_real")
-  rmt_convert_grid_to_xyz(...)
-}
-
 
 #' Convert a RMODFLOW object to a RMT3DMS object
 #'
@@ -140,28 +61,6 @@ rmt_convert_rmf_to_rmt <- function(obj) {
   }
   
   return(obj)
-}
-
-#' Convert real world coordinates to mt3dms coordinates
-#' 
-#' @param x real world x coordinate
-#' @param y real world y coordinate
-#' @param prj prj object
-#' @param z real world z coordinate; optional
-#' @param btn btn object; optional
-#' @details
-#' If btn is not provided, only x, y and z coordinates are returned. If z is not provided, no third dimension coordinates are returned.
-#' @return data frame with x, y, z, i, j, k, roff, coff and loff modflow coordinates
-#' @export
-rmt_convert_xyz_to_grid <- function(x,y,prj,z=NULL,btn=NULL) {
-  RMODFLOW::rmf_convert_xyz_to_grid(x = x, y = y, prj = prj, z = z, dis = rmt_convert_btn_to_dis(btn))
-}
-
-#' @describeIn rmt_convert_xyz_to_grid Deprecated function name
-#' @export
-convert_real_to_btn <- function(...) {
-  .Deprecated(new = "rmt_convert_xyz_to_grid", old = "convert_real_to_btn")
-  rmt_convert_xyz_to_grid(...)
 }
 
 #' Add rmt3dms array class to object based on object dimensions
