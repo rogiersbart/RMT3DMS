@@ -28,14 +28,6 @@ rmt_convert_btn_to_dis <- function(btn) {
   return(dis)
 }
 
-#' @describeIn rmt_convert_btn_to_dis Deprecated function name
-#' @export
-convert_btn_to_dis <- function(...) {
-  .Deprecated(new = "rmt_convert_btn_to_dis", old = "convert_btn_to_dis")
-  rmt_convert_btn_to_dis(...)
-}
-
-
 #' Convert a RMODFLOW object to a RMT3DMS object
 #'
 #' \code{rmf_convert_rmf_to_rmt} converts the class of a RMODFLOW object to the corresponding RMT3DMS class
@@ -84,13 +76,6 @@ rmt_create_array <- function(obj = NA,
   array <- rmt_convert_rmf_to_rmt(array)
   attr(array, 'solute') <- solute
   return(array)
-}
-
-#' @describeIn rmt_create_array Deprecated function name
-#' @export
-create_rmt3dms_array <- function(...) {
-  .Deprecated(new = "rmt_create_array", old = "create_rmt3dms_array")
-  rmt_create_array(...)
 }
 
 #' @export

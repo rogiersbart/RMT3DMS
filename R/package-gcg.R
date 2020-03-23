@@ -31,13 +31,6 @@ rmt_read_gcg <- function(file = {cat('Please select gcg file ...\n'); file.choos
   return(gcg)
 }
 
-#' @describeIn rmt_read_gcg Deprecated function name
-#' @export
-read_gcg <- function(...) {
-  .Deprecated(new = "rmt_read_gcg", old = "read_gcg")
-  rmt_read_gcg(...)
-}
-
 #' Write an MT3DMS generalized conjugate gradient solver package file
 #' 
 #' @param gcg an \code{\link{RMT3DMS}} gcg object
@@ -52,11 +45,4 @@ rmt_write_gcg <- function(gcg,
   
   # Data set 2
   rmti_write_variables(gcg$accl, gcg$cclose, gcg$iprgcg, file = file)
-}
-
-#' @describeIn rmt_write_gcg Deprecated function name
-#' @export
-write_gcg <- function(...) {
-  .Deprecated(new = "rmt_write_gcg", old = "write_gcg")
-  rmt_write_gcg(...)
 }

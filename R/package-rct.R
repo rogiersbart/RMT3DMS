@@ -96,13 +96,6 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   return(rct)
 }
 
-#' @describeIn rmt_read_rct Deprecated function name
-#' @export
-read_rct <- function(...) {
-  .Deprecated(new = "rmt_read_rct", old = "read_rct")
-  rmt_read_rct(...)
-}
-
 #' Write an MT3DMS file
 #' 
 #' @param rct an \code{\link{RMT3DMS}} rct object
@@ -184,11 +177,4 @@ rmt_write_rct <- function(rct,
       }
     }
   }
-}
-
-#' @describeIn rmt_write_rct Deprecated function name
-#' @export
-write_rct <- function(...) {
-  .Deprecated(new = "rmt_write_rct", old = "write_rct")
-  rmt_write_rct(...)
 }

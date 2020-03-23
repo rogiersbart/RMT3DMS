@@ -297,13 +297,6 @@ rmti_parse_variables <- function(remaining_lines, n, width = 10, nlay = NULL, ch
   return(list(variables=variables,remaining_lines=remaining_lines[-1]))
 }
 
-#' @describeIn rmti_parse_variables Deprecated function name
-#' @export
-read_mt3dms_variables <- function(...) {
-  .Deprecated(new = "rmti_parse_variables", old = "read_mt3dms_variables")
-  rmti_parse_variables(...)
-}
-
 #' Remove comments at the end of a string
 #' @param line A string.
 #' @return The string, without the commented part.
@@ -318,13 +311,6 @@ rmti_remove_comments_end_of_line <- function(line) {
 #' @return Vector of strings without the empty items.
 rmti_remove_empty_strings <- function(vector_of_strings) {
   return(vector_of_strings[which(vector_of_strings!='')])
-}
-
-#' @describeIn rmti_remove_empty_strings Deprecated function name
-#' @export
-remove_empty_strings <- function(...) {
-  .Deprecated(new = "rmti_remove_empty_strings", old = "remove_empty_strings")
-  rmti_remove_empty_strings(...)
 }
 
 #' Write mt3dms array

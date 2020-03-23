@@ -26,14 +26,13 @@ rmt_plot.ss <- function(ss) {
 #' 
 #' @param rmt_2d_array an object of class rmt_2d_array
 #' @param btn basic transport file object
-#' @param ... arguments passed to rmf_plot.rmf_2d_array
+#' @param ... arguments passed to RMODFLOW::rmf_plot.rmf_2d_array
 #' @return ggplot2 object or layer; if plot3D is TRUE, nothing is returned and the plot is made directly
 #' @method rmt_plot rmt_2d_array
 #' @export
-#' @import ggplot2 directlabels akima rgl quadprog
 rmt_plot.rmt_2d_array <- function(rmt_2d_array,
                                   btn,
-                                  mask = {warning('Using first icbund layer as mask.', call. = FALSE);btn$icbund[,,1]},
+                                  mask = {warning('Using first icbund layer as mask.', call. = FALSE); btn$icbund[,,1]},
                                   ...) {
   dis <- rmt_convert_btn_to_dis(btn)
   RMODFLOW::rmf_plot(RMODFLOW::rmf_create_array(rmt_2d_array), dis=dis, mask = mask, ...)

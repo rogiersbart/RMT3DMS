@@ -60,13 +60,6 @@ rmt_read_dsp <- function(file = {cat('Please select dsp file ...\n'); file.choos
   return(dsp)
 }
 
-#' @describeIn rmt_read_dsp Deprecated function name
-#' @export
-read_dsp <- function(...) {
-  .Deprecated(new = "rmt_read_dsp", old = "read_dsp")
-  rmt_read_dsp(...)
-}
-
 #' Write an MT3DMS dispersion package file
 #' 
 #' @param dsp an \code{\link{RMT3DMS}} dsp object
@@ -106,11 +99,4 @@ rmt_write_dsp <- function(dsp,
   } else {
     rmti_write_array(dsp$dmcoef, file = file, iprn = iprn, ...)
   }
-}
-
-#' @describeIn rmt_write_dsp Deprecated function name
-#' @export
-write_dsp <- function(...) {
-  .Deprecated(new = "rmt_write_dsp", old = "write_dsp")
-  rmt_write_dsp(...)
 }

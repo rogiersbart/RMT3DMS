@@ -99,13 +99,6 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
   return(ssm)
 }
 
-#' @describeIn rmt_read_ssm Deprecated function name
-#' @export
-read_ssm <- function(...) {
-  .Deprecated(new = "rmt_read_ssm", old = "read_ssm")
-  rmt_read_ssm(...)
-}
-
 #' Write an MT3DMS file
 #' 
 #' @param ssm an \code{\link{RMT3DMS}} ssm object
@@ -166,11 +159,4 @@ rmt_write_ssm <- function(ssm,
       }
     }
   }
-}
-
-#' @describeIn rmt_write_ssm Deprecated function name
-#' @export
-write_ssm <- function(...) {
-  .Deprecated(new = "rmt_write_ssm", old = "write_ssm")
-  rmt_write_ssm(...)
 }

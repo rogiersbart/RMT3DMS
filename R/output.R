@@ -13,13 +13,6 @@ rmt_read_mas <- function(file = {cat('Please select mas file ...\n'); file.choos
   return(mas)
 }
 
-#' @describeIn rmt_read_mas Deprecated function name
-#' @export
-read_mas <- function(...) {
-  .Deprecated(new = "rmt_read_mas", old = "read_mas")
-  rmt_read_mas(...)
-}
-
 #' Read an MT3DMS unformatted concentration file
 #' 
 #' \code{read_ucn} reads in an MT3DMS unformatted concentration file and returns it as an \code{\link{RMT3DMS}} ucn object.
@@ -72,11 +65,4 @@ rmt_read_ucn <- function(file = {cat('Please select ucn file ...\n'); file.choos
   close(con)
   class(ucn) <- c('ucn','mt3dms_package')
   return(ucn)
-}
-
-#' @describeIn rmt_read_ucn Deprecated function name
-#' @export
-read_ucn <- function(...) {
-  .Deprecated(new = "rmt_read_ucn", old = "read_ucn")
-  rmt_read_ucn(...)
 }

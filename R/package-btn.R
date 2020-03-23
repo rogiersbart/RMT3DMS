@@ -207,13 +207,6 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   return(btn)
 }
 
-#' @describeIn rmt_read_btn Deprecated function name
-#' @export
-read_btn <- function(...) {
-  .Deprecated(new = "rmt_read_btn", old = "read_btn")
-  rmt_read_btn(...)
-}
-
 #' Write an MT3DMS basic transport package file
 #' 
 #' @param btn an \code{\link{RMT3DMS}} btn object
@@ -319,11 +312,4 @@ rmt_write_btn <- function(btn,
     # Data set 23
     rmti_write_variables(btn$dt0[i], btn$mxstrn[i], btn$ttsmult[i], btn$ttsmax[i], file = file)
   }
-}
-
-#' @describeIn rmt_write_btn Deprecated function name
-#' @export
-write_btn <- function(...) {
-  .Deprecated(new = "rmt_write_btn", old = "write_btn")
-  rmt_write_btn(...)
 }

@@ -68,13 +68,6 @@ rmt_read_adv <- function(file = {cat('Please select adv file ...\n'); file.choos
   return(adv)
 }
 
-#' @describeIn rmt_read_adv Deprecated function name
-#' @export
-read_adv <- function(...) {
-  .Deprecated(new = "rmt_read_adv", old = "read_adv")
-  rmt_read_adv(...)
-}
-
 #' Write an MT3DMS advection package file
 #' 
 #' @param adv an \code{\link{RMT3DMS}} adv object
@@ -106,11 +99,4 @@ rmt_write_adv <- function(adv,
   if(adv$mixelm == 3) {  
     rmti_write_variables(adv$dchmoc, file = file)
   }  
-}
-
-#' @describeIn rmt_write_adv Deprecated function name
-#' @export
-write_adv <- function(...) {
-  .Deprecated(new = "rmt_write_adv", old = "write_adv")
-  rmt_write_adv(...)
 }
