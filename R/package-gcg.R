@@ -1,3 +1,50 @@
+
+#' Create an \code{RMT3DMS} gcg object
+#'
+#' \code{rmt_create_gcg} creates an \code{RMT3DMS} dsp object.
+#'
+#' @param mxiter maximum number of outer iterations. See details. Defaults to 1.
+#' @param iter1 maximum number of inner iterations. Defaults to 50.
+#' @param isolve type of preconditioner: 1 = Jacobi, 2 = SSOR, 3 = Modified Incomplete Cholesky (MIC; default).
+#' @param ncrs integer controlling treatment of dispersion tensor cross-terms. If 0 (default), lump all dispersion cross-terms to RHS. If 1, includes full dispersion tensor.
+#' @param accl relaxtion factor for the SSOR preconditioner. Defaults to 1.
+#' @param cclose Convergence criteration in relative concentration. Defaults to 1e-6.
+#' @param iprgcc interval for printing maximum concnetration changes of each iteration. Defaults to 0 (only print at end of stress-period).
+#'
+#' @details \code{mxiter} should be higher than 1 when nonlinear sorption isotherm is included or when \code{drycell = TRUE} is used in \code{btn}.
+#'
+#' @return an object of class \code{gcg}
+#' @export
+#' @seealso \code{\link{rmt_read_gcg}}, \code{\link{rmt_write_gcg}}
+#' @examples
+#' rmt_create_gcg()
+#' rmt_create_gcg(mxiter = 20, ncrs = 1, cclose = 1e-5, iprgcc = 1)
+rmt_create_gcg <- function(mxiter = 1,
+                           iter1 = 50,
+                           isolve = 3,
+                           ncrs = 0,
+                           accl = 1,
+                           cclose = 1e-6,
+                           iprgcc = 0) {
+  
+  gcg <- list()
+  
+  # data set 1
+  gcg$mxiter <- mxiter
+  gcg$iter1 <- iter1
+  gcg$isolve <- isolve
+  gcg$ncrs <- ncrs
+  
+  # data set 2
+  gcg$accl <- accl
+  gcg$cclose <- cclose
+  gcg$iprgcc <- iprgcc
+  
+  class(gcg) <- c('gcg', 'rmt_package')
+  return(gcg)
+  
+}
+
 #' Read an MT3DMS generalized conjugate gradient solver package file
 #' 
 #' \code{rmt_read_gcg} reads in an MT3DMS generalized conjugate gradient solver package file and returns it as an \code{\link{RMT3DMS}} gcg object.
@@ -33,7 +80,7 @@ rmt_read_gcg <- function(file = {cat('Please select gcg file ...\n'); file.choos
 
 #' Write an MT3DMS generalized conjugate gradient solver package file
 #' 
-#' @param gcg an \code{\link{RMT3DMS}} gcg object
+#' @param gcg an \code{RMT3DMS} gcg object
 #' @param file filename to write to; typically '*.gcg'
 #' @return \code{NULL}
 #' @export

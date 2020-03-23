@@ -1,14 +1,13 @@
 #' Read an MT3DMS sink & source mixing package file
 #' 
-#' \code{read_ssm} reads in an MT3DMS sink & source mixing package file and returns it as an \code{\link{RMT3DMS}} ssm object.
+#' \code{rmt_read_ssm} reads in an MT3DMS sink & source mixing package file and returns it as an \code{\link{RMT3DMS}} ssm object.
 #' 
 #' @param file filename; typically '*.ssm'
-#' @param btn basic transport package file object
-#' @return object of class ssm
-#' @importFrom readr read_lines
+#' @param btn \code{RMT3DMS} btn object
+#' @return object of class \code{ssm}
 #' @export
 rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choose()},
-                     btn = read_btn()) {
+                         btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())}) {
   
   ssm_lines <- read_lines(file)
   ssm <- NULL
@@ -99,18 +98,18 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
   return(ssm)
 }
 
-#' Write an MT3DMS file
+#' Write an MT3DMS Sink-Source Mixing Package file
 #' 
-#' @param ssm an \code{\link{RMT3DMS}} ssm object
+#' @param ssm an \code{RMT3DMS} ssm object
 #' @param file filename to write to; typically '*.ssm'
-#' @param btn an \code{\link{RMT3DMS}} btn object
+#' @param btn an \code{RMT3DMS} btn object
 #' @param iprn format code for printing arrays in the listing file; defaults to -1 (no printing)
 #' @return \code{NULL}
 #' @export
 rmt_write_ssm <- function(ssm,
-                      file = {cat('Please select ssm file to overwrite or provide new filename ...\n'); file.choose()},
-                      btn,
-                      iprn=-1) {
+                          file = {cat('Please select ssm file to overwrite or provide new filename ...\n'); file.choose()},
+                          btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},
+                          iprn=-1) {
   
   # Data set D1
   cat(paste0(c(as.character(factor(c(ssm$fwel,ssm$fdrn,ssm$frch,ssm$fevt,ssm$friv,ssm$fghb,ssm$fnew),levels=c(TRUE,FALSE),labels=c(' T',' F'))), '\n'),collapse=''), file=file)

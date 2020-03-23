@@ -1,3 +1,230 @@
+
+#' Create an \code{RMT3DMS} btn object
+#'
+#' \code{rmt_create_btn} creates an \code{RMT3DMS} btn object.
+#'
+#' @param nlay number of layers; defaults to 3
+#' @param nrow number of rows; defaults to 10
+#' @param ncol number of columns; defaults to 10 
+#' @param nper number of stress-periods in the flow model; defaults to 1
+#' @param ncomp total number of chemical species in the simulation; defaults to 1
+#' @param mcomp total number of mobile species; defaults to \code{ncomp}
+#' @param tunit character; time unit. Only for identification purposes. Defaults to 's'.
+#' @param lunit character; length unit. Only for identification purposes. Defaults to 'm'.
+#' @param munit character: mass unit. Only for identification purposes. Defaults to 'mg'.
+#' @param trnop logicals denoting which packages are active. Not used by MT3DMS > 4.50 or by MT3D-USGS. Defaults to setting adv, dsp, ssm, rct & gcg active.
+#' @param laycon vector indicating type of model layer: confined (0) or convertible (not 0; default for all layers).
+#' @param delr vector of cell widths along rows; defaults to 100 for all columns
+#' @param delc vector of cell widths along columns; defaults to 100 for all rows
+#' @param htop matrix with the top elevation of layer 1; defaults to 0 for all cells
+#' @param dz 3D array with the thicknesses of each cell. Defaults to 10 for all cells.
+#' @param prsity 3D array with the (effective or mobile) porosity values for each cell. Defaults to 0.3 for all cells.
+#' @param icbund 3D array with integer values for each cell specifying if solute transport is active (1), inactive (0) or if the cell is a constant-concentration (-1). Defaults to 1 for all cells.
+#' @param sconc list with \code{ncomp} 3D arrays specifying the starting concentrations in each cell for each species. Defaults to 0 for all cells for all species.
+#' @param cinact value for indicating an inactive concentration cell (icbund = 0). Defaults to -888.
+#' @param thkmin decimal fraction of layer thickness below which the cell is considered inactive. Defaults to 0.01. If negative, the absolute value is used.
+#' @param ifmtcn flag and printing code to determine if calculated concentration should be printed to the standard output text file. Defaults to 0 (no printing).
+#' @param ifmtnp flag and printing code to determine if number of particles in each cell should be printed to the standard output text file. Defaults to 0 (no printing).
+#' @param ifmtrf flag and printing code to determine if the model-calculated retardation factor should be printed to the standard output text file. Defaults to 0 (no printing).
+#' @param ifmtdp flag and printing code to determine if the model-calculated distance-weighted dispersion coefficient should be printed to the standard output text file. Defaults to 0 (no printing).
+#' @param savucn logical determining if concentration solution should be saved in default unformatted (binary) file named MT3Dnnn.UCN where nnn is the species index number. Defaults to TRUE.
+#' @param nprs frequency of output. If positive, simulation results will be printed or saved at times specified by \code{timprs}. If negative, whenever number of transport steps is an even multiple of \code{nprs}. If zero, only print or save at the end of the simulation. Defaults to -1.
+#' @param timprs vector of length \code{nprs} with the printing/saving times. Only used when \code{nprs > 0}. Defaults to an even interval of \code{nprs} times for the total simulation length.
+#' @param nobs number of observation points at which species' concentrations will be saved in MT3Dnnn.OBS files (nnn indicating species index). Defaults to 0. 
+#' @param nprobs integer indicating how frequently concentrations at \code{nobs} observation points should be saved. Concentrations are saved every \code{nprobs} step. Defaults to 1.
+#' @param kobs vector of length \code{nobs} with the layer indices of the observations points. Only used when \code{nobs > 0}. Defaults to NULL.
+#' @param iobs vector of length \code{nobs} with the row indices of the observations points. Only used when \code{nobs > 0}. Defaults to NULL.
+#' @param jobs vector of length \code{nobs} with the column indices of the observations points. Only used when \code{nobs > 0}. Defaults to NULL.
+#' @param chkmas logical indicating whether a one-line summary of the mass balance should be saved to a default MT3Dnnn.MAS file where nnn is the species index. Defaults to TRUE.
+#' @param nprmas frequency of saving the mass budget information to MT3Dnnn.MAS. Information is saved every \code{nprmas} step. Defaults to 1.
+#' @param perlen vector of flow model stress-period lengths. Defaults to 1 for every stress-period.
+#' @param nstp vector of flow model stress-period time steps. Defaults to 1 for every stress-period.
+#' @param tsmult vector of successive flow model time step length multipliers. Defaults to 1 for every stress-period.
+#' @param ssflag logical vector of length \code{nper} indicating if the steady-state transport option should be used. Defaults to FALSE for every stress-period. MT3D-USGS only.
+#' @param tslngh list of length \code{nper} with time step length vectors. Defaults to 1 for every time step length. Only used when \code{tsmult > 0} for the current stress-period.
+#' @param dt0 vector of length \code{nper} of initial transport step sizes within each flow time step. If zero (default) and the GCG solver is active, a model-calculated value based on the Courant number in the Advection package is used. 
+#' @param mxstrn vector of length \code{nper} with the maximum number of transport steps allowed within one flow time step. Defaults to 50 for every stress-period.
+#' @param ttsmult vector of length \code{nper} with transport step size multipliers within a single flow time step. Defaults to 1 for every stress-period.
+#' @param ttsmax vector of length \code{nper}with maximum allowed transport step size when \code{ttsmult > 1}. Defaults to 0 for every stress-period (no limit).
+#' @param modflowstylearrays logical; should MODFLOW-style arrays and array headers be used. Defaults to FALSE. MT3D-USGS only.
+#' @param drycell logical; should mass transfer through dry cells be enabled when dry cells remain active in the flow simulation (e.g. with MODFLOW-NWT). Only available when mixelm = 0 or -1 in the Advection package. Defaults to FALSE. MT3D-USGS only.
+#' @param legacy99storage logical; should MT3DMS flow storage computations be used. Defaults to FALSE. MT3D-USGS only.
+#' @param ftlprint logical; should the contents of the flow-transport link file be printed to the standard output text file. Defaults to FALSE. MT3D-USGS only.
+#' @param nowetdryprint logical; should printing of messages related to drying and re-wetting of model cells to the standard output text file be disabled? Defaults to FALSE. MT3D-USGS only.
+#' @param omitdrycellbudget logical; should the printing of the mass budget of dry cells be disabled? Defaults to FALSE. MT3D-USGS only.
+#' @param altwtsorb logical; use an alternative formulation to simulate adsorbed mass. Defaults to FALSE. MT3D-USGS only.
+#'
+#' @return an object of class \code{btn}
+#' @export
+#' @seealso \code{\link{rmt_read_btn}}, \code{\link{rmt_write_btn}}
+#' @examples
+#' rmt_create_btn()
+#' rmt_create_btn(nper = 3, prsity = array(rep(c(0.1, 0.01, 0.3), each = 100), dim = c(10, 10, 3)))
+#' 
+#' # multi-species; sconc for species 1 is from rnorm, sconc for species 2 = 0.2
+#' sconc1 <- rmt_create_array(rnorm(100, 0.1, sd = 0.01), dim = c(10, 10, 3))
+#' rmt_create_btn(ncomp = 2, prsity = prsity, sconc = list(sconc1, 0.2))
+rmt_create_btn <- function(nlay = 3,
+                           nrow = 10,
+                           ncol = 10,
+                           nper = 1,
+                           ncomp = 1,
+                           mcomp = ncomp,
+                           tunit = 's',
+                           lunit = 'm',
+                           munit = 'mg',
+                           trnop = c(rep(TRUE, 5), rep(FALSE), 5),
+                           laycon = rep(1, nlay),
+                           delr = 100,
+                           delc = 100,
+                           htop = 0,
+                           dz = 10,
+                           prsity = 0.3,
+                           icbund = 1,
+                           sconc = as.list(rep(0, ncomp)),
+                           cinact = -888,
+                           thkmin = 0.01,
+                           ifmtcn = 0,
+                           ifmtnp = 0,
+                           ifmtrf = 0,
+                           ifmtdp = 0,
+                           savucn = TRUE,
+                           nprs = -1,
+                           timprs = seq(1, sum(perlen), length.out = abs(nprs)),
+                           nobs = 0,
+                           nprobs = 1,
+                           kobs = NULL,
+                           iobs = NULL,
+                           jobs = NULL,
+                           chkmas = TRUE,
+                           nprmas = 1,
+                           perlen = rep(1, nper),
+                           nstp = rep(1, nper),
+                           tsmult = rep(1, nper),
+                           ssflag = rep(FALSE, nper),
+                           tslngh = lapply(seq_len(nper), function(i) rep(1, nstp[i])),
+                           dt0 = rep(0, nper),
+                           mxstrn = rep(50, nper),
+                           ttsmult = rep(1, nper),
+                           ttsmax = rep(0, nper),
+                           modflowstylearrays = FALSE,
+                           drycell = FALSE,
+                           legacy99storage = FALSE,
+                           ftlprint = FALSE,
+                           nowetdryprint = FALSE,
+                           omitdrycellbudget = FALSE,
+                           altwtsorb = FALSE) {
+  
+  btn <- list()
+  
+  # MT3D-USGS keywords
+  btn$modflowstylearrays <- modflowstylearrays
+  btn$drycell <- drycell
+  btn$legacy99storage <- legacy99storage
+  btn$ftlprint <- ftlprint
+  btn$nowetdryprint <- nowetdryprint
+  btn$omitdrycellbudget <- omitdrycellbudget
+  btn$altwtsorb <- altwtsorb
+  
+  
+  # data set 3
+  btn$nlay <- nlay
+  btn$nrow <- nrow
+  btn$ncol <- ncol
+  btn$nper <- nper
+  btn$nper <- nper
+  btn$ncomp <- ncomp
+  btn$mcomp <- mcomp
+  
+  # data set 4
+  btn$tunit <- tunit
+  btn$lunit <- lunit
+  btn$munit <- munit
+  
+  # data set 5
+  btn$trnop <- trnop
+  
+  # data set 6
+  btn$laycon <- laycon
+  
+  # data set 7
+  btn$delr <- rmti_ifelse0(length(delr) == 1, rep(delr, btn$ncol), delr)
+  
+  # data set 8
+  btn$delc <- rmti_ifelse0(length(delc) == 1, rep(delc, btn$nrow), delc)
+  
+  # data set 9
+  btn$htop <- rmt_create_array(htop, dim = c(btn$nrow, btn$ncol))
+  
+  # data set 10
+  btn$dz <- rmt_create_array(dz, dim = c(btn$nrow, btn$ncol, btn$nlay))
+  
+  # data set 11
+  btn$prsity <- rmt_create_array(prsity, dim = c(btn$nrow, btn$ncol, btn$nlay))
+  
+  # data set 12
+  btn$icbund <- rmt_create_array(icbund, dim = c(btn$nrow, btn$ncol, btn$nlay))
+  
+  # data set 13
+  if(!is.list(sconc) && btn$ncomp == 1) {
+    btn$sconc <- list(rmt_create_array(sconc, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+  } else {
+    if(!is.list(sconc) && btn$ncomp > 1) stop('sconc should be a list with ncomp 3D arrays', call. = FALSE)
+    btn$sconc <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(sconc[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+  }
+  
+  # data set 14
+  btn$cinact <- cinact
+  btn$thkmin <- thkmin
+  
+  # data set 15
+  btn$ifmtcn <- ifmtcn
+  btn$ifmtnp <- ifmtnp
+  btn$ifmtrf <- ifmtrf
+  btn$ifmtdp <- ifmtdp
+  btn$savucn <- savucn
+  
+  # data set 16
+  btn$nprs <- nprs
+  
+  # data set 17
+  if(btn$nprs > 0) btn$timprs <- timprs
+  
+  # data set 18
+  btn$nobs <- nobs
+  btn$nprobs <- nprobs
+  
+  # data set 19
+  if(btn$nobs > 0) {
+    btn$kobs <- kobs
+    btn$iobs <- iobs
+    btn$jobs <- jobs
+  }
+  
+  # data set 20
+  btn$chkmas <- chkmas
+  btn$nprmas <- nprmas
+  
+  # data set 21
+  btn$perlen <- perlen
+  btn$nstp <- nstp
+  btn$tsmult <- tsmult
+  btn$ssflag <- ssflag
+  
+  # data set 22
+  if(any(btn$tsmult <= 0)) btn$tslngh <- tslngh
+  
+  # data set 23
+  btn$dt0 <- dt0
+  btn$mxstrn <- mxstrn
+  btn$ttsmult <- ttsmult
+  btn$ttsmax <- ttsmax
+  
+  class(btn) <- c('btn', 'rmt_package')
+  return(btn)
+  
+}
+
 #' Read an MT3DMS basic transport package file
 #' 
 #' \code{read_btn} reads in an MT3DMS basic transport package file and returns it as an \code{\link{RMT3DMS}} btn object.
@@ -209,7 +436,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
 
 #' Write an MT3DMS basic transport package file
 #' 
-#' @param btn an \code{\link{RMT3DMS}} btn object
+#' @param btn an \code{RMT3DMS} btn object
 #' @param file filename to write to; typically '*.btn'
 #' @param iprn format code for printing arrays in the listing file; defaults to -1 (no printing)
 #' @param ... arguments passed to \code{rmti_write_array}. 

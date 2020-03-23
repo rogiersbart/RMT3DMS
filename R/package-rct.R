@@ -1,14 +1,13 @@
-#' Read an MT3DMS chemical reaction package file
+#' Read an MT3DMS Chemical Reaction Package file
 #' 
-#' \code{read_rct} reads in an MT3DMS dispersion package file and returns it as an \code{\link{RMT3DMS}} rct object.
+#' \code{rmt_read_rct} reads in an MT3DMS dispersion package file and returns it as an \code{\link{RMT3DMS}} rct object.
 #' 
 #' @param file filename; typically '*.rct'
-#' @param btn basic transport package file object
-#' @return object of class rct
-#' @importFrom readr read_lines
+#' @param btn \code{RMT3DMS} btn object
+#' @return object of class \code{rct}
 #' @export
 rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choose()},
-                     btn = read_btn()) {
+                         btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())}) {
   
   rct_lines <- read_lines(file)
   rct <- NULL
@@ -96,18 +95,18 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   return(rct)
 }
 
-#' Write an MT3DMS file
+#' Write an MT3DMS Chemical Reaction Package file
 #' 
-#' @param rct an \code{\link{RMT3DMS}} rct object
+#' @param rct an \code{RMT3DMS} rct object
 #' @param file filename to write to; typically '*.rct'
-#' @param btn an \code{\link{RMT3DMS}} btn object
+#' @param btn an \code{RMT3DMS} btn object
 #' @param iprn format code for printing arrays in the listing file; defaults to -1 (no printing)
 #' @return \code{NULL}
 #' @export
 rmt_write_rct <- function(rct,
-                      file = {cat('Please select rct file to overwrite or provide new filename ...\n'); file.choose()},
-                      btn,
-                      iprn=-1) {
+                          file = {cat('Please select rct file to overwrite or provide new filename ...\n'); file.choose()},
+                          btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},
+                          iprn=-1) {
   
   # Data set E1
   cat(paste0(c(prettyNum(c(rct$isothm,rct$ireact,rct$irctop,rct$igetsc),width=10), '\n'),collapse=''), file=file)
