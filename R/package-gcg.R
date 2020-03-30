@@ -9,7 +9,7 @@
 #' @param ncrs integer controlling treatment of dispersion tensor cross-terms. If 0 (default), lump all dispersion cross-terms to RHS. If 1, includes full dispersion tensor.
 #' @param accl relaxtion factor for the SSOR preconditioner. Defaults to 1.
 #' @param cclose Convergence criteration in relative concentration. Defaults to 1e-6.
-#' @param iprgcc interval for printing maximum concnetration changes of each iteration. Defaults to 0 (only print at end of stress-period).
+#' @param iprgcg interval for printing maximum concentration. changes of each iteration. Defaults to 0 (only print at end of stress-period).
 #'
 #' @details \code{mxiter} should be higher than 1 when nonlinear sorption isotherm is included or when \code{drycell = TRUE} is used in \code{btn}.
 #'
@@ -18,14 +18,14 @@
 #' @seealso \code{\link{rmt_read_gcg}}, \code{\link{rmt_write_gcg}}
 #' @examples
 #' rmt_create_gcg()
-#' rmt_create_gcg(mxiter = 20, ncrs = 1, cclose = 1e-5, iprgcc = 1)
+#' rmt_create_gcg(mxiter = 20, ncrs = 1, cclose = 1e-5, iprgcg = 1)
 rmt_create_gcg <- function(mxiter = 1,
                            iter1 = 50,
                            isolve = 3,
                            ncrs = 0,
                            accl = 1,
                            cclose = 1e-6,
-                           iprgcc = 0) {
+                           iprgcg = 0) {
   
   gcg <- list()
   
@@ -38,7 +38,7 @@ rmt_create_gcg <- function(mxiter = 1,
   # data set 2
   gcg$accl <- accl
   gcg$cclose <- cclose
-  gcg$iprgcc <- iprgcc
+  gcg$iprgcg <- iprgcg
   
   class(gcg) <- c('gcg', 'rmt_package')
   return(gcg)

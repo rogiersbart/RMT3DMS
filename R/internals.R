@@ -1,3 +1,22 @@
+
+
+rmti_create_bc_list <- function(obj, conc, itype, kper) {
+  
+  df <- as.data.frame(obj$data)
+  sp <- obj$kper[kper, -1, drop = FALSE]
+  active <- which(sp == TRUE || (is.character(sp) && !is.na(sp)))
+  active_nms <- colnames(sp)[active]
+  
+  df <- df[df$name %in% active_nms,]
+  
+  # concentrations
+  conc <- structure(as.data.frame(matrix(conc, nrow = 1)), names = paste0('css', 1:length(conc)))
+  if(ncol(conc) == 1) colnames(conc) <- 'css'
+  df <- cbind(df, itype, conc)
+  df <- rmt_create_list(df, kper = kper)
+  return(df)
+}
+
 #' Conditional return
 #' 
 #' \code{rmti_ifelse0} returns \code{yes} if \code{test} is \code{TRUE}. If \code{test} is \code{FALSE}, it returns \code{no}.
@@ -11,6 +30,13 @@ rmti_ifelse0 <- function(test, yes, no) {
   } else {
     return(no)
   }
+}
+
+rmti_itype <- function() {
+  itype <- data.frame(itype = c(1, 2, 3, 4, 5, 15, -1, 21, 22, 23, 26, 27, 28, 30),
+                      names = c('constant-head', 'wel', 'drn', 'riv', 'ghb', 'mass-loading', 'constant-concentration', 'str', 'res', 'fhd', 'lak', 'mnw', 'drt', 'sfr'),
+                      stringsAsFactors = FALSE)
+  return(itype)
 }
 
 #' Get an array specified by a  control record from the text lines analyzed in an \code{\link{RMT3DMS}} \code{rmt_read_*} function
@@ -251,13 +277,6 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim = NULL,
   }
   
   return(data_set)
-}
-
-#' @describeIn rmti_parse_array Deprecated function name
-#' @export
-read_mt3dms_array <- function(...) {
-  .Deprecated(new = "rmti_parse_array", old = "read_mt3dms_array")
-  rmti_parse_array(...)
 }
 
 #' Read mt3dms variables

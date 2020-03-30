@@ -1,4 +1,50 @@
 
+
+
+
+# TODO is solute needed? Is given in df columns
+rmt_create_list <- function(df, kper = NULL) {
+  
+  df <- RMODFLOW::rmf_create_list(df, kper = kper)
+  if(!('itype' %in% colnames(df)) || (!('css' %in% colnames(df)) || !('css1' %in% colnames(df)))) stop('df object should at least have columns k, i, j, css, itype', call. = FALSE)
+  # attr(df, 'solute') <- solute
+  class(df) <- c('rmt_list', class(df))
+  return(df)
+  
+}
+
+rmt_as_list <- function(...) {
+  UseMethod('rmf_as_list')
+}
+
+rmt_as_list.wel <- function(wel, cwel, kper) {
+  itype <- 2
+  df <- rmti_create_bc_list(wel, cwel, itype = itype, kper = kper)
+  return(df)
+}
+
+rmt_as_list.drn <- function(drn, cdrn) {
+  
+}
+
+rmt_as_list.chd <- function(chd, cchd) {
+  
+}
+
+rmt_as_list.riv <- function(riv, criv) {
+  
+}
+
+rmt_as_list.ghb <- function(ghb, cghb) {
+  
+}
+
+rmt_as_list.bas <- function(bas, cbas) {
+  
+}
+
+as.data.frame.rmt_list <- function(obj, ...) structure(NextMethod(...), kper = NULL, solute = NULL)
+
 #' Convert RMT3DMS dis to RMT3DMS btn object
 #'
 #' @param dis \code{RMODFLOW} dis object
@@ -8,16 +54,18 @@
 #' @export
 #' @seealso \code{\link{rmt_convert_btn_to_dis}}, \code{\link{rmt_create_btn}}
 #' @examples
-rmt_convert_dis_to_btn <- function(dis, ...) {
+rmt_convert_dis_to_btn <- function(dis, perlen = dis$perlen, nstp = dis$nstp, tsmult = dis$tsmult, ...) {
   
   dz <- rmt_convert_rmf_to_rmt(RMODFLOW::rmf_calculate_thickness(dis))
+  
+  # perlen, nstp, tsmult, tunit & lunit can be specified
   
   btn <- rmt_create_btn(nlay = dis$nlay,
                         nrow = dis$nrow,
                         ncol = dis$ncol,
                         nper = dis$nper,
-                        tunit = switch(dis$itmuni + 1, 'undefined', 'seconds', 'minutes', 'hours', 'days', 'years'),
-                        lunit = switch(dis$lenuni + 1, 'undefined', 'feet', 'meters', 'centimeters'),
+                        tunit = switch(dis$itmuni + 1, 'undf', 's', 'min', 'h', 'd', 'y'),
+                        lunit = switch(dis$lenuni + 1, 'undf', 'ft', 'm', 'cm'),
                         delr = dis$delr,
                         delc = dis$delc, 
                         htop = dis$top,
@@ -45,9 +93,9 @@ rmt_convert_btn_to_dis <- function(btn, sstr = c("SS", rep("TR", btn$nper - 1)),
   itmuni <- toupper(btn$tunit)
   lenuni <- toupper(btn$lunit)
   
-  if(itmuni %in% c('S', 'SEC', 'SECOND', 'SECONDS')) {
+  if(itmuni %in% c('S', 'SEC', 'SECON', 'SECOND', 'SECONDS')) {
     itmuni <- 1
-  } else if(itmuni %in% c('M', 'MIN', 'MINUTE', 'MINUTES')) {
+  } else if(itmuni %in% c('M', 'MIN', 'MINUT', 'MINUTE', 'MINUTES')) {
     itmuni <- 2
   } else if(itmuni %in% c('H', 'HOUR', 'HOURS')) {
     itmuni <- 3
@@ -61,9 +109,9 @@ rmt_convert_btn_to_dis <- function(btn, sstr = c("SS", rep("TR", btn$nper - 1)),
   
   if(lenuni %in% c('FT', 'FEET', 'FOOT')) {
     lenuni <- 1
-  } else if(lenuni %in% c('M', 'METER', 'METERS', 'METRE', 'METRES')) {
+  } else if(lenuni %in% c('M', 'METE', 'METER', 'METERS', 'METRE', 'METRES')) {
     lenuni <- 2
-  } else if(lenuni %in% c('CM', 'CENTIMETER', 'CENTIMETERS', 'CENTIMETRE', 'CENTIMETRES')) {
+  } else if(lenuni %in% c('CM', 'CENT', 'CENTIMETER', 'CENTIMETERS', 'CENTIMETRE', 'CENTIMETRES')) {
     lenuni <- 3
   } else {
     lenuni <- 0
