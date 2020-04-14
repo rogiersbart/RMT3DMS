@@ -30,11 +30,8 @@
 #' @param savucn logical determining if concentration solution should be saved in default unformatted (binary) file named MT3Dnnn.UCN where nnn is the species index number. Defaults to TRUE.
 #' @param nprs frequency of output. If positive, simulation results will be printed or saved at times specified by \code{timprs}. If negative, whenever number of transport steps is an even multiple of \code{nprs}. If zero, only print or save at the end of the simulation. Defaults to -1.
 #' @param timprs vector of length \code{nprs} with the printing/saving times. Only used when \code{nprs > 0}. Defaults to an even interval of \code{nprs} times for the total simulation length.
-#' @param nobs number of observation points at which species' concentrations will be saved in MT3Dnnn.OBS files (nnn indicating species index). Defaults to 0. 
-#' @param nprobs integer indicating how frequently concentrations at \code{nobs} observation points should be saved. Concentrations are saved every \code{nprobs} step. Defaults to 1.
-#' @param kobs vector of length \code{nobs} with the layer indices of the observations points. Only used when \code{nobs > 0}. Defaults to NULL.
-#' @param iobs vector of length \code{nobs} with the row indices of the observations points. Only used when \code{nobs > 0}. Defaults to NULL.
-#' @param jobs vector of length \code{nobs} with the column indices of the observations points. Only used when \code{nobs > 0}. Defaults to NULL.
+#' @param obs optional data.frame with k, i and j columns indicating the cells for which species' concentrations will be saved in MT3Dnnn.OBS files (nnn indicating species index). Defaults to NULL. 
+#' @param nprobs integer indicating how frequently concentrations at \code{obs} observation points should be saved. Concentrations are saved every \code{nprobs} step. Defaults to 1.
 #' @param chkmas logical indicating whether a one-line summary of the mass balance should be saved to a default MT3Dnnn.MAS file where nnn is the species index. Defaults to TRUE.
 #' @param nprmas frequency of saving the mass budget information to MT3Dnnn.MAS. Information is saved every \code{nprmas} step. Defaults to 1.
 #' @param perlen vector of flow model stress-period lengths. Defaults to 1 for every stress-period.
@@ -91,11 +88,8 @@ rmt_create_btn <- function(nlay = 3,
                            savucn = TRUE,
                            nprs = -1,
                            timprs = seq(1, sum(perlen), length.out = abs(nprs)),
-                           nobs = 0,
+                           obs = NULL,
                            nprobs = 1,
-                           kobs = NULL,
-                           iobs = NULL,
-                           jobs = NULL,
                            chkmas = TRUE,
                            nprmas = 1,
                            perlen = rep(1, nper),
@@ -163,7 +157,7 @@ rmt_create_btn <- function(nlay = 3,
   btn$prsity <- rmt_create_array(prsity, dim = c(btn$nrow, btn$ncol, btn$nlay))
   
   # data set 12
-  btn$icbund <- rmt_create_array(icbund, dim = c(btn$nrow, btn$ncol, btn$nlay))
+  btn$icbund <- rmt_create_array(as.integer(icbund), dim = c(btn$nrow, btn$ncol, btn$nlay))
   
   # data set 13
   if(!is.list(sconc) && btn$ncomp == 1) {
@@ -190,15 +184,10 @@ rmt_create_btn <- function(nlay = 3,
   # data set 17
   if(btn$nprs > 0) btn$timprs <- timprs
   
-  # data set 18
-  btn$nobs <- nobs
-  btn$nprobs <- nprobs
-  
-  # data set 19
-  if(btn$nobs > 0) {
-    btn$kobs <- kobs
-    btn$iobs <- iobs
-    btn$jobs <- jobs
+  # data set 18 & 19
+  if(!is.null(obs)) {
+    btn$obs <- obs[,c('k', 'i', 'j')]
+    btn$nprobs <- nprobs
   }
   
   # data set 20
@@ -227,7 +216,7 @@ rmt_create_btn <- function(nlay = 3,
 
 #' Read an MT3DMS basic transport package file
 #' 
-#' \code{read_btn} reads in an MT3DMS basic transport package file and returns it as an \code{\link{RMT3DMS}} btn object.
+#' \code{rmt_read_btn} reads in an MT3DMS basic transport package file and returns it as an \link{RMT3DMS} btn object.
 #' 
 #' @param file filename; typically '*.btn'
 #' @param ... optional arguments passed to \code{\link{rmti_parse_array}}
@@ -317,9 +306,9 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   rm(data_set_11)
   
   # Data set 12
-  data_set_12 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, file = file, ...)
+  data_set_12 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, file = file, integer = TRUE, ...)
   btn_lines <- data_set_12$remaining_lines
-  btn$icbund <- data_set_12$array
+  btn$icbund <- rmt_create_array(as.integer(data_set_12$array), dim = c(btn$nrow, btn$ncol, btn$nlay))
   rm(data_set_12)
   
   # Data set 13
@@ -355,6 +344,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   rm(data_set_16)
   
   # Data set 17
+  # TODO check if this works when NPRS > 8
   if(btn$nprs > 0) {
     data_set_17 <- rmti_parse_variables(btn_lines, nlay = btn$nprs, width = 10)
     btn$timprs <- as.numeric(data_set_17$variables[1:btn$nprs])
@@ -364,24 +354,26 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   
   # Data set 18
   data_set_18 <- rmti_parse_variables(btn_lines, n = 2, width = 10)
-  btn$nobs <- as.numeric(data_set_18$variables[1])
-  btn$nprobs <- as.numeric(data_set_18$variables[2])
+  nobs <- as.numeric(data_set_18$variables[1])
+  nprobs <- as.numeric(data_set_18$variables[2])
   btn_lines <- data_set_18$remaining_lines
   rm(data_set_18)
   
   # Data set 19
-  if(btn$nobs > 0) {
-    btn$kobs <- NULL
-    btn$iobs <- NULL
-    btn$jobs <- NULL
-    for(i in 1:btn$nobs) {
-      data_set_19 <- rmti_parse_variables(btn_lines, n = 3, width = 10)
-      btn$kobs[i] <- as.numeric(data_set_19$variables[1])
-      btn$iobs[i] <- as.numeric(data_set_19$variables[2])
-      btn$jobs[i] <- as.numeric(data_set_19$variables[3])
-      btn_lines <- data_set_19$remaining_lines
-    }
-    rm(data_set_19)
+  if(nobs > 0) {
+    # using readr (fast)
+    # if lines is of length 1, readr will assume it's a file connection and error out
+    lines <- btn_lines[1:nobs]
+    if(nobs == 1) lines <- c(lines, '')    
+    
+    widths <- readr::fwf_widths(c(rep(10, 3)))
+    cols <- do.call(readr::cols_only, as.list(rep('i', 3)))
+    df <- as.data.frame(readr::read_fwf(lines, widths, col_types = cols))
+    df <- replace(df, which(is.na(df), arr.ind = TRUE), 0)
+    colnames(df) <- c('k', 'i', 'j')
+    btn$obs <- df[1:nobs,]
+    btn$nprobs <- nprobs
+    btn_lines <- btn_lines[-c(1:nobs)]
   }
   
   # Data set 20
@@ -512,13 +504,14 @@ rmt_write_btn <- function(btn,
   }
   
   # Data set 18
-  rmti_write_variables(btn$nobs, btn$nprobs, file = file)
+  rmti_write_variables(ifelse(is.null(btn$obs), 0, nrow(btn$obs)), ifelse(is.null(btn$obs), 1, btn$nprobs), file = file)
   
   # Data set 19
-  if(btn$nobs > 0) {
-    for(i in 1:btn$nobs) {
-      rmti_write_variables(btn$kobs[i], btn$iobs[i], btn$jobs[i], file = file)
-    }
+  if(!is.null(btn$obs)) {
+    # readr (fast)
+    fmt <- paste0(rep('%10i', 3), collapse = '')
+    dff <- do.call('sprintf', c(btn$obs[,c('k','i','j')], fmt))
+    readr::write_lines(dff, path = file, append = TRUE)
   }
   
   # Data set 20

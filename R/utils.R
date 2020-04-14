@@ -1,46 +1,84 @@
 
-
-
-
-# TODO is solute needed? Is given in df columns
-rmt_create_list <- function(df, kper = NULL) {
-  
+#' Create a rmt_list object
+#'
+#' @param df a data.frame like object with at least columns \code{i, j, k, itype} and one or more \code{css} columns specifying the concentrations
+#' @param kper integer value(s) specifying during which stress-periods this list is active
+#'
+#' @return a \code{rmt_list} object
+#' @export
+#'
+#' @examples
+#' df <- data.frame(i = 5, j = 4:5, k = 3, css1 = 6.45, css2 = 47, itype = 2)
+#' rmt_create_list(df, kper = c(1, 3))
+rmt_create_list <- function(df, kper) {
+  if(missing(kper)) stop('Please supply kper argument', call. = FALSE)
   df <- RMODFLOW::rmf_create_list(df, kper = kper)
-  if(!('itype' %in% colnames(df)) || (!('css' %in% colnames(df)) || !('css1' %in% colnames(df)))) stop('df object should at least have columns k, i, j, css, itype', call. = FALSE)
-  # attr(df, 'solute') <- solute
+  if(!('itype' %in% colnames(df)) || !('css' %in% colnames(df) || 'css1' %in% colnames(df))) stop('df object should at least have columns k, i, j, css, itype', call. = FALSE)
+  if('css' %in% colnames(df)) colnames(df) <- replace(colnames(df), which(colnames(df) == 'css'), 'css1')
   class(df) <- c('rmt_list', class(df))
   return(df)
-  
 }
 
+#' Title
+#'
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 rmt_as_list <- function(...) {
-  UseMethod('rmf_as_list')
+  UseMethod('rmt_as_list')
 }
 
-rmt_as_list.wel <- function(wel, cwel, kper) {
+rmt_as_list.wel <- function(wel, cwel, kper, ...) {
   itype <- 2
-  df <- rmti_create_bc_list(wel, cwel, itype = itype, kper = kper)
+  arg <- list(...)
+  arg <- c(cwel, arg)
+  conc <- do.call(cbind, arg)
+
+  df <- rmti_create_bc_list(wel, conc, itype = itype, kper = kper)
   return(df)
 }
 
-rmt_as_list.drn <- function(drn, cdrn) {
+rmt_as_list.drn <- function(drn, cdrn, kper, ...) {
+  itype <- 3
+  arg <- list(...)
+  arg <- c(cdrn, arg)
+  conc <- do.call(cbind, arg)
   
+  df <- rmti_create_bc_list(drn, conc, itype = itype, kper = kper)
+  return(df)
 }
 
-rmt_as_list.chd <- function(chd, cchd) {
+rmt_as_list.chd <- function(chd, cchd, kper, ...) {
+  itype <- 1
+  arg <- list(...)
+  arg <- c(cchd, arg)
+  conc <- do.call(cbind, arg)
   
+  df <- rmti_create_bc_list(chd, conc, itype = itype, kper = kper)
+  return(df)
 }
 
 rmt_as_list.riv <- function(riv, criv) {
+  itype <- 4
+  arg <- list(...)
+  arg <- c(criv, arg)
+  conc <- do.call(cbind, arg)
   
+  df <- rmti_create_bc_list(riv, conc, itype = itype, kper = kper)
+  return(df)
 }
 
 rmt_as_list.ghb <- function(ghb, cghb) {
+  itype <- 5
+  arg <- list(...)
+  arg <- c(cghb, arg)
+  conc <- do.call(cbind, arg)
   
-}
-
-rmt_as_list.bas <- function(bas, cbas) {
-  
+  df <- rmti_create_bc_list(ghb, conc, itype = itype, kper = kper)
+  return(df)
 }
 
 as.data.frame.rmt_list <- function(obj, ...) structure(NextMethod(...), kper = NULL, solute = NULL)
@@ -54,24 +92,26 @@ as.data.frame.rmt_list <- function(obj, ...) structure(NextMethod(...), kper = N
 #' @export
 #' @seealso \code{\link{rmt_convert_btn_to_dis}}, \code{\link{rmt_create_btn}}
 #' @examples
-rmt_convert_dis_to_btn <- function(dis, perlen = dis$perlen, nstp = dis$nstp, tsmult = dis$tsmult, ...) {
+rmt_convert_dis_to_btn <- function(dis, perlen = dis$perlen,
+                                   tunit = NULL, lunit = NULL, ...) {
   
   dz <- rmt_convert_rmf_to_rmt(RMODFLOW::rmf_calculate_thickness(dis))
   
-  # perlen, nstp, tsmult, tunit & lunit can be specified
+  tunit <- ifelse(is.null(tunit), switch(dis$itmuni + 1, 'undf', 's', 'min', 'h', 'd', 'y'), tunit)
+  lunit <- ifelse(is.null(lunit), switch(dis$lenuni + 1, 'undf', 'ft', 'm', 'cm'), lunit)
   
   btn <- rmt_create_btn(nlay = dis$nlay,
                         nrow = dis$nrow,
                         ncol = dis$ncol,
                         nper = dis$nper,
-                        tunit = switch(dis$itmuni + 1, 'undf', 's', 'min', 'h', 'd', 'y'),
-                        lunit = switch(dis$lenuni + 1, 'undf', 'ft', 'm', 'cm'),
+                        tunit = tunit,
+                        lunit = lunit,
                         delr = dis$delr,
                         delc = dis$delc, 
                         htop = dis$top,
                         dz = dz,
-                        perlen = dis$perlen,
-                        nstp = dis$nstp,
+                        perlen = perlen,
+                        nstp = ifelse(dis$sstr == 'SS', 1, dis$nstp),
                         tsmult = dis$tsmult,
                         ...)
   return(btn)
@@ -138,7 +178,7 @@ rmt_convert_btn_to_dis <- function(btn, sstr = c("SS", rep("TR", btn$nper - 1)),
 
 #' Convert a RMODFLOW object to a RMT3DMS object
 #'
-#' \code{rmf_convert_rmf_to_rmt} converts the class of a RMODFLOW object to the corresponding RMT3DMS class
+#' \code{rmf_convert_rmf_to_rmt} adds the corresponding RMT3DMS class to an RMODFLOW object 
 #'
 #' @param obj either a \code{rmf_2d_array}, \code{rmf_3d_array}, \code{rmf_4d_array} or a \code{rmf_list}
 #'
@@ -148,16 +188,16 @@ rmt_convert_btn_to_dis <- function(btn, sstr = c("SS", rep("TR", btn$nper - 1)),
 rmt_convert_rmf_to_rmt <- function(obj) {
   
   if(inherits(obj, 'rmf_2d_array')) {
-    class(obj) <- replace(class(obj), which(class(obj) == 'rmf_2d_array'), 'rmt_2d_array')
+    class(obj) <- c('rmt_2d_array', class(obj))
   }
   if(inherits(obj, 'rmf_3d_array')) {
-    class(obj) <- replace(class(obj), which(class(obj) == 'rmf_3d_array'), 'rmt_3d_array')
+    class(obj) <- c('rmt_3d_array', class(obj))
   }
   if(inherits(obj, 'rmf_4d_array')) {
-    class(obj) <- replace(class(obj), which(class(obj) == 'rmf_4d_array'), 'rmt_4d_array')
+    class(obj) <- c('rmt_4d_array', class(obj))
   }
   if(inherits(obj, 'rmf_list')) {
-    class(obj) <- replace(class(obj), which(class(obj) == 'rmf_list'), 'rmt_list')
+    class(obj) <- c('rmt_list', class(obj))
   }
   
   return(obj)
@@ -216,7 +256,7 @@ rmt_create_array <- function(obj = NA,
   id <- names(attributes(x))
   id <- id[!(id %in% c('dim', 'class'))]
   if(length(id) > 0) attributes(obj) <- append(attrs, attributes(x)[id])
-  attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[rmfi_ifelse0(miss[4], rmfi_ifelse0(!drop && sum(miss) > 1, rep(TRUE, 4), miss), miss)]
+  attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[rmti_ifelse0(miss[4], rmti_ifelse0(!drop && sum(miss) > 1, rep(TRUE, 4), miss), miss)]
   if(!missing(l)) {
     if(!is.null(attr(obj,'kstp'))) attr(obj,'kstp') <- attr(obj,'kstp')[l]
     if(!is.null(attr(obj,'kper'))) attr(obj,'kper') <- attr(obj,'kper')[l]

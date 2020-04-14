@@ -1,17 +1,25 @@
 
 
+#' Function to create a rmt_list object from RMODFLOW discete boundary condition object objects
+#'
+#' @param obj RMODFLOW discete boundary condition object. Allowed objects are chd, ghb, riv, drn, wel
+#' @param conc vector, data.frame or matrix with concentration values. 
+#' @param itype integer column (or single value) to indicate flux type
+#' @param kper integer value(s) indicating during which stress-periods this rmf_list is active
+#'
+#' @return a \code{rmt_list} object
+#' @keywords internal
 rmti_create_bc_list <- function(obj, conc, itype, kper) {
   
-  df <- as.data.frame(obj$data)
-  sp <- obj$kper[kper, -1, drop = FALSE]
-  active <- which(sp == TRUE || (is.character(sp) && !is.na(sp)))
-  active_nms <- colnames(sp)[active]
+  act_names <- apply(obj$kper[kper,-1, drop = FALSE], 1, sum)
+  act_names <- colnames(obj$kper[,-1, drop = FALSE])[which(as.logical(act_names) != FALSE)]
+  if(length(act_names) == 0) stop('No active obj features for kper ', kper, call. = FALSE)
   
-  df <- df[df$name %in% active_nms,]
+  df <- as.data.frame(obj$data)
+  df <- df[df$name %in% act_names, ]
   
   # concentrations
-  conc <- structure(as.data.frame(matrix(conc, nrow = 1)), names = paste0('css', 1:length(conc)))
-  if(ncol(conc) == 1) colnames(conc) <- 'css'
+  conc <- structure(as.data.frame(matrix(conc, ncol = ncol(conc))), names = paste0('css', 1:ncol(conc)))
   df <- cbind(df, itype, conc)
   df <- rmt_create_list(df, kper = kper)
   return(df)
@@ -32,6 +40,9 @@ rmti_ifelse0 <- function(test, yes, no) {
   }
 }
 
+#' Return a data.frame with itype and names columns
+#' @return a data.frame containing the 'itype' column with the integer code used by MT3D to define flux types and the 'names' column with corresponding flux names.
+#' @keywords internal
 rmti_itype <- function() {
   itype <- data.frame(itype = c(1, 2, 3, 4, 5, 15, -1, 21, 22, 23, 26, 27, 28, 30),
                       names = c('constant-head', 'wel', 'drn', 'riv', 'ghb', 'mass-loading', 'constant-concentration', 'str', 'res', 'fhd', 'lak', 'mnw', 'drt', 'sfr'),
@@ -39,7 +50,88 @@ rmti_itype <- function() {
   return(itype)
 }
 
-#' Get an array specified by a  control record from the text lines analyzed in an \code{\link{RMT3DMS}} \code{rmt_read_*} function
+#' Read the package header from a flow-transport link file
+#'
+#' @param file pathname to the flow-transport link file, typically '*.ftl'
+#'
+#' @return logical vector of length 3, indicating if the rch, evt or uzf packages are active in the flow simulation
+#' @details This function is used in \code{\link{rmt_read_ssm}} as a replacement for reading data set 1. It is used to determine if
+#'          rch, evt and/or uzf concentration arrays have to be read. All other active flow packages are read from the point source/sink data sets.
+#'          \code{rmti_parse_ftl_header} can only be used with flow-transport link files using MT3DMS or MT3D-USGS headers.
+#'          The UZF package can only be used with MT3D-USGS.
+#' @keywords internal
+rmti_parse_ftl_header <- function(file) {
+  
+  lines <- readr::read_lines(file)
+  lg <- structure(rep(FALSE, 3), names = c('frch', 'fevt', 'fuzf'))
+  
+  # binary <- FALSE
+  # v <- suppressWarnings(strsplit(lines[1], '')[[1]])
+  # if(length(v) == 1 && is.na(v)) binary <- TRUE
+  
+  binary <- !validUTF8(lines[2])
+
+  if(binary) { # binary
+    con <- file(file, open = 'rb')
+    try({
+      v <- readChar(con, nchars = 11)
+      rec <- readBin(con, what = 'integer', n = 9)
+      if(rec[3] > 0) lg['frch'] <- TRUE
+      if(rec[4] > 0) lg['fevt'] <- TRUE
+      
+      # s <- grepl('MT3D', v, ignore.case = TRUE) # MT3DMS header
+      usgs <- grepl('MTGS', v, ignore.case = TRUE) # MT3D-USGS
+      if(usgs) {
+        npk <- readBin(con, what = 'integer', n = 1)
+        rec2 <- vector(what = 'character', length = npk)
+        for(i in 1:npk) rec2[i] <- toupper(trimws(readChar(con, nchars = 12)))
+        if('UZF' %in% rec2) lg['fuzf'] <- TRUE
+      }
+      
+      # if(s) {
+      #   version <- sub('MT3D', '', v, ignore.case = TRUE) 
+      #   vn <- as.numeric(strsplit(version, '\\.')[[1]][1])
+      #   # standard header (v < 4, not supported by MODFLOW-2005) or extended header (v >= 4)
+      #   # not necessary to read
+      #   # ext_header <- vn >= 4
+      #   # if(ext_header) rec2 <- readBin(con, what = 'integer', n = 12)
+      #   
+      # } else if(usgs) {
+      #   npk <- readBin(con, what = 'integer', n = 1)
+      #   rec2 <- vector(what = 'character', length = npk)
+      #   for(i in 1:npk) rec2[i] <- readChar(con, nchars = 12)
+      #   
+      # } else {
+      #   stop('Can only read flow-transport link with MT3DMS or MT3D-USGS headers', call. = FALSE)
+      # }
+    })
+    close(con)
+    
+  } else { # ASCII
+    rec <- rmti_parse_variables(lines, format = 'free', character = TRUE)
+    v <- trimws(rec$variables[1])
+    if(as.numeric(rec$variables[4]) > 0) lg['frch'] <- TRUE
+    if(as.numeric(rec$variables[5]) > 0) lg['fevt'] <- TRUE
+    
+    usgs <- grepl('MTGS', v, ignore.case = TRUE) # MT3D-USGS
+    if(usgs) {
+      remaining_lines <- rec$remaining_lines
+      npk <- as.numeric(rmti_parse_variables(lines, format = 'free'))
+      rec2 <- vector(what = 'character', length = npk)
+      remaining_lines <- rec$remaining_lines
+      
+      for(i in 1:npk) {
+        pck <- rmti_parse_variables(lines, format = 'free', character = TRUE)
+        rec2[i] <- toupper(trimws(pck$variables[1]))
+        remaining_lines <- pck$remaining_lines
+      }
+      if('UZF' %in% rec2) lg['fuzf'] <- TRUE
+    }
+  }
+  return(lg)
+}
+
+#' Get an array specified by a control record from the text lines analyzed in a \code{RMT3DMS} \code{rmt_read_*} function
 #' @param remaining_lines lines to read the array from
 #' @param nrow number of rows in the array
 #' @param ncol number of columns in the array
@@ -52,28 +144,32 @@ rmti_itype <- function() {
 #' @param integer logical; does the binary array hold integer values. Might not work optimally.
 #' @param ... ignored
 #' @return A list containing the array and the remaining text of the MT3DMS input file
+#' @keywords internal
 rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim = NULL,
                              skip_header = FALSE, nam = NULL, precision = "single", file = NULL, integer = FALSE, ...) {
   
-  header <- rmti_parse_variables(remaining_lines[1], n = 3, format = 'fixed')
   
-  # MODFLOW-style free format control header
-  if(header[1] %in% c('CONSTANT', 'INTERNAL', 'EXTERNAL', 'OPEN/CLOSE') || skip_header) {
-    data_set <- RMODFLOW:::rmfi_parse_array(remaining_lines, nrow = nrow, ncol = ncol, nlay = nlay, ndim = ndim, 
-                                            skip_header = skip_header, nam = nam, precision = precision, file = file, integer = integer, ...)
-    data_set$array <- rmt_convert_rmf_to_rmt(data_set$array)
-    
-  } else {
-    # MT3DMS fixed format control header
-    
-    # Initialize array object
-    array <- array(dim=c(nrow,ncol,nlay))
-    
-    # Read array according to format type if there is anything to be read
-    if(prod(dim(array))!=0)
-    {
-      for(k in 1:nlay) 
-      { 
+  # Initialize array object
+  array <- array(dim=c(nrow,ncol,nlay))
+  
+  # Read array according to format type if there is anything to be read
+  if(prod(dim(array))!=0)
+  {
+    for(k in 1:nlay) 
+    { 
+      header <- rmti_parse_variables(remaining_lines[1], n = 3, format = 'fixed')
+      
+      # MODFLOW-style free format control header
+      if(header$variables[1] %in% c('CONSTANT', 'INTERNAL', 'EXTERNAL', 'OPEN/CLOSE') || skip_header) {
+        rmf_data_set <- RMODFLOW:::rmfi_parse_array(remaining_lines, nrow = nrow, ncol = ncol, nlay = 1, ndim = ndim[1:2], 
+                                                skip_header = skip_header, nam = nam, precision = precision, file = file, integer = integer, ...)
+        array[,,k] <- rmt_convert_rmf_to_rmt(rmf_data_set$array)
+        remaining_lines <- rmf_data_set$remaining_lines
+        rm(rmf_data_set)
+        
+      } else {
+        # MT3DMS fixed format control header
+        
         fortranfmt <-  FALSE
         
         iread <-  as.numeric(header$variables[1])
@@ -134,11 +230,12 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim = NULL,
           
           n_final <- nrow*ncol
           n <- 0
-          nLines <- 1
+          nLines <- 0
           values <- vector(mode = 'numeric')
           end <- FALSE
           
           while(n < n_final && !end) {
+            nLines <- nLines + 1
             values_ch <- rmti_remove_empty_strings(strsplit(paste(remaining_lines[nLines],collapse='\n'),' |,| ,|, |\t|\n| \n|\n ')[[1]])
             
             # terminate if / is encountered
@@ -154,11 +251,10 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim = NULL,
             values_ch <- lapply(values_ch, function(i) rmti_ifelse0(length(i) > 1, rep(as.numeric(i[[2]]), as.numeric(i[[1]])), as.numeric(i)))
             values <- c(values, unlist(values_ch))
             
-            nLines <- nLines + 1
             n <- length(values)
           }
           
-          array[,,k] <- as.numeric(values[1:n_final])*cnst
+          array[,,k] <- matrix(as.numeric(values[1:n_final])*cnst, nrow = nrow, ncol = ncol, byrow = TRUE)
           
           
         } else {  # EXTERNAL
@@ -250,7 +346,9 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim = NULL,
           }
           nLines <- 1
         }
+        
         remaining_lines <- remaining_lines[-c(1:nLines)]
+        
       }
     }
     
@@ -272,20 +370,20 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim = NULL,
     } else if(ndim == 3) {
       array <- rmt_create_array(array, dim = c(nrow, ncol, nlay))
     }
-    
-    data_set <- list(array = array, remaining_lines = remaining_lines)
   }
   
+  data_set <- list(array = array, remaining_lines = remaining_lines)
   return(data_set)
 }
 
-#' Read mt3dms variables
+#' Read MT3DMS single-line variables
 #' @param n integer; number of variables to be returned. Only used when format is \code{'fixed'}.  
 #' @param width integer; length of a single variable. Only used when format is \code{'fixed'}.  
 #' @param nlay integer; number of layers for which values are to be read. Only use when a 1D(NLAY) variable is read which may be specified on multiple lines.
 #' @param character logical; should a character vector be returned. Prevents conversion from character names to numeric. Defaults to FALSE. Useful if only characters are present on the line.
 #' @param format character, either \code{'free'} or \code{'fixed'}. When 'fixed', reads character fields of length 'width' and converts to numeric. Empty fields are set to zero.
 #' @param ... ignored
+#' @return vector with values
 #' @keywords internal
 rmti_parse_variables <- function(remaining_lines, n, width = 10, nlay = NULL, character = FALSE, format = 'fixed', ...) {
   if(format == 'free') {
@@ -299,7 +397,7 @@ rmti_parse_variables <- function(remaining_lines, n, width = 10, nlay = NULL, ch
     if(!character && !any(is.na(suppressWarnings(as.numeric(variables))))) variables <- as.numeric(variables)
   } else if(format == 'fixed') { # every value has 'width' characters; empty values are zero
     variables <- (unlist(lapply(seq(1,nchar(remaining_lines[1]), by=width), 
-                                function(i) paste0(strsplit(rmti_remove_comments_end_of_line(toupper(remaining_lines[1])),'')[[1]][i:(i+width-1)], collapse=''))))
+                                function(i) paste0(strsplit(rmti_remove_comments_end_of_line(toupper(remaining_lines[1])),'')[[1]][i:(i+min(width, nchar(remaining_lines[1])-i+1)-1)], collapse=''))))
     variables <- lapply(strsplit(variables, " |\t"), rmti_remove_empty_strings)
     variables[which(lengths(variables)==0)] <-  0 # empty values are set to 0
     variables <- unlist(variables)
@@ -328,15 +426,23 @@ rmti_remove_comments_end_of_line <- function(line) {
 #' Remove empty elements from a vector of strings.
 #' @param vector_of_strings Vector of strings.
 #' @return Vector of strings without the empty items.
+#' @keywords internal
 rmti_remove_empty_strings <- function(vector_of_strings) {
   return(vector_of_strings[which(vector_of_strings!='')])
 }
 
-#' Write mt3dms array
-#' Internal function used in the write_* functions for writing array datasets
+#' Write MT3DMS array
+#' Internal function used in the rmt_write_* functions for writing array datasets
+#' @param array array to write
+#' @param file pathname to the file to write the array to
 #' @param mf_style logical, should MODFLOW-style array headers be used (i.e. INTERNAL, EXTERNAL, OPEN/CLOSE, ...) ? Defaults to FALSE
 #' @param format either 'free' (iread = 103, i.e. FORTRAN free format) or 'fixed' (iread = 100 using FORTRAN format 10G11.4). In both cases, iread = 0 when the array only contains 1 unique value. Defaults to 'free'. 
+#' @param cnstnt numeric constant to add to the array header which acts as a multiplier for the array values in MODFLOW. Default to 1
+#' @param iprn iprn code to add to array header. Defaults to -1
+#' @param append logical; should array be appended to the file. Defaults to TRUE
 #' @param ... passed to \code{\link{RMODFLOW:::rmfi_write_array}} when mf_style is TRUE
+#' @return NULL
+#' @keywords internal
 rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cnstnt=1, iprn=-1, append=TRUE, ...) {
   
   if(mf_style) {
@@ -344,7 +450,7 @@ rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cns
   } else {
     
     # MT3DMS
-    # only iread 0 & 100 supported (CONSTANT & INTERNAL-ARRAY)
+    # only iread 0 & 100 & 103 supported (CONSTANT & INTERNAL-ARRAY fixed and free format)
     # format: (10G11.4)
     
     fmt <- '(10G11.4)'
@@ -449,10 +555,11 @@ rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cns
   }
 }
 
-#' Write mt3dms variables
+#' Write MT3DMS variables
 #' Internal function used in the rmt_write_* functions for writing single line datasets
 #' @param format either \code{'fixed'} or \code{'free'}. Fixed format assumes fixed width character spaces for each value as determined by the width argument
 #' @param width numeric vector with the character widths for each variable. If a single value, it is repeated.
+#' @return NULL
 #' @keywords internal
 rmti_write_variables <- function(..., file, append=TRUE, width = 10, format = 'fixed') {
   arg <- unlist(list(...))
