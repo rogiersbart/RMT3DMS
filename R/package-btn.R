@@ -28,8 +28,8 @@
 #' @param ifmtrf flag and printing code to determine if the model-calculated retardation factor should be printed to the standard output text file. Defaults to 0 (no printing).
 #' @param ifmtdp flag and printing code to determine if the model-calculated distance-weighted dispersion coefficient should be printed to the standard output text file. Defaults to 0 (no printing).
 #' @param savucn logical determining if concentration solution should be saved in default unformatted (binary) file named MT3Dnnn.UCN where nnn is the species index number. Defaults to TRUE.
-#' @param nprs frequency of output. If positive, simulation results will be printed or saved at times specified by \code{timprs}. If negative, whenever number of transport steps is an even multiple of \code{nprs}. If zero, only print or save at the end of the simulation. Defaults to -1.
-#' @param timprs vector of length \code{nprs} with the printing/saving times. Only used when \code{nprs > 0}. Defaults to an even interval of \code{nprs} times for the total simulation length.
+#' @param nprs frequency of output. Ignored if \code{timprs} is supplied. If positive, \code{timpr} must be supplied. If negative, output is printed or saved whenever the number of transport steps is an even multiple of \code{nprs}. If zero, only print or save at the end of the simulation. Defaults to -1.
+#' @param timprs vector with user-defined printing/saving times. Defaults to NULL.
 #' @param obs optional data.frame with k, i and j columns indicating the cells for which species' concentrations will be saved in MT3Dnnn.OBS files (nnn indicating species index). Defaults to NULL. 
 #' @param nprobs integer indicating how frequently concentrations at \code{obs} observation points should be saved. Concentrations are saved every \code{nprobs} step. Defaults to 1.
 #' @param chkmas logical indicating whether a one-line summary of the mass balance should be saved to a default MT3Dnnn.MAS file where nnn is the species index. Defaults to TRUE.
@@ -87,7 +87,7 @@ rmt_create_btn <- function(nlay = 3,
                            ifmtdp = 0,
                            savucn = TRUE,
                            nprs = -1,
-                           timprs = seq(1, sum(perlen), length.out = abs(nprs)),
+                           timprs = NULL,
                            obs = NULL,
                            nprobs = 1,
                            chkmas = TRUE,
@@ -139,7 +139,7 @@ rmt_create_btn <- function(nlay = 3,
   btn$trnop <- trnop
   
   # data set 6
-  btn$laycon <- laycon
+  btn$laycon <- rmti_ifelse0(length(laycon) == 1, rep(laycon, btn$nlay), laycon)
   
   # data set 7
   btn$delr <- rmti_ifelse0(length(delr) == 1, rep(delr, btn$ncol), delr)
@@ -178,11 +178,14 @@ rmt_create_btn <- function(nlay = 3,
   btn$ifmtdp <- ifmtdp
   btn$savucn <- savucn
   
-  # data set 16
-  btn$nprs <- nprs
-  
-  # data set 17
-  if(btn$nprs > 0) btn$timprs <- timprs
+  # data set 16 - 17
+  if(!is.null(timprs)) {
+    btn$nprs <- length(timprs)
+    btn$timprs <- timprs
+  } else {
+    if(nprs > 0) stop('Please supply a timprs argument when nprs > 0', call. = FALSE)
+    btn$nprs <- nprs
+  }
   
   # data set 18 & 19
   if(!is.null(obs)) {
@@ -195,19 +198,19 @@ rmt_create_btn <- function(nlay = 3,
   btn$nprmas <- nprmas
   
   # data set 21
-  btn$perlen <- perlen
-  btn$nstp <- nstp
-  btn$tsmult <- tsmult
-  btn$ssflag <- ssflag
+  btn$perlen <- rmti_ifelse0(length(perlen) == 1, rep(perlen, btn$nper), perlen)
+  btn$nstp <- rmti_ifelse0(length(nstp) == 1, rep(nstp, btn$nper), nstp)
+  btn$tsmult <- rmti_ifelse0(length(tsmult) == 1, rep(tsmult, btn$nper), tsmult)
+  btn$ssflag <- rmti_ifelse0(length(ssflag) == 1, rep(ssflag, btn$nper), ssflag)
   
   # data set 22
   if(any(btn$tsmult <= 0)) btn$tslngh <- tslngh
   
   # data set 23
-  btn$dt0 <- dt0
-  btn$mxstrn <- mxstrn
-  btn$ttsmult <- ttsmult
-  btn$ttsmax <- ttsmax
+  btn$dt0 <- rmti_ifelse0(length(dt0) == 1, rep(dt0, btn$nper), dt0)
+  btn$mxstrn <- rmti_ifelse0(length(mxstrn) == 1, rep(mxstrn, btn$nper), mxstrn)
+  btn$ttsmult <- rmti_ifelse0(length(ttsmult) == 1, rep(ttsmult, btn$nper), ttsmult)
+  btn$ttsmax <- rmti_ifelse0(length(ttsmax) == 1, rep(ttsmax, btn$nper), ttsmax)
   
   class(btn) <- c('btn', 'rmt_package')
   return(btn)

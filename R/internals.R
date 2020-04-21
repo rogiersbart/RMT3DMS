@@ -570,6 +570,7 @@ rmti_write_variables <- function(..., file, append=TRUE, width = 10, format = 'f
   } else if(format == 'fixed') {
     if(length(width) == 1) width <- rep(width, length(arg)) 
     arg <- vapply(1:length(arg), function(i) formatC(arg[i], width = width[i]), 'text')
+    arg <- vapply(1:length(arg), function(i) paste0(strsplit(arg[[i]], '')[[1]][1:width[i]], collapse = ''), 'text')
     cat(paste0(paste0(arg, collapse=''), '\n'), file=file, append=append)
   }
 }

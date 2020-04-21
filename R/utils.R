@@ -89,10 +89,11 @@ as.data.frame.rmt_list <- function(obj, ...) structure(NextMethod(...), kper = N
 #' @param ... additional arguments passed to \code{rmt_create_btn}
 #'
 #' @return \code{RMT3DMS} btn object
+#' @details conversion works best when number of stress-periods is equal in the dis and btn objects.
 #' @export
 #' @seealso \code{\link{rmt_convert_btn_to_dis}}, \code{\link{rmt_create_btn}}
 #' @examples
-rmt_convert_dis_to_btn <- function(dis, perlen = dis$perlen,
+rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen,
                                    tunit = NULL, lunit = NULL, ...) {
   
   dz <- rmt_convert_rmf_to_rmt(RMODFLOW::rmf_calculate_thickness(dis))
@@ -103,7 +104,7 @@ rmt_convert_dis_to_btn <- function(dis, perlen = dis$perlen,
   btn <- rmt_create_btn(nlay = dis$nlay,
                         nrow = dis$nrow,
                         ncol = dis$ncol,
-                        nper = dis$nper,
+                        nper = nper,
                         tunit = tunit,
                         lunit = lunit,
                         delr = dis$delr,
@@ -123,9 +124,10 @@ rmt_convert_dis_to_btn <- function(dis, perlen = dis$perlen,
 #' @param sstr character vector with steady state ('SS') or transient ('TR') stress period indicator; defaults to first period 'SS' and all others 'TR'
 #'
 #' @return \code{RMODFLOW} dis object
+#' @details conversion works best when number of stress-periods is equal in the dis and btn objects.
 #' @export
 #' @seealso \code{\link{rmt_convert_dis_to_btn}}
-rmt_convert_btn_to_dis <- function(btn, sstr = c("SS", rep("TR", btn$nper - 1)), ...) {
+rmt_convert_btn_to_dis <- function(btn, nper = btn$nper, perlen = btn$perlen, sstr = c("SS", rep("TR", nper - 1)), ...) {
 
   botm <- btn$dz*NA
   botm[,,1] <- btn$htop - btn$dz[,,1]
@@ -149,9 +151,9 @@ rmt_convert_btn_to_dis <- function(btn, sstr = c("SS", rep("TR", btn$nper - 1)),
   
   if(lenuni %in% c('FT', 'FEET', 'FOOT')) {
     lenuni <- 1
-  } else if(lenuni %in% c('M', 'METE', 'METER', 'METERS', 'METRE', 'METRES')) {
+  } else if(lenuni %in% c('M', 'METE', 'METER', 'METERS', 'METRE', 'METR', 'METRES')) {
     lenuni <- 2
-  } else if(lenuni %in% c('CM', 'CENT', 'CENTIMETER', 'CENTIMETERS', 'CENTIMETRE', 'CENTIMETRES')) {
+  } else if(lenuni %in% c('CM', 'CENT', 'CNTM', 'CNT', 'CENTIMETER', 'CENTIMETERS', 'CENTIMETRE', 'CENTIMETRES')) {
     lenuni <- 3
   } else {
     lenuni <- 0
@@ -160,7 +162,7 @@ rmt_convert_btn_to_dis <- function(btn, sstr = c("SS", rep("TR", btn$nper - 1)),
   dis <- RMODFLOW::rmf_create_dis(nlay = btn$nlay,
                                   nrow = btn$nrow,
                                   ncol = btn$ncol,
-                                  nper = btn$nper,
+                                  nper = nper,
                                   itmuni = itmuni,
                                   lenuni = lenuni,
                                   laycbd = rep(0, btn$nlay),
@@ -168,7 +170,7 @@ rmt_convert_btn_to_dis <- function(btn, sstr = c("SS", rep("TR", btn$nper - 1)),
                                   delc = btn$delc,
                                   top = btn$htop,
                                   botm = botm,
-                                  perlen = btn$perlen,
+                                  perlen = perlen,
                                   nstp = btn$nstp,
                                   tsmult = btn$tsmult,
                                   sstr = sstr, 
