@@ -291,25 +291,25 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   rm(data_set_8)
   
   # Data set 9
-  data_set_9 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,1, file = file, ...)
+  data_set_9 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,1, ndim = 2, file = file, ...)
   btn_lines <- data_set_9$remaining_lines
   btn$htop <- data_set_9$array
   rm(data_set_9)
   
   # Data set 10
-  data_set_10 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, file = file, ...)
+  data_set_10 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, ndim = 3, file = file, ...)
   btn_lines <- data_set_10$remaining_lines
   btn$dz <- data_set_10$array
   rm(data_set_10)
   
   # Data set 11
-  data_set_11 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, file = file, ...)
+  data_set_11 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, ndim = 3, file = file, ...)
   btn_lines <- data_set_11$remaining_lines
   btn$prsity <- data_set_11$array
   rm(data_set_11)
   
   # Data set 12
-  data_set_12 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, file = file, integer = TRUE, ...)
+  data_set_12 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, ndim = 3, file = file, integer = TRUE, ...)
   btn_lines <- data_set_12$remaining_lines
   btn$icbund <- rmt_create_array(as.integer(data_set_12$array), dim = c(btn$nrow, btn$ncol, btn$nlay))
   rm(data_set_12)
@@ -317,7 +317,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   # Data set 13
   btn$sconc <- list()
   for(species in 1:btn$ncomp) {
-    data_set_13 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, file = file, ...)
+    data_set_13 <- rmti_parse_array(btn_lines,btn$nrow,btn$ncol,btn$nlay, ndim = 3, file = file, ...)
     btn_lines <- data_set_13$remaining_lines
     btn$sconc[[species]] <- rmt_create_array(data_set_13$array, solute = species)
     rm(data_set_13)
@@ -442,6 +442,8 @@ rmt_write_btn <- function(btn,
                       iprn=-1,
                       ...) {
   
+  mf_style <- btn$modflowstylearrays
+  
   # Data set 1-2
   v <- packageDescription("RMT3DMS")$Version
   cat(paste('# MT3DMS Basic Transport File created by RMT3DMS, version',v,'\n'), file=file)
@@ -451,7 +453,7 @@ rmt_write_btn <- function(btn,
   if(!is.null(btn$options)) rmti_write_variables(btn$options, file = file, format = 'free')
 
   # Data set 3
-  rmti_write_variables(btn$nlay, btn$nrow, btn$ncol, btn$nper, btn$ncomp, btn$mcomp, file = file)
+  rmti_write_variables(btn$nlay, btn$nrow, btn$ncol, btn$nper, btn$ncomp, btn$mcomp, file = file, integer = TRUE)
 
   # Data set 4
   rmti_write_variables(btn$tunit, btn$lunit, btn$munit, file = file, width = 4)
@@ -462,52 +464,52 @@ rmt_write_btn <- function(btn,
   # Data set 6
   nLines <- (btn$nlay %/% 40 + ifelse((btn$nlay %% 40) == 0, 0, 1))
   for(i in 1:nLines) {
-    rmti_write_variables(btn$laycon[((i-1)*40+1) : ifelse((i*40) > btn$nlay, btn$nlay, (i*40))], file = file, width = 2)
+    rmti_write_variables(btn$laycon[((i-1)*40+1) : ifelse((i*40) > btn$nlay, btn$nlay, (i*40))], file = file, width = 2, integer = TRUE)
   }
   
   # Data set 7
-  rmti_write_array(btn$delr, file = file, iprn = iprn, ...)
+  rmti_write_array(btn$delr, file = file, iprn = iprn, mf_style = mf_style, ...)
   
   # Data set 8
-  rmti_write_array(btn$delc, file = file, iprn = iprn, ...)
+  rmti_write_array(btn$delc, file = file, iprn = iprn, mf_style = mf_style, ...)
   
   # Data set 9
-  rmti_write_array(btn$htop, file = file, iprn = iprn, ...)
+  rmti_write_array(btn$htop, file = file, iprn = iprn, mf_style = mf_style, ...)
   
   # Data set 10
-  rmti_write_array(btn$dz, file = file, iprn = iprn, ...)
+  rmti_write_array(btn$dz, file = file, iprn = iprn, mf_style = mf_style, ...)
   
   # Data set 11
-  rmti_write_array(btn$prsity, file = file, iprn = iprn, ...)
+  rmti_write_array(btn$prsity, file = file, iprn = iprn, mf_style = mf_style, ...)
   
   # Data set 12
-  rmti_write_array(btn$icbund, file = file, iprn = iprn, ...)
+  rmti_write_array(btn$icbund, file = file, iprn = iprn, mf_style = mf_style, ...)
   
   # Data set 13
   for(species in 1:btn$ncomp) {
     btn$sconc[[species]][which(is.na(btn$sconc[[species]]))] <- btn$cinact
-    rmti_write_array(btn$sconc[[species]], file = file, iprn = iprn, ...)
+    rmti_write_array(btn$sconc[[species]], file = file, iprn = iprn, mf_style = mf_style, ...)
   }
   
   # Data set 14
   rmti_write_variables(btn$cinact, btn$thkmin, file = file)
   
   # Data set 15
-  rmti_write_variables(btn$ifmtcn, btn$ifmtnp, btn$ifmtrf, btn$ifmtdp, as.character(factor(btn$savucn,levels=c(TRUE,FALSE),labels=c(' T',' F'))), file = file)
+  rmti_write_variables(as.integer(btn$ifmtcn), as.integer(btn$ifmtnp), as.integer(btn$ifmtrf), as.integer(btn$ifmtdp), as.character(factor(btn$savucn,levels=c(TRUE,FALSE),labels=c(' T',' F'))), file = file)
   
   # Data set 16
-  rmti_write_variables(btn$nprs, file = file)
+  rmti_write_variables(btn$nprs, file = file, integer = TRUE)
   
   # Data set 17
   if(btn$nprs > 0) {
     nLines <- (btn$nprs %/% 8 + ifelse((btn$nprs %% 8) == 0, 0, 1))
     for(i in 1:nLines) {
-      rmti_write_variables(btn$timprs[((i-1)*8+1) : ifelse((i*8) > btn$nprs, btn$nprs, (i*8))], file = file)
+      rmti_write_variables(btn$timprs[((i-1)*8+1) : ifelse((i*8) > btn$nprs, btn$nprs, (i*8))], file = file, integer = TRUE)
     }
   }
   
   # Data set 18
-  rmti_write_variables(ifelse(is.null(btn$obs), 0, nrow(btn$obs)), ifelse(is.null(btn$obs), 1, btn$nprobs), file = file)
+  rmti_write_variables(ifelse(is.null(btn$obs), 0, nrow(btn$obs)), ifelse(is.null(btn$obs), 1, btn$nprobs), file = file, integer = TRUE)
   
   # Data set 19
   if(!is.null(btn$obs)) {
@@ -518,11 +520,11 @@ rmt_write_btn <- function(btn,
   }
   
   # Data set 20
-  rmti_write_variables(as.character(factor(btn$chkmas,levels = c(TRUE,FALSE),labels=c('T','F'))), btn$nprmas, file = file)
+  rmti_write_variables(as.character(factor(btn$chkmas,levels = c(TRUE,FALSE),labels=c('T','F'))), as.integer(btn$nprmas), file = file)
   
   for(i in 1:btn$nper) {  
     # Data set 21
-    rmti_write_variables(btn$perlen[i], btn$nstp[i], btn$tsmult[i], ifelse(btn$sstate[i], 'SSTATE', ''), file = file)
+    rmti_write_variables(btn$perlen[i], as.integer(btn$nstp[i]), btn$tsmult[i], ifelse(btn$sstate[i], 'SSTATE', ''), file = file)
     
     # Data set 22
     if(btn$tsmult[i] <= 0) {
@@ -533,6 +535,6 @@ rmt_write_btn <- function(btn,
     }
     
     # Data set 23
-    rmti_write_variables(btn$dt0[i], btn$mxstrn[i], btn$ttsmult[i], btn$ttsmax[i], file = file)
+    rmti_write_variables(btn$dt0[i], as.integer(btn$mxstrn[i]), btn$ttsmult[i], btn$ttsmax[i], file = file)
   }
 }

@@ -106,7 +106,7 @@ rmt_create_ssm <- function(..., btn, crch = NULL, cevt = NULL, mxss = prod(btn$n
       sp <- attr(crch[[i]], 'kper')
       icomp <- attr(crch[[i]], 'solute')
       error <- any(!is.na(kper[sp,icomp + 1,drop=FALSE]))
-      if(error) stop('Multiple crch arrays specified for combinations of stress-period(s) ', sp, ' and solute(s) ', icomp, call. = FALSE)
+      if(error) stop('Multiple crch arrays specified for combinations of stress-period(s) ', paste0(p, collapse = ' '), ' and solute(s) ', paste0(icomp, collapse = ' '), call. = FALSE)
       kper[sp,icomp + 1] <- names(crch)[i]
     }
     if(any(is.na(unlist(kper[,-1])))) stop('crch is not defined for all species in all stress-periods', call. = FALSE)
@@ -306,7 +306,7 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
     
     if(inc >=0) {
       for(icomp in 1:btn$ncomp) {
-        data_set_a <- rmti_parse_array(lines, nrow = btn$nrow, ncol = btn$ncol, nlay = 1, file = file, ...)
+        data_set_a <- rmti_parse_array(lines, nrow = btn$nrow, ncol = btn$ncol, nlay = 1, ndim = 2, file = file, ...)
         carray <- rmt_create_array(data_set_a$array, kper = sp, solute = icomp)
         array_list[[length(array_list) + 1]] <- carray
         lines <- data_set_a$remaining_lines
@@ -446,6 +446,7 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
 #' @param file filename to write to; typically '*.ssm'
 #' @param btn an \code{RMT3DMS} btn object
 #' @param iprn format code for printing arrays in the listing file; defaults to -1 (no printing)
+#' @param additional arguments passed to \code{\link{rmti_write_array}}
 #' @return \code{NULL}
 #' @export
 #' @seealso \code{\link{rmt_create_ssm}}, \code{\link{rmt_read_ssm}}
@@ -457,13 +458,16 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
 rmt_write_ssm <- function(ssm,
                           file = {cat('Please select ssm file to overwrite or provide new filename ...\n'); file.choose()},
                           btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},
-                          iprn = -1) {
+                          iprn = -1,
+                          ...) {
+  
+  mf_style <- btn$modflowstylearrays
   
   # data set 1
   rmti_write_variables(ifelse(ssm$dimensions$ds1, 'T', 'F'), file = file, width = 2, append = FALSE)
   
   # data set 2
-  rmti_write_variables(ssm$dimensions$mxss, if(!is.null(ssm$issgout)) {ssm$issgout}, file = file)
+  rmti_write_variables(ssm$dimensions$mxss, if(!is.null(ssm$issgout)) {ssm$issgout}, file = file, integer = TRUE)
   
   # function to see if current stress-period has same active arrays as previous stress-period
   check_prev <- function(kper, i) {
@@ -511,12 +515,12 @@ rmt_write_ssm <- function(ssm,
       } else {
         incrch <- 1
       } 
-      rmti_write_variables(incrch, file = file)
+      rmti_write_variables(incrch, file = file, integer = TRUE)
       
       if(incrch >= 0) {
         for(icomp in 1:btn$ncomp) {
           nm <- ssm$crch$kper[i,icomp + 1]
-          rmti_write_array(ssm$crch$crch[[nm]], file = file, mf_style = btn$modflowstylearrays, iprn = iprn)
+          rmti_write_array(ssm$crch$crch[[nm]], file = file, iprn = iprn, mf_style = mf_style, ...)
         }
       }
     }
@@ -538,12 +542,12 @@ rmt_write_ssm <- function(ssm,
       } else {
         incevt <- 1
       } 
-      rmti_write_variables(incevt, file = file)
+      rmti_write_variables(incevt, file = file, integer = TRUE)
       
       if(incevt >= 0) {
         for(icomp in 1:btn$ncomp) {
           nm <- ssm$cevt$kper[i,icomp + 1]
-          rmti_write_array(ssm$cevt$cevt[[nm]], file = file, mf_style = btn$modflowstylearrays, iprn = iprn)
+          rmti_write_array(ssm$cevt$cevt[[nm]], file = file, iprn = iprn, mf_style = mf_style, ...)
         }
       }
     }
@@ -557,7 +561,7 @@ rmt_write_ssm <- function(ssm,
       nss <- 0
     }
     
-    rmti_write_variables(nss, file = file)
+    rmti_write_variables(nss, file = file, integer = TRUE)
     if(nss > 0) {
       if(btn$ncomp == 1) {
         fmt <- paste0(c(rep('%10i', 3), '%10g', '%10i'), collapse = '')

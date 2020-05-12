@@ -1,4 +1,100 @@
 
+#' Reads the mass budget from a MT3DMS listing file
+#'
+#' \code{rmt_read_bud} reads a mass budget from a MT3DMS listing file and returns it as a list with data frame elements
+#' 
+#' @param file path to the listing file; typically '*.lst'
+#'
+#' @return an object of class cbud which is a data.frame containing the cumulative mass budgets for all species
+#' @export
+#' 
+rmt_read_bud <- function(file = {cat('Please select listing file ...\n'); file.choose()}) {
+  
+  # kstp, kper, tstp, tnstp, total_time, variables
+  
+  lst.lines <- readr::read_lines(file)
+  headers <- grep(">>>>>>>FOR COMPONENT NO.", lst.lines)
+  enders <- grep("DISCREPANCY (PERCENT)", lst.lines, fixed = TRUE)
+  
+  # if budget is printed
+  if(length(headers) > 0) {
+    
+    # helper functions
+    read_vars <- function(index, lines) rmti_remove_empty_strings(strsplit(gsub(':', ' : ', lines[index]), ' : ')[[1]][1])
+    get_timing <- function(header_vector) {
+      icomp <- as.numeric(strsplit(gsub('<|>', '', header_vector[1]), 'NO\\.')[[1]][2])
+      # tnstp <- as.numeric(strsplit(header_vector[5], 'NO\\.')[[1]][2])
+      time <- as.numeric(rmti_remove_empty_strings(strsplit(strsplit(header_vector[8], '=')[[1]][2], '\\s+')[[1]])[1])
+      
+      timing_line <- strsplit(header_vector[11],',')[[1]]
+      tstp <- as.numeric(strsplit(timing_line[1],'TRANSPORT STEP')[[1]][2])
+      kstp <- as.numeric(strsplit(timing_line[2],'TIME STEP')[[1]][2])
+      kper <- as.numeric(strsplit(timing_line[3],'STRESS PERIOD')[[1]][2])
+      return(list(icomp, time, tstp, kstp, kper))
+    }
+    get_vars <- function(var_vector) {
+      breaks <- rmti_remove_empty_strings(strsplit(strsplit(gsub(':', ' : ', var_vector), ':')[[1]][2], '\\s+')[[1]])
+      values <- as.numeric(breaks)
+      return(values)
+    }
+    get_balance <- function(lines) {
+      vars <- lapply(c((1:nr) + strt- 1),
+                     function(i) get_vars(lines[i]))
+      total_line <- strsplit(gsub(':', ' : ', lines[tot]), ':')[[1]][2]
+      total_line <- rmti_remove_empty_strings(strsplit(total_line, '\\s+')[[1]])
+      if(length(total_line) == 2) {
+        tot_values <- list(as.numeric(total_line))
+      } else {
+        tot_values <- list(as.numeric(total_line[c(1,3)]))
+      }
+      net_value <- as.numeric(rmti_remove_empty_strings(strsplit(gsub(':', ' : ', lines[net]), ':')[[1]][2]))
+      discpr_value <- as.numeric(rmti_remove_empty_strings(strsplit(gsub(':', ' : ', lines[discrp]), ':')[[1]][2]))
+      timing <- get_timing(lines)
+      
+      m <- do.call(cbind, as.list(unlist(c(timing, vars, tot_values, net_value, discpr_value))))
+      return(m)
+    } 
+    clean_names <- function(var_vector) {
+      name <- paste0(rmti_remove_empty_strings(strsplit(var_vector, '\\s+')[[1]]), collapse = '_')
+      name <- tolower(gsub('-', '_', name))
+      return(name)
+    }
+    get_names <- function(lines) {
+      vars <- lapply(c((1:nr) + strt - 1), function(i) read_vars(index = i, lines = lines))
+      
+      names <- unlist(lapply(vars, clean_names))
+      return(c('icomp', 'time', 'tstp', 'kstp', 'kper', paste(names, 'in', sep='_'),
+        paste(names, 'out', sep='_'), 'total_in', 'total_out', 'difference', 'discrepancy'))
+    }
+    
+    # call  
+    # set indices based on first budget
+    lines <- lst.lines[headers[1]:enders[1]]
+    strt <- 16
+    tot <- grep('[TOTAL]', lines, fixed = TRUE)
+    end <- tot - 2
+    net <- tot + 2
+    discrp <- tot + 3
+    
+    # number of variables
+    nr <- (end - strt) + 1
+    names <- get_names(lines)
+    
+    balance <- lapply(seq_along(headers), function(i) get_balance(lst.lines[headers[i]:enders[i]]))
+    balance <- as.data.frame(do.call(rbind, balance))
+    colnames(balance) <- names
+    
+    # no budget is printed
+  } else {
+    # check if this is actually true
+    stop("No budget was printed to listing file. You can change this in the BTN file.", call. = FALSE)
+  }
+  
+  class(balance) <- c('bud', class(balance))
+  return(balance)
+}
+
+
 #' Read an MT3DMS mass balance summary file
 #' 
 #' \code{rmt_read_mas} reads in an MT3DMS mass balance summary file and returns it as an \code{RMT3DMS} mas object.

@@ -170,21 +170,21 @@ rmt_write_adv <- function(adv,
                       file = {cat('Please select adv file to overwrite or provide new filename ...\n'); file.choose()}) {
   
   # Data set 1
-  rmti_write_variables(adv$mixelm, adv$percel, ifelse(adv$mixelm %in% c(1,3), adv$mxpart, ''), ifelse(adv$mixelm == 0, adv$nadvfd, ''), file = file, append = FALSE)
+  rmti_write_variables(as.integer(adv$mixelm), adv$percel, ifelse(adv$mixelm %in% c(1,3), as.integer(adv$mxpart), ''), ifelse(adv$mixelm == 0, as.integer(adv$nadvfd), ''), file = file, append = FALSE)
   
   # Data set 2
   if(adv$mixelm %in% c(1,2,3)) {  
-    rmti_write_variables(adv$itrack, adv$wd, file = file)
+    rmti_write_variables(as.integer(adv$itrack), adv$wd, file = file)
   }
   
   # Data set 3
   if(adv$mixelm %in% c(1,3)) {  
-    rmti_write_variables(adv$dceps, adv$nplane, adv$npl, adv$nph, adv$npmin, adv$npmax, file = file)
+    rmti_write_variables(adv$dceps, as.integer(adv$nplane), as.integer(adv$npl), as.integer(adv$nph), as.integer(adv$npmin), as.integer(adv$npmax), file = file)
   }
   
   # Data set 4
   if(adv$mixelm %in% c(2,3)) {  
-    rmti_write_variables(adv$interp, adv$nlsink, adv$npsink, file = file)
+    rmti_write_variables(adv$interp, adv$nlsink, adv$npsink, file = file, integer = TRUE)
   }
   
   # Data set 5

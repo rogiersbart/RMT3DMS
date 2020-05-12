@@ -88,8 +88,8 @@ rmt_write_gcg <- function(gcg,
                       file = {cat('Please select gcg file to overwrite or provide new filename ...\n'); file.choose()}) {
   
   # Data set 1
-  rmti_write_variables(gcg$mxiter, gcg$iter1, gcg$isolve, gcg$ncrs, file = file, append = FALSE)
+  rmti_write_variables(gcg$mxiter, gcg$iter1, gcg$isolve, gcg$ncrs, file = file, append = FALSE, format = 'free')
   
   # Data set 2
-  rmti_write_variables(gcg$accl, gcg$cclose, gcg$iprgcg, file = file)
+  rmti_write_variables(gcg$accl, gcg$cclose, gcg$iprgcg, file = file, format = 'free')
 }

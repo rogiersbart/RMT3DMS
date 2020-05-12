@@ -136,7 +136,7 @@ rmti_parse_ftl_header <- function(file) {
 #' @param nrow number of rows in the array
 #' @param ncol number of columns in the array
 #' @param nlay number of layers in the array that should be read
-#' @param ndim optional; dimensions of the array to read
+#' @param ndim dimensions of the array to read; either 1, 2 or 3. Denotes the if the returned array should be 1D, 2D or 3D.
 #' @param skip_header optional; should the control record be skipped
 #' @param nam a \code{RMT3DMS} nam object. Required when reading external arrays
 #' @param precision character: either \code{'single'} (default) or \code{'double'}. Denotes the precision of binary files
@@ -145,7 +145,7 @@ rmti_parse_ftl_header <- function(file) {
 #' @param ... ignored
 #' @return A list containing the array and the remaining text of the MT3DMS input file
 #' @keywords internal
-rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim = NULL,
+rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
                              skip_header = FALSE, nam = NULL, precision = "single", file = NULL, integer = FALSE, ...) {
   
   
@@ -351,27 +351,20 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim = NULL,
         
       }
     }
-    
-    # Set class of object (2darray; 3darray)
-    if(is.null(ndim)) {
-      if(nlay==1){
-        if(ncol==1 || nrow==1) {
-          array <- c(array(array,dim=nrow*ncol*nlay))
-        } else {
-          array <- rmt_create_array(array[,,1])
-        }
-      } else {
-        array <- rmt_create_array(array)
-      }
-    } else if(ndim == 1) {
-      array <- c(array(array,dim=nrow*ncol*nlay))
-    } else if(ndim == 2) {
-      array <- rmt_create_array(array[,,1], dim = c(nrow, ncol))
-    } else if(ndim == 3) {
-      array <- rmt_create_array(array, dim = c(nrow, ncol, nlay))
-    }
   }
   
+  # Set class of object (2darray; 3darray)
+  if(ndim == 1) {
+    array <- c(array(array,dim=nrow*ncol*nlay))
+  } else if(ndim == 2) {
+    array <- rmt_create_array(array[,,1], dim = c(nrow, ncol))
+  } else if(ndim == 3) {
+    array <- rmt_create_array(array, dim = c(nrow, ncol, nlay))
+  } else {
+    stop('ndim should be 1, 2 or 3')
+  }
+  
+  # Return output of reading function 
   data_set <- list(array = array, remaining_lines = remaining_lines)
   return(data_set)
 }
@@ -387,24 +380,24 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim = NULL,
 #' @keywords internal
 rmti_parse_variables <- function(remaining_lines, n, width = 10, nlay = NULL, character = FALSE, format = 'fixed', ...) {
   if(format == 'free') {
-    variables <- rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(toupper(remaining_lines[1])),' |\t|,')[[1]])
+    variables <- rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(remaining_lines[1]),' |\t|,')[[1]])
     if(!is.null(nlay)) {
       while(length(variables) < nlay) { 
         remaining_lines <- remaining_lines[-1]
-        variables <- append(variables, rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(toupper(remaining_lines[1])),' |\t|,')[[1]]))
+        variables <- append(variables, rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(remaining_lines[1]),' |\t|,')[[1]]))
       }
     }
     if(!character && !any(is.na(suppressWarnings(as.numeric(variables))))) variables <- as.numeric(variables)
   } else if(format == 'fixed') { # every value has 'width' characters; empty values are zero
     variables <- (unlist(lapply(seq(1,nchar(remaining_lines[1]), by=width), 
-                                function(i) paste0(strsplit(rmti_remove_comments_end_of_line(toupper(remaining_lines[1])),'')[[1]][i:(i+min(width, nchar(remaining_lines[1])-i+1)-1)], collapse=''))))
+                                function(i) paste0(strsplit(rmti_remove_comments_end_of_line(remaining_lines[1]),'')[[1]][i:(i+min(width, nchar(remaining_lines[1])-i+1)-1)], collapse=''))))
     variables <- lapply(strsplit(variables, " |\t"), rmti_remove_empty_strings)
     variables[which(lengths(variables)==0)] <-  0 # empty values are set to 0
     variables <- unlist(variables)
     if(!is.null(nlay)) {
       while(length(variables) < nlay) { 
         remaining_lines <- remaining_lines[-1]
-        variables <- append(variables, rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(toupper(remaining_lines[1])),' |\t|,')[[1]]))
+        variables <- append(variables, rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(remaining_lines[1]),' |\t|,')[[1]]))
       }
     } else if(!character && !any(is.na(suppressWarnings(as.numeric(variables))))) {
       variables <- as.numeric(variables)
@@ -445,6 +438,7 @@ rmti_remove_empty_strings <- function(vector_of_strings) {
 #' @keywords internal
 rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cnstnt=1, iprn=-1, append=TRUE, ...) {
   
+
   if(mf_style) {
     RMODFLOW:::rmfi_write_array(array = array, file = file, cnstnt = cnstnt, iprn = iprn, append = append, ...)
   } else {
@@ -457,17 +451,18 @@ rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cns
     nPerLine <- 10
     width <- 11
     decimals <- 4
+    iprn <- as.integer(iprn)
     
     if(is.null(dim(array))) {
       if(prod(c(array)[1] == c(array))==1) {
-        rmti_write_variables(0, cnstnt * c(array)[1], file = file, append = append, width = 10)
+        rmti_write_variables(0L, cnstnt * c(array)[1], file = file, append = append, width = 10)
       } else {
         
         if(format == 'free') {
-          rmti_write_variables(103, cnstnt, '(free)', iprn, file = file, append = append, width = c(10, 10, 20, 10))
+          rmti_write_variables(103L, cnstnt, '(free)', iprn, file = file, append = append, width = c(10, 10, 20, 10))
           cat(paste(paste(array, collapse=' '), '\n', sep=' '), file=file, append=append)     
         } else if(format == 'fixed') {
-          rmti_write_variables(100, cnstnt, fmt, iprn, file = file, append = append, width = c(10, 10, 20, 10))
+          rmti_write_variables(100L, cnstnt, fmt, iprn, file = file, append = append, width = c(10, 10, 20, 10))
           
           n <- length(c(array))
           nLines <- n %/% nPerLine
@@ -487,18 +482,18 @@ rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cns
       }
     } else if(length(dim(array))==2) {
       if(prod(c(array)[1] == c(array))==1) {
-        rmti_write_variables(0, cnstnt * c(array)[1], file = file, append = append, width = 10)
+        rmti_write_variables(0L, cnstnt * c(array)[1], file = file, append = append, width = 10)
       } else {
         
         if(format == 'free') {
-          rmti_write_variables(103, cnstnt, '(free)', iprn, file = file, append = append, width = c(10, 10, 20, 10))
+          rmti_write_variables(103L, cnstnt, '(free)', iprn, file = file, append = append, width = c(10, 10, 20, 10))
           if(dim(array)[1] == 1) {
             cat(paste0(paste(array, collapse=' '),'\n'), file=file, append=append)
           } else {
             write.table(array, file=file, append=append, sep=' ', col.names=FALSE, row.names=FALSE) 
           }
         } else if(format == 'fixed') {
-          rmti_write_variables(100, cnstnt, fmt, iprn, file = file, append = append, width = c(10, 10, 20, 10))
+          rmti_write_variables(100L, cnstnt, fmt, iprn, file = file, append = append, width = c(10, 10, 20, 10))
           
           n <- length(c(array))
           nLines <- n %/% nPerLine
@@ -520,18 +515,18 @@ rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cns
       for(i in 1:dim(array)[3])
       {
         if(prod(c(array[,,i])[1] == c(array[,,i]))==1) {
-          rmti_write_variables(0, cnstnt * c(array)[1], file = file, append = ifelse(i == 1, append, TRUE), width = 10)
+          rmti_write_variables(0L, cnstnt * c(array)[1], file = file, append = ifelse(i == 1, append, TRUE), width = 10)
         } else {
           
           if(format == 'free') {
-            rmti_write_variables(103, cnstnt, '(free)', iprn, file = file, append = ifelse(i == 1, append, TRUE), width = c(10, 10, 20, 10))
+            rmti_write_variables(103L, cnstnt, '(free)', iprn, file = file, append = ifelse(i == 1, append, TRUE), width = c(10, 10, 20, 10))
             if(dim(array)[1] == 1) {
               cat(paste0(paste(array[,,i], collapse=' '),'\n'), file=file, append=ifelse(i == 1, append, TRUE))
             } else {
               write.table(array[,,i], file=file, append=ifelse(i == 1, append, TRUE), sep=' ', col.names=FALSE, row.names=FALSE)       
             }
           } else if(format == 'fixed') {
-            rmti_write_variables(100, cnstnt, fmt, iprn, file = file, append = ifelse(i == 1, append, TRUE), width = c(10, 10, 20, 10))
+            rmti_write_variables(100L, cnstnt, fmt, iprn, file = file, append = ifelse(i == 1, append, TRUE), width = c(10, 10, 20, 10))
             
             n <- length(c(array[,,i]))
             nLines <- length(c(array[,,i])) %/% nPerLine
@@ -559,18 +554,26 @@ rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cns
 #' Internal function used in the rmt_write_* functions for writing single line datasets
 #' @param format either \code{'fixed'} or \code{'free'}. Fixed format assumes fixed width character spaces for each value as determined by the width argument
 #' @param width numeric vector with the character widths for each variable. If a single value, it is repeated.
+#' @param integer logical; should all values be converted to integers? MT3D does not allow for exponents in integer values
 #' @return NULL
 #' @keywords internal
-rmti_write_variables <- function(..., file, append=TRUE, width = 10, format = 'fixed') {
-  arg <- unlist(list(...))
-  arg <- arg[nchar(arg) > 0] # removes empty elements
-  arg <- vapply(arg, as.character, 'text')
+rmti_write_variables <- function(..., file, append=TRUE, width = 10, format = 'fixed', integer = FALSE) {
+  
+  arg <- list(...)
+  arg <- arg[vapply(arg, function(i) all(nchar(i) > 0), TRUE)] # removes empty elements
+  if(integer) arg <- lapply(arg, as.integer)
+  
+  # sets integers in proper format since Type is converted to double when vectorized
   if(format == 'free') {
-    cat(paste0(paste(arg, sep=' ',collapse=' '), '\n'), file=file, append=append)
-  } else if(format == 'fixed') {
+    arg <- lapply(arg, formatC)
+    arg <- unlist(arg)
+    cat(paste0(paste(arg, sep = ' ', collapse = ' '), '\n'), file=file, append=append)
+  } else if(format == 'fixed') { 
+    arg <- unlist(lapply(arg, as.list), recursive = FALSE)
     if(length(width) == 1) width <- rep(width, length(arg)) 
-    arg <- vapply(1:length(arg), function(i) formatC(arg[i], width = width[i]), 'text')
-    arg <- vapply(1:length(arg), function(i) paste0(strsplit(arg[[i]], '')[[1]][1:width[i]], collapse = ''), 'text')
+    arg <- lapply(1:length(arg), function(i) formatC(arg[[i]], width = width[i]))
+    arg <- lapply(1:length(arg), function(i) paste0(strsplit(arg[[i]], '')[[1]][1:width[i]], collapse = ''))
+    arg <- unlist(arg)
     cat(paste0(paste0(arg, collapse=''), '\n'), file=file, append=append)
   }
 }

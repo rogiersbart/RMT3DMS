@@ -80,19 +80,19 @@ rmt_read_dsp <- function(file = {cat('Please select dsp file ...\n'); file.choos
   if(sum(unlist(dsp)) > 0) dsp_lines <- options$remaining_lines
   
   # Data set 1
-  data_set_1 <- rmti_parse_array(dsp_lines,btn$nrow,btn$ncol,btn$nlay, file = file, ...)
+  data_set_1 <- rmti_parse_array(dsp_lines,btn$nrow,btn$ncol,btn$nlay, ndim = 3, file = file, ...)
   dsp$al <- data_set_1$array
   dsp_lines <- data_set_1$remaining_lines
   rm(data_set_1)
   
   # Data set 2
-  data_set_2 <- rmti_parse_array(dsp_lines,1,btn$nlay,1, file = file, ...)
+  data_set_2 <- rmti_parse_array(dsp_lines,1,btn$nlay,1, ndim = 1, file = file, ...)
   dsp$trpt <- data_set_2$array
   dsp_lines <- data_set_2$remaining_lines
   rm(data_set_2)
   
   # Data set 3
-  data_set_3 <- rmti_parse_array(dsp_lines,1,btn$nlay,1, file = file, ...)
+  data_set_3 <- rmti_parse_array(dsp_lines,1,btn$nlay,1, ndim = 1, file = file, ...)
   dsp$trpv <- data_set_3$array
   dsp_lines <- data_set_3$remaining_lines
   rm(data_set_3)
@@ -101,13 +101,13 @@ rmt_read_dsp <- function(file = {cat('Please select dsp file ...\n'); file.choos
   if(dsp$multidiffusion) {
     dsp$dmcoef <- list()
     for(comp in 1:btn$mcomp) {
-      data_set_4 <- rmti_parse_array(dsp_lines,btn$nrow,btn$ncol,btn$nlay, file = file, ...)
+      data_set_4 <- rmti_parse_array(dsp_lines,btn$nrow,btn$ncol,btn$nlay, ndim = 3, file = file, ...)
       dsp$dmcoef[[comp]] <- rmt_create_array(data_set_4$array, solute = comp)
       dsp_lines <- data_set_4$remaining_lines
     }
     rm(data_set_4)
   } else {
-    data_set_4 <- rmti_parse_array(dsp_lines,1,btn$nlay,1, file = file, ...)
+    data_set_4 <- rmti_parse_array(dsp_lines,1,btn$nlay,1, ndim = 1, file = file, ...)
     dsp$dmcoef <- data_set_4$array
     dsp_lines <- data_set_4$remaining_lines
     rm(data_set_4)
@@ -132,30 +132,32 @@ rmt_write_dsp <- function(dsp,
                       iprn=-1,
                       ...) {
   
+  mf_style <- btn$modflowstylearrays
+  
   if(dsp$multidiffusion || dsp$nocross) {
     rmti_write_variables('$', ifelse(dsp$multidiffusion, 'MULTIDIFFUSION', ''), ifelse(dsp$nocross, 'NOCROSS', ''), 
                          file = file, format = 'free', append = FALSE)
     # Data set 1
-    rmti_write_array(dsp$al, file = file, iprn = iprn, ...)
+    rmti_write_array(dsp$al, file = file, iprn = iprn, mf_style = mf_style, ...)
     
   } else {
     
     # Data set 1
-    rmti_write_array(dsp$al, file = file, iprn = iprn, append = FALSE, ...)
+    rmti_write_array(dsp$al, file = file, iprn = iprn, append = FALSE, mf_style = mf_style, ...)
   }
 
   # Data set 2
-  rmti_write_array(dsp$trpt, file = file, iprn = iprn, ...)
+  rmti_write_array(dsp$trpt, file = file, iprn = iprn, mf_style = mf_style, ...)
   
   # Data set 3
-  rmti_write_array(dsp$trpv, file = file, iprn = iprn, ...)
+  rmti_write_array(dsp$trpv, file = file, iprn = iprn, mf_style = mf_style, ...)
   
   # Data set 4
   if(dsp$multidiffusion) {
     for(comp in 1:btn$mcomp) {
-      rmti_write_array(dsp$dmcoef[[comp]], file = file, iprn = iprn, ...)
+      rmti_write_array(dsp$dmcoef[[comp]], file = file, iprn = iprn, mf_style = mf_style, ...)
     }
   } else {
-    rmti_write_array(dsp$dmcoef, file = file, iprn = iprn, ...)
+    rmti_write_array(dsp$dmcoef, file = file, iprn = iprn, mf_style = mf_style, ...)
   }
 }
