@@ -15,4 +15,5 @@ Imports:
     readr
 URL: https://github.com/rogiersbart/RMT3DMS
 BugReports: https://github.com/rogiersbart/RMT3DMS/issues
-RoxygenNote: 5.0.1
+Encoding: UTF-8
+RoxygenNote: 7.1.0

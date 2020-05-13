@@ -65,7 +65,6 @@ rmt_as_list.wel <- function(wel, cwel, kper, ...) {
 #' @export
 #' @rdname rmt_as_list
 #' @method rmt_as_list drn
-#' @examples
 rmt_as_list.drn <- function(drn, cdrn, kper, ...) {
   itype <- 3
   arg <- list(...)
@@ -118,7 +117,6 @@ rmt_as_list.chd <- function(chd, cchd, kper, ...) {
 #' @export
 #' @rdname rmt_as_list
 #' @method rmt_as_list riv
-#' @examples
 rmt_as_list.riv <- function(riv, criv, kper, ...) {
   itype <- 4
   arg <- list(...)
@@ -139,7 +137,6 @@ rmt_as_list.riv <- function(riv, criv, kper, ...) {
 #' @export
 #' @rdname rmt_as_list
 #' @method rmt_as_list ghb
-#' @examples
 rmt_as_list.ghb <- function(ghb, cghb, kper, ...) {
   itype <- 5
   arg <- list(...)
@@ -164,6 +161,11 @@ as.data.frame.rmt_list <- function(obj, ...) structure(NextMethod(...), kper = N
 #' @export
 #' @seealso \code{\link{rmt_convert_btn_to_dis}}, \code{\link{rmt_create_btn}}
 #' @examples
+#' library(RMODFLOW)
+#' dis <- rmf_read_dis(rmf_example_file('example-model.dis'))
+#' rmt_convert_dis_to_btn(dis)
+#' rmt_convert_dis_to_btn(dis, nper = 2, perlen = c(1000, 500), tunit = 'd', ncomp = 2)
+#' 
 rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen,
                                    tunit = NULL, lunit = NULL, ...) {
   
@@ -192,13 +194,37 @@ rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen,
 #' Convert RMT3DMS btn to RMODFLOW dis object
 #' 
 #' @param btn \code{RMT3DMS} btn object
+#' @param nper number of stress periods in the dis object. Defaults to \code{btn$nper}. See details.
+#' @param perlen vector of stress period lengths in the dis object. Defaults to \code{btn$perlen}. See details.
+#' @param nstp vector of stress period time steps in the dis object. Defaults to \code{btn$nstp}. See details.
+#' @param tsmult vector of stress period time step multipliers in the dis object. Defaults to \code{btn$tsmult}. See details.
 #' @param sstr character vector with steady state ('SS') or transient ('TR') stress period indicator; defaults to first period 'SS' and all others 'TR'
+#' @param ... additional arguments passed to \code{RMODFLOW::rmf_create_dis}
 #'
 #' @return \code{RMODFLOW} dis object
-#' @details conversion works best when number of stress-periods is equal in the dis and btn objects.
+#' @details Conversion works best when number of stress-periods is equal in the dis and btn objects.
+#'  \code{nper}, \code{perlen}, \code{nstp} & \code{tsmult} should only differ from the defaults when the flow model is steady-state 
+#'  with only 1 stress period. In that case, MT3DMS allows for differing stress periods between the flow and transport model.
 #' @export
 #' @seealso \code{\link{rmt_convert_dis_to_btn}}
-rmt_convert_btn_to_dis <- function(btn, nper = btn$nper, perlen = btn$perlen, sstr = c("SS", rep("TR", nper - 1)), ...) {
+#' @examples 
+#' btn <- rmt_create_btn()
+#' rmt_convert_btn_to_dis(btn)
+#' 
+#' # BTN with 2 stress periods but flow model is single stress period steady-state
+#' btn <- rmt_create_btn(nper = 2, perlen = c(1000, 500))
+#' rmt_convert_btn_to_dis(btn, nper = 1, perlen = 1, nstp = 1, tsmult = 1)
+#' 
+#' otherwise converts to dis object with only first stress period steady-state
+#' rmt_convert_btn_to_dis(btn)
+#' 
+rmt_convert_btn_to_dis <- function(btn,
+                                   nper = btn$nper, 
+                                   perlen = btn$perlen,
+                                   nstp = btn$nstp,
+                                   tsmult = btn$tsmult,
+                                   sstr = c("SS", rep("TR", nper - 1)), 
+                                   ...) {
 
   botm <- btn$dz*NA
   botm[,,1] <- btn$htop - btn$dz[,,1]
@@ -242,8 +268,8 @@ rmt_convert_btn_to_dis <- function(btn, nper = btn$nper, perlen = btn$perlen, ss
                                   top = btn$htop,
                                   botm = botm,
                                   perlen = perlen,
-                                  nstp = btn$nstp,
-                                  tsmult = btn$tsmult,
+                                  nstp = nstp,
+                                  tsmult = tsmult,
                                   sstr = sstr, 
                                   ...)
   return(dis)
