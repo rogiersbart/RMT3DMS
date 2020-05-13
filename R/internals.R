@@ -61,6 +61,63 @@ rmti_itype <- function() {
   return(itype)
 }
 
+#' List supported MT3DMS/MT3D-USGS packages
+#'
+#' @param type character denoting type of packages to list; possible values are \code{'usgs' (default), 'mt3dms'}
+#'
+#' @return data.frame with ftype and rmt columns denoting the MT3DMS and \code{RMT3DMS} abbreviations for the requested packages
+#' @keywords internal
+#' @details 'usgs' holds all packages; 'mt3dms'
+#' @note this function should be updated every time a new MT3DMS package is supported in \code{RMT3DMS}
+rmti_list_packages <- function(type = 'usgs') {
+  
+  # update these two vectors everytime a new package is supported
+  # NAM file is not in here but is supported
+  pack_names <- c('BTN','FTL','ADV','DSP','SSM','GCG')
+  rmt_names  <- c('btn', 'ftl', 'adv', 'dsp', 'ssm', 'gcg')
+  
+  df <- data.frame(ftype = pack_names, rmt = rmt_names, stringsAsFactors = FALSE)
+  
+  # Below is an exhaustive overview of all packages in MT3D-USGS & MT3DMS
+  # MT3D-USGS
+  usgs <- c('btn', 'ft6', 'adv', 'dsp', 'ssm', 'rct', 'gcg', 'tob', 'hss', 'cts', 'tso', 'uzt', 'lkt', 'sft')
+  
+  # MT3DMS
+  mt3dms <- c('btn', 'adv', 'dsp', 'ssm', 'rct', 'gcg', 'tob', 'hss')
+  
+  # subset
+  df <- subset(df, rmt %in% get(type))
+
+  return(df)
+}
+
+#' Read comments
+#' Internal function used in the read_* functions to read comments
+#' @details removes empty comments and prevents copying of RMT3DMS header comment
+#' @keywords internal
+rmti_parse_comments <- function(remaining_lines) {
+  v <- paste("RMT3DMS, version",  packageDescription("RMT3DMS")$Version)
+  comments <- NULL
+  comment_tag <- substr(remaining_lines, 1, 1)
+  comment_id <- which(comment_tag == "#")
+  
+  if(length(comment_id) > 0) {
+    comments <- gsub('#', '', remaining_lines[comment_id])
+    
+    # remove empty comments
+    empty <- which(nchar(trimws(comments)) == 0)
+    if(length(empty) > 0) comments <- comments[-empty]
+    
+    # remove RMT3DMS header
+    header <- grep(v, comments)
+    if(length(header) > 0) comments <- comments[-header]
+    
+    remaining_lines <- remaining_lines[-comment_id]
+  }
+  
+  return(list(comments = comments, remaining_lines = remaining_lines))
+}
+
 #' Read the package header from a flow-transport link file
 #'
 #' @param file pathname to the flow-transport link file, typically '*.ftl'
