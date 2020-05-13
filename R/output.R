@@ -1,14 +1,14 @@
 
 #' Reads the mass budget from a MT3DMS listing file
 #'
-#' \code{rmt_read_bud} reads a mass budget from a MT3DMS listing file and returns it as a list with data frame elements
+#' \code{rmt_read_bud} reads a mass budget from a MT3DMS listing file and returns it as a data frame
 #' 
 #' @param file path to the listing file; typically '*.lst'
 #'
 #' @return an object of class cbud which is a data.frame containing the cumulative mass budgets for all species
 #' @export
 #' 
-rmt_read_bud <- function(file = {cat('Please select listing file ...\n'); file.choose()}) {
+rmt_read_bud <- function(file = {cat('Please select MT3DMS listing file ...\n'); file.choose()}) {
   
   # kstp, kper, tstp, tnstp, total_time, variables
   
@@ -46,7 +46,7 @@ rmt_read_bud <- function(file = {cat('Please select listing file ...\n'); file.c
         tot_values <- list(as.numeric(total_line))
       } else {
         tot_values <- list(as.numeric(total_line[c(1,3)]))
-      }
+      } 
       net_value <- as.numeric(rmti_remove_empty_strings(strsplit(gsub(':', ' : ', lines[net]), ':')[[1]][2]))
       discpr_value <- as.numeric(rmti_remove_empty_strings(strsplit(gsub(':', ' : ', lines[discrp]), ':')[[1]][2]))
       timing <- get_timing(lines)
@@ -62,9 +62,9 @@ rmt_read_bud <- function(file = {cat('Please select listing file ...\n'); file.c
     get_names <- function(lines) {
       vars <- lapply(c((1:nr) + strt - 1), function(i) read_vars(index = i, lines = lines))
       
-      names <- unlist(lapply(vars, clean_names))
-      return(c('icomp', 'time', 'tstp', 'kstp', 'kper', paste(names, 'in', sep='_'),
-        paste(names, 'out', sep='_'), 'total_in', 'total_out', 'difference', 'discrepancy'))
+      names <- lapply(vars, clean_names)
+      names <- unlist(lapply(names, function(i) paste(i, c('in', 'out'), sep = '_')))
+      return(c('icomp', 'time', 'tstp', 'kstp', 'kper', names, 'total_in', 'total_out', 'difference', 'discrepancy'))
     }
     
     # call  
@@ -90,7 +90,7 @@ rmt_read_bud <- function(file = {cat('Please select listing file ...\n'); file.c
     stop("No budget was printed to listing file. You can change this in the BTN file.", call. = FALSE)
   }
   
-  class(balance) <- c('bud', class(balance))
+  class(balance) <- c('cbud', class(balance))
   return(balance)
 }
 
