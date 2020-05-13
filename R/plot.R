@@ -6,21 +6,22 @@ rmt_plot <- function(...) {
   UseMethod('rmt_plot')
 }
 
-#' Title
+#' Plot a MT3DMS mass budget
+#' 
+#' \code{rmt_plot.cbud} plots a MT3DMS mass budget
 #'
-#' @param cbud 
-#' @param btn 
-#' @param icomp 
+#' @param cbud \code{RMT3DMS} cbud object as obtained by \code{rmt_read_bud}
+#' @param btn \code{RMT3DMS} btn object
+#' @param icomp integer selecting for which species to plot the budget; defaults to 1
 #' @param what character; what to plot, "cumulative", "total", "difference" or "discrepancy". Defaults to "cumulative".
 #' @param fluxes character; either "all" or a character vector with the flux components to plot. Only used when \code{what} is "cumulative"
 #' @param net logical; if TRUE, it sums the inflows and outflows of the flux component to plot the net fluxes. If FALSE, it will plot both the inflows and outflows. Only used when \code{what} is "cumulative" or "total".
 #' @param type character; plot type. Either "bar" or "area".
-#' @param final 
+#' @param final logical; should only the final mass budget be plotted? Defaults to FALSE
 #'
-#' @return
+#' @return ggplot2 object
 #' @export
-#'
-#' @examples
+#' @method rmt_plot cbud
 rmt_plot.cbud <- function(cbud,
                           btn,
                           icomp = 1,
@@ -226,7 +227,7 @@ rmt_plot.rmt_3d_array <- function(rmt_3d_array,
 #' @param mask a 3D array with 0 or F indicating inactive cells; defaults to btn$icbund
 #' @param ... arguments provided to RMODFLOW::rmf_plot.rmf_3d_array
 #' @return ggplot2 object or layer; if plot3D is TRUE, nothing is returned and the plot is made directly
-#' @method rmt_plot rmt_3d_array
+#' @method rmt_plot rmt_4d_array
 #' @export
 rmt_plot.rmt_4d_array <- function(rmt_4d_array,
                                   btn,

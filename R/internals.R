@@ -11,12 +11,23 @@
 #' @keywords internal
 rmti_create_bc_list <- function(obj, conc, itype, kper) {
   
-  act_names <- apply(obj$kper[kper,-1, drop = FALSE], 1, sum)
-  act_names <- colnames(obj$kper[,-1, drop = FALSE])[which(as.logical(act_names) != FALSE)]
-  if(length(act_names) == 0) stop('No active obj features for kper ', kper, call. = FALSE)
+  # kper can only be different if flow has only 1 stress-period (should be nr 1) which should be steady-state (not known in this code)
+  kper_flow <- unique(obj$kper$kper)
+  if(!identical(sort(kper_flow), sort(unique(kper)))) {
+    if(length(kper_flow) > 1 || kper_flow != 1) {
+      stop('kper of rmt_list differs from kper of flow object', call. = FALSE)
+    } else {
+      kper_select <- 1
+    }
+  } else {
+    kper_select <- kper
+  }
+  
+  names_act <- colnames(obj$kper)[which(obj$kper[kper_select,which(!is.na(obj$kper[kper_select,]))] != FALSE)[-1]]
+  if(length(names_act) == 0) stop('No active obj features for kper ', kper_select, call. = FALSE)
   
   df <- as.data.frame(obj$data)
-  df <- df[df$name %in% act_names, ]
+  df <- df[df$name %in% names_act, ]
   
   # concentrations
   conc <- structure(as.data.frame(matrix(conc, ncol = ncol(conc))), names = paste0('css', 1:ncol(conc)))

@@ -19,68 +19,139 @@ rmt_create_list <- function(df, kper) {
   return(df)
 }
 
-#' Title
+#' Generic to convert objects to rmt_list
 #'
-#' @param ... 
-#'
-#' @return
 #' @export
-#'
-#' @examples
+#' @rdname rmt_as_list
 rmt_as_list <- function(...) {
   UseMethod('rmt_as_list')
 }
 
+
+#' @param wel \code{RMODFLOW} wel object
+#' @param cwel concentrations in the wells for species 1. A value must be supplied for every well. Alternatively, a character can be entered referencing a column in the wel data set to use.
+#' @param kper numeric vector with the stress period numbers during which the list is active.
+#' @param ... additional numeric vectors containing concentrations (one value for each feature) or column names. One vector/name for each species > 1 (in order).
+#'
+#' @details kper should be one of the stress periods defined in the flow model unless only one stress period is present in the flow model.
+#' @return a \code{rmt_list} object
+#' @export
+#' @rdname rmt_as_list
+#' @method rmt_as_list wel
+#' @examples
+#' library(RMODFLOW)
+#' m <- rmf_read(rmf_example_file('example-model.nam'), verbose = FALSE)
+#' rmt_as_list(m$wel, 6.5, kper = 1)
+#' 
+#' m$wel$data$chloride <- 6.5
+#' rmt_as_list(m$wel, 'chloride', kper = 1)
 rmt_as_list.wel <- function(wel, cwel, kper, ...) {
   itype <- 2
   arg <- list(...)
   arg <- c(cwel, arg)
+  arg <- lapply(arg, function(i) if(length(i) == 1 && is.character(i)) wel$data[[i]] else i)
   conc <- do.call(cbind, arg)
 
   df <- rmti_create_bc_list(wel, conc, itype = itype, kper = kper)
   return(df)
 }
 
+#' @param drn \code{RMODFLOW} drn object
+#' @param cdrn concentrations in the drains for species 1. A value must be supplied for every drain. Alternatively, a character can be entered referencing a column in the drn data set to use.
+#' @param kper numeric vector with the stress period numbers during which the list is active.
+#' @param ... additional numeric vectors containing concentrations (one value for each feature) or column names. One vector/name for each species > 1 (in order).
+#'
+#' @return a \code{rmt_list} object
+#' @export
+#' @rdname rmt_as_list
+#' @method rmt_as_list drn
+#' @examples
 rmt_as_list.drn <- function(drn, cdrn, kper, ...) {
   itype <- 3
   arg <- list(...)
   arg <- c(cdrn, arg)
+  arg <- lapply(arg, function(i) if(length(i) == 1 && is.character(i)) drn$data[[i]] else i)
   conc <- do.call(cbind, arg)
   
   df <- rmti_create_bc_list(drn, conc, itype = itype, kper = kper)
   return(df)
 }
 
+#' @param chd \code{RMODFLOW} chd object
+#' @param cchd concentrations in the constant-head cells for species 1. A value must be supplied for every constant-head cell. Alternatively, a character can be entered referencing a column in the chd data set to use.
+#' @param kper numeric vector with the stress period numbers during which the list is active.
+#' @param ... additional numeric vectors containing concentrations (one value for each feature) or column names. One vector/name for each species > 1 (in order).
+#'
+#' @return a \code{rmt_list} object
+#' @export
+#' @rdname rmt_as_list
+#' @method rmt_as_list chd
+#' @examples
+#' # 3 species
+#' cchd1 <- rnorm(nrow(m$chd$data), 70, 50)
+#' rmt_as_list(m$chd, cchd1, kper = c(2, 3), cchd1 * 2, cchd1 / 2)
+#' 
+#' # stress periods should be the same when flow object has more than 1 stress period
+# m$chd$kper <- m$chd$kper[c(1,1),]
+# m$chd$kper$kper <- c(1,2)
+#' \dontrun {
+#' rmt_as_list(m$chd, cchd1, kper = c(2, 3))
+#' }
+
 rmt_as_list.chd <- function(chd, cchd, kper, ...) {
   itype <- 1
   arg <- list(...)
-  arg <- c(cchd, arg)
+  arg <- c(list(cchd), arg)
+  arg <- lapply(arg, function(i) if(length(i) == 1 && is.character(i)) chd$data[[i]] else i)
   conc <- do.call(cbind, arg)
   
   df <- rmti_create_bc_list(chd, conc, itype = itype, kper = kper)
   return(df)
 }
 
-rmt_as_list.riv <- function(riv, criv) {
+#' @param riv \code{RMODFLOW} riv object
+#' @param criv concentrations in the river cells for species 1. A value must be supplied for every river cell. Alternatively, a character can be entered referencing a column in the riv data set to use.
+#' @param kper numeric vector with the stress period numbers during which the list is active.
+#' @param ... additional numeric vectors containing concentrations (one value for each feature) or column names. One vector/name for each species > 1 (in order).
+#'
+#' @return a \code{rmt_list} object
+#' @export
+#' @rdname rmt_as_list
+#' @method rmt_as_list riv
+#' @examples
+rmt_as_list.riv <- function(riv, criv, kper, ...) {
   itype <- 4
   arg <- list(...)
   arg <- c(criv, arg)
+  arg <- lapply(arg, function(i) if(length(i) == 1 && is.character(i)) riv$data[[i]] else i)
   conc <- do.call(cbind, arg)
   
   df <- rmti_create_bc_list(riv, conc, itype = itype, kper = kper)
   return(df)
 }
 
-rmt_as_list.ghb <- function(ghb, cghb) {
+#' @param ghb \code{RMODFLOW} ghb object
+#' @param cghb concentrations in the general-head boundary cells for species 1. A value must be supplied for every general-head boundary cell. Alternatively, a character can be entered referencing a column in the ghb data set to use.
+#' @param kper numeric vector with the stress period numbers during which the list is active.
+#' @param ... additional numeric vectors containing concentrations (one value for each feature) or column names. One vector/name for each species > 1 (in order).
+#'
+#' @return a \code{rmt_list} object
+#' @export
+#' @rdname rmt_as_list
+#' @method rmt_as_list ghb
+#' @examples
+rmt_as_list.ghb <- function(ghb, cghb, kper, ...) {
   itype <- 5
   arg <- list(...)
   arg <- c(cghb, arg)
+  arg <- lapply(arg, function(i) if(length(i) == 1 && is.character(i)) ghb$data[[i]] else i)
   conc <- do.call(cbind, arg)
   
   df <- rmti_create_bc_list(ghb, conc, itype = itype, kper = kper)
   return(df)
 }
 
+#' @export
 as.data.frame.rmt_list <- function(obj, ...) structure(NextMethod(...), kper = NULL, solute = NULL)
 
 #' Convert RMT3DMS dis to RMT3DMS btn object
