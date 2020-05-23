@@ -231,7 +231,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   btn <- list()
   
   # Data set 1-2
-  data_set_0 <- rmti_parse_comments(btn_lines)
+  data_set_0 <- rmti_parse_comments(btn_lines, id = 1:2)
   comment(btn) <- data_set_0$comments
   btn_lines <- data_set_0$remaining_lines
   rm(data_set_0)

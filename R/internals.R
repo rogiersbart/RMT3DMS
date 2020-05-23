@@ -93,13 +93,18 @@ rmti_list_packages <- function(type = 'usgs') {
 
 #' Read comments
 #' Internal function used in the read_* functions to read comments
-#' @details removes empty comments and prevents copying of RMT3DMS header comment
+#' @param id optional integers specifying which lines are comments. If NULL (default), lines starting with "#" indicate commented lines
+#' @details removes empty comments and prevents copying of RMT3DMS header comment 
 #' @keywords internal
-rmti_parse_comments <- function(remaining_lines) {
+rmti_parse_comments <- function(remaining_lines, id = NULL) {
   v <- paste("RMT3DMS, version",  packageDescription("RMT3DMS")$Version)
   comments <- NULL
-  comment_tag <- substr(remaining_lines, 1, 1)
-  comment_id <- which(comment_tag == "#")
+  if(is.null(id)) {
+    comment_tag <- substr(remaining_lines, 1, 1)
+    comment_id <- which(comment_tag == "#")
+  } else {
+    comment_id <- id
+  }
   
   if(length(comment_id) > 0) {
     comments <- gsub('#', '', remaining_lines[comment_id])

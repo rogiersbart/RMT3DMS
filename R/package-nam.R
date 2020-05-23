@@ -56,8 +56,8 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
   }
   
   nam <- data.frame(ftype = c('LIST', ftl_ftype, rep(NA, length(fobjects))),
-                    nunit = c(700, 700 + c(1, seq_along(fobjects) + 1)),
-                    fname = c('output.lst', ftl_fname, rep(NA, length(fobjects))),
+                    nunit = c(50, 50 + c(1, seq_along(fobjects) + 1)),
+                    fname = c('output.m3d', ftl_fname, rep(NA, length(fobjects))),
                     options = c(NA, ifelse(binary, NA, 'FREE'), rep(NA, length(fobjects))), stringsAsFactors = FALSE)
   
   for(i in seq_along(fobjects)) {

@@ -195,9 +195,9 @@ rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen,
 #' 
 #' @param btn \code{RMT3DMS} btn object
 #' @param nper number of stress periods in the dis object. Defaults to \code{btn$nper}. See details.
-#' @param perlen vector of stress period lengths in the dis object. Defaults to \code{btn$perlen}. See details.
-#' @param nstp vector of stress period time steps in the dis object. Defaults to \code{btn$nstp}. See details.
-#' @param tsmult vector of stress period time step multipliers in the dis object. Defaults to \code{btn$tsmult}. See details.
+#' @param perlen vector of stress period lengths in the dis object. Defaults to \code{btn$perlen[1:nper]}. See details.
+#' @param nstp vector of stress period time steps in the dis object. Defaults to \code{btn$nstp[1:nper]}. See details.
+#' @param tsmult vector of stress period time step multipliers in the dis object. Defaults to \code{btn$tsmult[1:nper]}. See details.
 #' @param sstr character vector with steady state ('SS') or transient ('TR') stress period indicator; defaults to first period 'SS' and all others 'TR'
 #' @param ... additional arguments passed to \code{RMODFLOW::rmf_create_dis}
 #'
@@ -220,9 +220,9 @@ rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen,
 #' 
 rmt_convert_btn_to_dis <- function(btn,
                                    nper = btn$nper, 
-                                   perlen = btn$perlen,
-                                   nstp = btn$nstp,
-                                   tsmult = btn$tsmult,
+                                   perlen = btn$perlen[1:nper],
+                                   nstp = btn$nstp[1:nper],
+                                   tsmult = btn$tsmult[1:nper],
                                    sstr = c("SS", rep("TR", nper - 1)), 
                                    ...) {
 
@@ -255,6 +255,8 @@ rmt_convert_btn_to_dis <- function(btn,
   } else {
     lenuni <- 0
   }
+  
+  
   
   dis <- RMODFLOW::rmf_create_dis(nlay = btn$nlay,
                                   nrow = btn$nrow,
@@ -342,14 +344,16 @@ rmt_create_array <- function(obj = NA,
   
   if (length(dim(obj)) == 2) {
     class(obj) <- replace(class(x), class(x) == 'rmt_4d_array', 'rmt_2d_array')
+    class(obj) <- replace(class(obj), class(obj) == 'rmf_4d_array', 'rmf_2d_array')
   }
   else if (length(dim(obj)) == 3) {
     class(obj) <- replace(class(x), class(x) == 'rmt_4d_array', 'rmt_3d_array')
+    class(obj) <- replace(class(obj), class(obj) == 'rmf_4d_array', 'rmf_3d_array')
   } 
   else if (length(dim(obj)) == 4) {
     class(obj) <- class(x)
   } else {
-    class(obj) <- subset(class(x), class(x) != 'rmt_4d_array')
+    class(obj) <- subset(class(x), !(class(x) %in% c('rmt_4d_array', 'rmf_4d_array')))
   }
   attrs <- attributes(obj)
   id <- names(attributes(x))
@@ -382,11 +386,12 @@ rmt_create_array <- function(obj = NA,
   
   if (length(dim(obj)) == 2) {
     class(obj) <- replace(class(x), class(x) == 'rmt_3d_array', 'rmt_2d_array')
+    class(obj) <- replace(class(obj), class(obj) == 'rmf_3d_array', 'rmf_2d_array')
   }
   else if (length(dim(obj)) == 3) {
     class(obj) <- class(x)
   } else {
-    class(obj) <- subset(class(x), class(x) != 'rmt_3d_array')
+    class(obj) <- subset(class(x), !(class(x) %in% c('rmt_3d_array', 'rmf_3d_array')))
   }
   attrs <- attributes(obj)
   id <- names(attributes(x))
@@ -413,7 +418,7 @@ rmt_create_array <- function(obj = NA,
   if (length(dim(obj)) == 2) {
     class(obj) <- class(x)
   } else {
-    class(obj) <- subset(class(x), class(x) != 'rmt_2d_array')
+    class(obj) <- subset(class(x), !(class(x) %in% c('rmt_2d_array', 'rmf_2d_array')))
   }
   
   attrs <- attributes(obj)

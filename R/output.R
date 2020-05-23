@@ -3,7 +3,7 @@
 #'
 #' \code{rmt_read_bud} reads a mass budget from a MT3DMS listing file and returns it as a data frame
 #' 
-#' @param file path to the listing file; typically '*.lst'
+#' @param file path to the listing file; typically '*.m3d'
 #'
 #' @return an object of class cbud which is a data.frame containing the cumulative mass budgets for all species
 #' @export
@@ -14,7 +14,7 @@ rmt_read_bud <- function(file = {cat('Please select MT3DMS listing file ...\n');
   
   lst.lines <- readr::read_lines(file)
   headers <- grep(">>>>>>>FOR COMPONENT NO.", lst.lines)
-  enders <- grep("DISCREPANCY (PERCENT)", lst.lines, fixed = TRUE)
+  enders <- grep("[TOTAL]", lst.lines, fixed = TRUE)
   
   # if budget is printed
   if(length(headers) > 0) {
@@ -69,8 +69,10 @@ rmt_read_bud <- function(file = {cat('Please select MT3DMS listing file ...\n');
     
     # call  
     # set indices based on first budget
+    enders <- enders + 3
     lines <- lst.lines[headers[1]:enders[1]]
-    strt <- 16
+    strt_budg <- grep('LATIVE MASS BUDGETS AT END', lines)
+    strt <- strt_budg + 5
     tot <- grep('[TOTAL]', lines, fixed = TRUE)
     end <- tot - 2
     net <- tot + 2
