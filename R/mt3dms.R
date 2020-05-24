@@ -7,6 +7,7 @@
 #' @param recreate_nam logical; if a \code{nam} object is supplied, should it be recreated from scratch ? Defaults to FALSE
 #' @param ftl path to the flow-transport link file in the \code{nam} object; typically '.ftl'. Only used when a \code{nam} object is not supplied or when \code{recreate_nam = TRUE}.
 #' @param ftl_free logical; is the flow-transport link file in the \code{nam} object written in free (formatted) format (TRUE) or binary (unformatted) (FALSE)? if NULL (default), it is guessed from reading \code{ftl}. Only used when a \code{nam} object is not supplied or when \code{recreate_nam = TRUE}.
+#' @param basename character specifying the basename of the files if the nam object is (re)created. The default (\code{NULL}) sets input basenames to 'input' and output to 'output'.
 #' @return a \code{mt3dms} object which is a list containing all MT3DMS/MT3D-USGS packages
 #' @export
 #' @seealso \code{\link{rmt_read}}, \code{\link{rmt_write}}
@@ -17,9 +18,9 @@
 #' nam <- rmt_create_nam(btn, adv, gcg, ftl = 'output.ftl', ftl_free = TRUE)
 #' 
 #' rmt_create(btn, adv, gcg, nam)
-#' rmt_create(btn, adv, gcg, nam, recreate_nam = TRUE)
+#' rmt_create(btn, adv, gcg, nam, recreate_nam = TRUE, basename = 'ex1')
 #' rmt_create(btn, adv, gcg, ftl = 'output.ftl', ftl_free = FALSE)
-rmt_create <- function(..., recreate_nam = FALSE, ftl, ftl_free = NULL) {
+rmt_create <- function(..., recreate_nam = FALSE, ftl, ftl_free = NULL, basename = NULL) {
   
   mt3dms <- list(...)
   if(length(mt3dms) == 1 && inherits(mt3dms[[1]], c('list', 'mt3dms')) && !('rmt_package' %in% class(mt3dms[[1]]))) mt3dms <- unclass(mt3dms[[1]])
@@ -32,12 +33,12 @@ rmt_create <- function(..., recreate_nam = FALSE, ftl, ftl_free = NULL) {
 
   # find nam object; if not present or recreate_nam = TRUE, create one. If present, check if all packages are also in nam
   if(!('mt3d_nam' %in% ftype)) {
-    mt3dms$nam <- rmt_create_nam(mt3dms, ftl = ftl, ftl_free = ftl_free)
+    mt3dms$nam <- rmt_create_nam(mt3dms, ftl = ftl, ftl_free = ftl_free, basename = basename)
   } else if(recreate_nam) {
     nam_old <- mt3dms[[which(names(mt3dms) == 'mt3d_nam')]]
     ftl <- nam_old$fname[which(nam_old$ftype %in% c('FTL', 'FT6'))]
     ftl_free <- nam_old$options[which(nam_old$ftype == 'FTL')] == 'FREE'
-    mt3dms$nam <- rmt_create_nam(mt3dms[-which(names(mt3dms) == 'mt3d_nam')], ftl = ftl, ftl_free = ftl_free)
+    mt3dms$nam <- rmt_create_nam(mt3dms[-which(names(mt3dms) == 'mt3d_nam')], ftl = ftl, ftl_free = ftl_free, basename = basename)
     mt3dms$mt3d_nam <- NULL
   } else {  
     names(mt3dms)[which(names(mt3dms) == 'mt3d_nam')] <- 'nam'

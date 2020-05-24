@@ -6,6 +6,7 @@
 #' @param ... RMT3DMS objects to be included in the nam file
 #' @param ftl path to the flow-transport link file; typically '.ftl'
 #' @param ftl_free logical; is the flow-transport link file written in free (formatted) format (TRUE) or binary (unformatted) (FALSE)? if NULL (default), it is guessed from reading \code{ftl}
+#' @param basename character specifying the basename of the files. The default (\code{NULL}) sets input basenames to 'input' and output to 'output'.
 #' @return Object of class mt3d_nam
 #' @details If a \code{RMT3DMS nam} object is present, it is recreated. 
 #'  It is advised to place the ftl file in the same directory as the transport model input files.
@@ -18,7 +19,7 @@
 #' gcg <- rmt_create_gcg()
 #' rmt_create_nam(btn, adv, gcg, ftl = 'output.ftl', ftl_free = TRUE)
 #' 
-rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file ...\n'); file.choose()}, ftl_free = NULL) {
+rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file ...\n'); file.choose()}, ftl_free = NULL, basename = NULL) {
   
   fobjects <- list(...)
   if(length(fobjects) == 1 && inherits(fobjects[[1]], c('list', 'mt3dms')) && !('rmt_package' %in% class(fobjects[[1]]))) fobjects <- unclass(fobjects[[1]])
@@ -55,13 +56,20 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
     }
   }
   
+  if(is.null(basename)) {
+    input <- 'input'
+    output <- 'output'
+  } else {
+    input <- output <- basename
+  }
+  
   nam <- data.frame(ftype = c('LIST', ftl_ftype, rep(NA, length(fobjects))),
                     nunit = c(50, 50 + c(1, seq_along(fobjects) + 1)),
-                    fname = c('output.m3d', ftl_fname, rep(NA, length(fobjects))),
+                    fname = c(paste(output, 'm3d', sep = '.'), ftl_fname, rep(NA, length(fobjects))),
                     options = c(NA, ifelse(binary, NA, 'FREE'), rep(NA, length(fobjects))), stringsAsFactors = FALSE)
   
   for(i in seq_along(fobjects)) {
-    nam$fname[i+2] <- paste0('input.',classes[i])
+    nam$fname[i+2] <- paste(input, classes[i], sep = '.')
     nam$ftype[i+2] <- df$ftype[classes[i] == df$rmt]
   }
   
@@ -69,7 +77,7 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
   # if('TOB' %in% nam$ftype) {
   #   hob <- fobjects[[which(nam$ftype=='HOB')-1]]
   #   if(hob$iuhobsv != 0) {
-  #     nam <- rbind(nam, data.frame(ftype = 'DATA', nunit = hob$iuhobsv, fname = 'output.hpr', options = NA))  
+  #     nam <- rbind(nam, data.frame(ftype = 'DATA', nunit = hob$iuhobsv, fname = paste(output, 'hpr', sep = '.'), options = NA))  
   #   }
   # }
   
