@@ -85,7 +85,7 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
 #' 
 #' \code{rmt_read_nam} reads in a MT3DMS name file and returns it as an \code{\link{RMT3DMS}} nam object.
 #' 
-#' @param file filename; typically '*.nam'
+#' @param file filename; typically '*.mt_nam'
 #' @return object of class mt3d_nam
 #' @export
 #' @seealso \code{\link{rmt_read_nam}}, \code{\link{rmt_write_nam}}
@@ -138,7 +138,7 @@ rmt_read_nam <- function(file = {cat('Please select nam file ...\n'); file.choos
 #' \code{rmt_write_nam} writes a MT3DMS name file based on an \code{\link{RMT3DMS}} nam object.
 #' 
 #' @param nam an \code{\link{RMT3DMS}} nam object
-#' @param file filename to write to; typically '*.nam'
+#' @param file filename to write to; typically '*.mt_nam'
 #' @param exclude character vector with packages names to exclude from the simulation. Defaults to NULL
 #' @return \code{NULL}
 #' @export

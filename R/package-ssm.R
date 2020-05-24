@@ -287,7 +287,7 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
   # data set 2
   data_set_2 <- rmti_parse_variables(ssm_lines, n = 2, width = 10)
   mxss <- as.numeric(data_set_2$variables[1])
-  issgout <- as.numeric(data_set_2$variables[2])
+  issgout <- ifelse(is.na(suppressWarnings(as.numeric(data_set_2$variables[2]))), 0, as.numeric(data_set_2$variables[2]))
   if(issgout == 0) issgout <- NULL
   ssm_lines <- data_set_2$remaining_lines
   rm(data_set_2)
