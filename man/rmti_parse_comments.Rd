@@ -5,7 +5,10 @@
 \title{Read comments
 Internal function used in the read_* functions to read comments}
 \usage{
-rmti_parse_comments(remaining_lines)
+rmti_parse_comments(remaining_lines, id = NULL)
+}
+\arguments{
+\item{id}{optional integers specifying which lines are comments. If NULL (default), lines starting with "#" indicate commented lines}
 }
 \description{
 Read comments

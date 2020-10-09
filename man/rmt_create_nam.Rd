@@ -7,7 +7,8 @@
 rmt_create_nam(
   ...,
   ftl = {     cat("Please select corresponding ftl file ...\\n")     file.choose() },
-  ftl_free = NULL
+  ftl_free = NULL,
+  basename = NULL
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ rmt_create_nam(
 \item{ftl}{path to the flow-transport link file; typically '.ftl'}
 
 \item{ftl_free}{logical; is the flow-transport link file written in free (formatted) format (TRUE) or binary (unformatted) (FALSE)? if NULL (default), it is guessed from reading \code{ftl}}
+
+\item{basename}{character specifying the basename of the files. The default (\code{NULL}) sets input basenames to 'input' and output to 'output'.}
 }
 \value{
 Object of class mt3d_nam

@@ -9,7 +9,7 @@ rmt_read_nam(
 )
 }
 \arguments{
-\item{file}{filename; typically '*.nam'}
+\item{file}{filename; typically '*.mt_nam'}
 }
 \value{
 object of class mt3d_nam

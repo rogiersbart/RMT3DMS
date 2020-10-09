@@ -15,7 +15,7 @@ rmt_write_nam(
 \arguments{
 \item{nam}{an \code{\link{RMT3DMS}} nam object}
 
-\item{file}{filename to write to; typically '*.nam'}
+\item{file}{filename to write to; typically '*.mt_nam'}
 
 \item{exclude}{character vector with packages names to exclude from the simulation. Defaults to NULL}
 }

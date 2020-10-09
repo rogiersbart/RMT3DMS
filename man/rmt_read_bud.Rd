@@ -9,7 +9,7 @@ rmt_read_bud(
 )
 }
 \arguments{
-\item{file}{path to the listing file; typically '*.lst'}
+\item{file}{path to the listing file; typically '*.m3d'}
 }
 \value{
 an object of class cbud which is a data.frame containing the cumulative mass budgets for all species
