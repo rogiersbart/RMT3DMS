@@ -11,7 +11,8 @@ rmt_write_rct(
     file.choose() },
   btn = {     cat("Please select corresponding btn file ...\\n")    
     rmt_read_btn(file.choose()) },
-  iprn = -1
+  iprn = -1,
+  ...
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ rmt_write_rct(
 \item{btn}{an \code{RMT3DMS} btn object}
 
 \item{iprn}{format code for printing arrays in the listing file; defaults to -1 (no printing)}
+
+\item{...}{arguments passed to \code{rmti_write_array}.}
 }
 \value{
 \code{NULL}

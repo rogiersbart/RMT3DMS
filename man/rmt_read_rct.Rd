@@ -7,17 +7,20 @@
 rmt_read_rct(
   file = {     cat("Please select rct file ...\\n")     file.choose() },
   btn = {     cat("Please select corresponding btn file ...\\n")    
-    rmt_read_btn(file.choose()) }
+    rmt_read_btn(file.choose()) },
+  ...
 )
 }
 \arguments{
 \item{file}{filename; typically '*.rct'}
 
 \item{btn}{\code{RMT3DMS} btn object}
+
+\item{...}{optional arguments passed to \code{\link{rmti_parse_array}}}
 }
 \value{
 object of class \code{rct}
 }
 \description{
-\code{rmt_read_rct} reads in an MT3DMS dispersion package file and returns it as an \code{\link{RMT3DMS}} rct object.
+\code{rmt_read_rct} reads in an MT3DMS/MT3D-USGS reaction package file and returns it as an \code{\link{RMT3DMS}} rct object.
 }
