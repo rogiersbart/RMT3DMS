@@ -230,7 +230,7 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
   {
     for(k in 1:nlay) 
     { 
-      header <- rmti_parse_variables(remaining_lines[1], n = 3, format = 'fixed')
+      header <- rmti_parse_variables(remaining_lines[1], n = 2, format = 'fixed')
       
       # MODFLOW-style free format control header
       if(header$variables[1] %in% c('CONSTANT', 'INTERNAL', 'EXTERNAL', 'OPEN/CLOSE') || skip_header) {
@@ -247,13 +247,14 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
         
         iread <-  as.numeric(header$variables[1])
         cnst <- as.numeric(header$variables[2])
-        fmtin <-  trimws(as.character(header$variables[3]))
+        fmtin <-  trimws(paste0(strsplit(remaining_lines[1], split = '')[[1]][21:40], collapse = ''))
         
         if(iread == 0) {  # CONSTANT
           array[,,k] <- cnst
           nLines <- 1
           
         } else if(iread == 100) {  # INTERNAL-ARRAY
+          lengths <- RMODFLOW:::rmfi_fortran_format(fmtin)
           remaining_lines <- remaining_lines[-1] 
           if(cnst == 0) cnst <-  1.0
           remaining_lines[1] <- paste(substring(remaining_lines[1], first = cumsum(lengths) - lengths + 1, last = cumsum(lengths)), collapse = ' ')
@@ -277,6 +278,7 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
           array[,,k] <- array[,,k]*cnst
           
         } else if(iread == 102) {  # INTERNAL-ZONE
+          lengths <- RMODFLOW:::rmfi_fortran_format(fmtin)
           remaining_lines <- remaining_lines[-1] 
           if(cnst == 0) cnst <-  1.0
           
@@ -342,7 +344,7 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
           # ASCII
           if(iread > 0) {
             if(!(toupper(fmtin) %in% c('(FREE)', 'FREE', '(BINARY)','BINARY'))) {
-              lengths <- rmfi_fortran_format(fmtin)
+              lengths <- RMODFLOW:::rmfi_fortran_format(fmtin)
               fortranfmt <-  TRUE
             }
             if(iread == nam$nunit[which(basename(nam$fname) == basename(file))]) { # read from current file
