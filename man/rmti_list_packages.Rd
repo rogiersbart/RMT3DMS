@@ -16,7 +16,7 @@ data.frame with ftype and rmt columns denoting the MT3DMS and \code{RMT3DMS} abb
 List supported MT3DMS/MT3D-USGS packages
 }
 \details{
-'usgs' holds all packages; 'mt3dms'
+'usgs' holds all packages; 'mt3dms' is a subset
 }
 \note{
 this function should be updated every time a new MT3DMS package is supported in \code{RMT3DMS}

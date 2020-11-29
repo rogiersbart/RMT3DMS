@@ -51,7 +51,8 @@ rmt_create_btn(
   ftlprint = FALSE,
   nowetdryprint = FALSE,
   omitdrycellbudget = FALSE,
-  altwtsorb = FALSE
+  altwtsorb = FALSE,
+  prj = NULL
 )
 }
 \arguments{
@@ -123,7 +124,7 @@ rmt_create_btn(
 
 \item{tsmult}{vector of successive flow model time step length multipliers. Defaults to 1 for every stress-period.}
 
-\item{ssflag}{logical vector of length \code{nper} indicating if the steady-state transport option should be used. Defaults to FALSE for every stress-period. MT3D-USGS only.}
+\item{ssflag}{logical vector of length \code{nper} indicating if the steady-state transport option should be used. Defaults to FALSE for every stress-period.}
 
 \item{tslngh}{list of length \code{nper} with time step length vectors. Defaults to 1 for every time step length. Only used when \code{tsmult > 0} for the current stress-period.}
 
@@ -148,6 +149,8 @@ rmt_create_btn(
 \item{omitdrycellbudget}{logical; should the printing of the mass budget of dry cells be disabled? Defaults to FALSE. MT3D-USGS only.}
 
 \item{altwtsorb}{logical; use an alternative formulation to simulate adsorbed mass. Defaults to FALSE. MT3D-USGS only.}
+
+\item{prj}{\code{RMODFLOW} prj object. Defaults to NULL.}
 }
 \value{
 an object of class \code{btn}

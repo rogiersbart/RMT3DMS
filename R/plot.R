@@ -242,7 +242,10 @@ rmt_plot.rmt_4d_array <- function(rmt_4d_array,
   RMODFLOW::rmt_plot(RMODFLOW::rmf_create_array(rmt_4d_array), dis = dis, mask = mask, i = i, j = j, k = k, l = l, ...)
 }
 
-
+# rmt_plot.rmt_list
+# 
+# # Do this??
+# rmt_plot.ssm 
 
 
 

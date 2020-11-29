@@ -11,6 +11,7 @@ rmt_convert_btn_to_dis(
   nstp = btn$nstp[1:nper],
   tsmult = btn$tsmult[1:nper],
   sstr = c("SS", rep("TR", nper - 1)),
+  prj = RMODFLOW::rmf_get_prj(btn),
   ...
 )
 }
@@ -26,6 +27,8 @@ rmt_convert_btn_to_dis(
 \item{tsmult}{vector of stress period time step multipliers in the dis object. Defaults to \code{btn$tsmult[1:nper]}. See details.}
 
 \item{sstr}{character vector with steady state ('SS') or transient ('TR') stress period indicator; defaults to first period 'SS' and all others 'TR'}
+
+\item{prj}{\code{RMODFLOW} prj object. By default obtained from the \code{btn} object.}
 
 \item{...}{additional arguments passed to \code{RMODFLOW::rmf_create_dis}}
 }

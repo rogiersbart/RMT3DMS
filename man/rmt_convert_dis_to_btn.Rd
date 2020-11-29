@@ -7,14 +7,23 @@
 rmt_convert_dis_to_btn(
   dis,
   nper = dis$nper,
-  perlen = dis$perlen,
+  perlen = dis$perlen[1:nper],
   tunit = NULL,
   lunit = NULL,
+  prj = RMODFLOW::rmf_get_prj(dis),
   ...
 )
 }
 \arguments{
 \item{dis}{\code{RMODFLOW} dis object}
+
+\item{nper}{number of stress periods in the btn object. Defaults to \code{dis$nper}. See details.}
+
+\item{perlen}{vector of stress period lengths in the btn object. Defaults to \code{dis$perlen[1:nper]}. See details.}
+
+\item{tunit}{character specifying the length unit. The default (NULL), guesses from the dis object. Note that lunit is for identification purposes only does not affect the model outcome.}
+
+\item{prj}{\code{RMODFLOW} prj object. By default, obtained from the dis object.}
 
 \item{...}{additional arguments passed to \code{rmt_create_btn}}
 }
@@ -25,7 +34,9 @@ rmt_convert_dis_to_btn(
 Convert RMT3DMS dis to RMT3DMS btn object
 }
 \details{
-conversion works best when number of stress-periods is equal in the dis and btn objects.
+Conversion works best when number of stress-periods is equal in the dis and btn objects.
+ \code{nper}, \code{perlen}, \code{nstp} & \code{tsmult} should only differ from the defaults when the flow model is steady-state 
+ with only 1 stress period. In that case, MT3DMS allows for differing stress periods between the flow and transport model.
 }
 \examples{
 library(RMODFLOW)

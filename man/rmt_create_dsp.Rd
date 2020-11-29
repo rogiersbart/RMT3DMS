@@ -25,7 +25,7 @@ rmt_create_dsp(
 
 \item{dmcoef}{either a 1D (nlay) (\code{multidiffusion = FALSE}) or a list of length \code{btn$mcomp} with 3D (\code{multidiffusion = TRUE}) array with the effective molecular diffusion coefficients. Defaults to 0 for all layers or cells (i.e. diffusion is neglected).}
 
-\item{multidiffusion}{logical; if TRUE, \code{dmcoef} can be specified for each species, for each cell. Defaults to FALSE. MT3D-USGS only.}
+\item{multidiffusion}{logical; if TRUE, \code{dmcoef} can be specified for each species, for each cell. Defaults to FALSE.}
 
 \item{nocross}{logical; should cross-dispersion be disabled? Defaults to FALSE. MT3D-USGS only.}
 }
