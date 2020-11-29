@@ -97,11 +97,6 @@ rmt_read <- function(file = {cat('Please select nam file ...\n'); file.choose()}
   mt3dms$btn <- rmt_read_btn(file = fname[which(mt3dms$nam$ftype == 'BTN')], nam = mt3dms$nam, precision = precision)
   ftype <- ftype[-which(ftype == 'BTN')]
   
-  # TODO if usgs.model.reference file is present, get prj from that
-  # all_files <- list.files(dir_nam)
-  # ref_file <- all_files[which(all_files == 'usgs.model.reference')]
-  # if(length(ref_file) == 1) mt3dms$btn$prj <- RMODFLOW::rmf_read_usgs_model_reference(file.path(dir_nam, ref_file), rmt_convert_btn_to_dis(mt3dms$btn))
-  
   # ADV
   if('ADV'%in% ftype) {
     if(verbose) print_reading('ADV', file = fname[which(mt3dms$nam$ftype == 'ADV')])

@@ -67,18 +67,15 @@ rmti_itype <- function() {
 #'
 #' @return data.frame with ftype and rmt columns denoting the MT3DMS and \code{RMT3DMS} abbreviations for the requested packages
 #' @keywords internal
-#' @details 'usgs' holds all packages; 'mt3dms'
+#' @details 'usgs' holds all packages; 'mt3dms' is a subset
 #' @note this function should be updated every time a new MT3DMS package is supported in \code{RMT3DMS}
 rmti_list_packages <- function(type = 'usgs') {
   
-  # update these two vectors everytime a new package is supported
+  # update rmfd_supported_packages in /data-raw/ when a new package is supported
   # NAM file is not in here but is supported
-  pack_names <- c('BTN','FTL','ADV','DSP','SSM','GCG')
-  rmt_names  <- c('btn', 'ftl', 'adv', 'dsp', 'ssm', 'gcg')
+  df <- rmtd_supported_packages
   
-  df <- data.frame(ftype = pack_names, rmt = rmt_names, stringsAsFactors = FALSE)
-  
-  # Below is an exhaustive overview of all packages in MT3D-USGS & MT3DMS
+  # Below is an exhaustive overview of all packages in MT3D-USGS & MT3DMS (latter is a subset of the former)
   # MT3D-USGS
   usgs <- c('btn', 'ft6', 'adv', 'dsp', 'ssm', 'rct', 'gcg', 'tob', 'hss', 'cts', 'tso', 'uzt', 'lkt', 'sft')
   
