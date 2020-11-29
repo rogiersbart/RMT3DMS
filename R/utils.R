@@ -154,10 +154,17 @@ as.data.frame.rmt_list <- function(obj, ...) structure(NextMethod(...), kper = N
 #' Convert RMT3DMS dis to RMT3DMS btn object
 #'
 #' @param dis \code{RMODFLOW} dis object
+#' @param nper number of stress periods in the btn object. Defaults to \code{dis$nper}. See details.
+#' @param perlen vector of stress period lengths in the btn object. Defaults to \code{dis$perlen[1:nper]}. See details.
+#' @param tunit character specifying the time unit. The default (NULL), guesses from the dis object. Note that tunit is for identification purposes only does not affect the model outcome.
+#' @param tunit character specifying the length unit. The default (NULL), guesses from the dis object. Note that lunit is for identification purposes only does not affect the model outcome.
+#' @param prj \code{RMODFLOW} prj object. By default, obtained from the dis object.
 #' @param ... additional arguments passed to \code{rmt_create_btn}
 #'
 #' @return \code{RMT3DMS} btn object
-#' @details conversion works best when number of stress-periods is equal in the dis and btn objects.
+#' @details Conversion works best when number of stress-periods is equal in the dis and btn objects.
+#'  \code{nper}, \code{perlen}, \code{nstp} & \code{tsmult} should only differ from the defaults when the flow model is steady-state 
+#'  with only 1 stress period. In that case, MT3DMS allows for differing stress periods between the flow and transport model.
 #' @export
 #' @seealso \code{\link{rmt_convert_btn_to_dis}}, \code{\link{rmt_create_btn}}
 #' @examples
@@ -166,8 +173,8 @@ as.data.frame.rmt_list <- function(obj, ...) structure(NextMethod(...), kper = N
 #' rmt_convert_dis_to_btn(dis)
 #' rmt_convert_dis_to_btn(dis, nper = 2, perlen = c(1000, 500), tunit = 'd', ncomp = 2)
 #' 
-rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen,
-                                   tunit = NULL, lunit = NULL, ...) {
+rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen[1:nper],
+                                   tunit = NULL, lunit = NULL, prj = RMODFLOW::rmf_get_prj(dis), ...) {
   
   dz <- rmt_convert_rmf_to_rmt(RMODFLOW::rmf_calculate_thickness(dis))
   
@@ -187,6 +194,7 @@ rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen,
                         perlen = perlen,
                         nstp = ifelse(dis$sstr == 'SS', 1, dis$nstp),
                         tsmult = dis$tsmult,
+                        prj = prj,
                         ...)
   return(btn)
 }
@@ -199,6 +207,7 @@ rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen,
 #' @param nstp vector of stress period time steps in the dis object. Defaults to \code{btn$nstp[1:nper]}. See details.
 #' @param tsmult vector of stress period time step multipliers in the dis object. Defaults to \code{btn$tsmult[1:nper]}. See details.
 #' @param sstr character vector with steady state ('SS') or transient ('TR') stress period indicator; defaults to first period 'SS' and all others 'TR'
+#' @param prj \code{RMODFLOW} prj object. By default obtained from the \code{btn} object.
 #' @param ... additional arguments passed to \code{RMODFLOW::rmf_create_dis}
 #'
 #' @return \code{RMODFLOW} dis object
@@ -224,6 +233,7 @@ rmt_convert_btn_to_dis <- function(btn,
                                    nstp = btn$nstp[1:nper],
                                    tsmult = btn$tsmult[1:nper],
                                    sstr = c("SS", rep("TR", nper - 1)), 
+                                   prj = RMODFLOW::rmf_get_prj(btn),
                                    ...) {
 
   botm <- btn$dz*NA
@@ -272,7 +282,8 @@ rmt_convert_btn_to_dis <- function(btn,
                                   perlen = perlen,
                                   nstp = nstp,
                                   tsmult = tsmult,
-                                  sstr = sstr, 
+                                  sstr = sstr,
+                                  prj = prj,
                                   ...)
   return(dis)
 }
@@ -500,4 +511,3 @@ t.rmt_2d_array <- function(obj) {
   attr(obj, "dimlabels") <- rev(attr(obj, "dimlabels"))
   return(obj)
 }
-

@@ -8,7 +8,7 @@
 #' @param trpt 1D vector with ratios of horizontal transverse to longitudinal dispersivities (TH/TL) for every layer. Defaults to 0.1 for every layer. 
 #' @param trpv 1D vector with ratios of vertical transverse to longitudinal dispersivities (TV/TL) for every layer. Defaults to 0.01 for every layer. 
 #' @param dmcoef either a 1D (nlay) (\code{multidiffusion = FALSE}) or a list of length \code{btn$mcomp} with 3D (\code{multidiffusion = TRUE}) array with the effective molecular diffusion coefficients. Defaults to 0 for all layers or cells (i.e. diffusion is neglected).
-#' @param multidiffusion logical; if TRUE, \code{dmcoef} can be specified for each species, for each cell. Defaults to FALSE. MT3D-USGS only.
+#' @param multidiffusion logical; if TRUE, \code{dmcoef} can be specified for each species, for each cell. Defaults to FALSE.
 #' @param nocross logical; should cross-dispersion be disabled? Defaults to FALSE. MT3D-USGS only. 
 #'
 #' @return an object of class \code{dsp}

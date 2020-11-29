@@ -37,7 +37,7 @@
 #' @param perlen vector of flow model stress-period lengths. Defaults to 1 for every stress-period.
 #' @param nstp vector of flow model stress-period time steps. Defaults to 1 for every stress-period.
 #' @param tsmult vector of successive flow model time step length multipliers. Defaults to 1 for every stress-period.
-#' @param ssflag logical vector of length \code{nper} indicating if the steady-state transport option should be used. Defaults to FALSE for every stress-period. MT3D-USGS only.
+#' @param ssflag logical vector of length \code{nper} indicating if the steady-state transport option should be used. Defaults to FALSE for every stress-period.
 #' @param tslngh list of length \code{nper} with time step length vectors. Defaults to 1 for every time step length. Only used when \code{tsmult > 0} for the current stress-period.
 #' @param dt0 vector of length \code{nper} of initial transport step sizes within each flow time step. If zero (default) and the GCG solver is active, a model-calculated value based on the Courant number in the Advection package is used. 
 #' @param mxstrn vector of length \code{nper} with the maximum number of transport steps allowed within one flow time step. Defaults to 50 for every stress-period.
@@ -50,6 +50,7 @@
 #' @param nowetdryprint logical; should printing of messages related to drying and re-wetting of model cells to the standard output text file be disabled? Defaults to FALSE. MT3D-USGS only.
 #' @param omitdrycellbudget logical; should the printing of the mass budget of dry cells be disabled? Defaults to FALSE. MT3D-USGS only.
 #' @param altwtsorb logical; use an alternative formulation to simulate adsorbed mass. Defaults to FALSE. MT3D-USGS only.
+#' @param prj \code{RMODFLOW} prj object. Defaults to NULL.
 #'
 #' @return an object of class \code{btn}
 #' @export
@@ -107,7 +108,8 @@ rmt_create_btn <- function(nlay = 3,
                            ftlprint = FALSE,
                            nowetdryprint = FALSE,
                            omitdrycellbudget = FALSE,
-                           altwtsorb = FALSE) {
+                           altwtsorb = FALSE,
+                           prj = NULL) {
   
   btn <- list()
   
@@ -211,6 +213,8 @@ rmt_create_btn <- function(nlay = 3,
   btn$mxstrn <- rmti_ifelse0(length(mxstrn) == 1, rep(mxstrn, btn$nper), mxstrn)
   btn$ttsmult <- rmti_ifelse0(length(ttsmult) == 1, rep(ttsmult, btn$nper), ttsmult)
   btn$ttsmax <- rmti_ifelse0(length(ttsmax) == 1, rep(ttsmax, btn$nper), ttsmax)
+  
+  btn$prj <- RMODFLOW::rmf_set_prj(btn, prj)
   
   class(btn) <- c('btn', 'rmt_package')
   return(btn)

@@ -190,6 +190,7 @@ rmt_write_nam <- function(nam,
   cat(paste('#', comment(nam)), sep='\n', file=file, append=TRUE)
   
   # data set 1
+  # MT3DMS does not support tab-delimited values in NAM file
   # write.table(nam, file = file, row.names = FALSE, col.names = FALSE, quote = FALSE, na='', append=TRUE)
-  readr::write_tsv(nam, path = file, append = TRUE, col_names = FALSE, quote_escape = FALSE, na = '')
+  readr::write_delim(nam, path = file, append = TRUE, col_names = FALSE, quote_escape = FALSE, na = '', delim = ' ')
 }
