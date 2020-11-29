@@ -32,6 +32,7 @@ rmt_plot.cbud <- function(cbud,
                           final = FALSE) {
   
   if(length(icomp) > 1) stop('icomp should be of length 1', call. = FALSE)
+  cbud <- as.data.frame(cbud)
   cbud <- cbud[which(cbud$icomp == icomp), ]
   
   if(final) cbud <- cbud[nrow(cbud),]
@@ -239,11 +240,184 @@ rmt_plot.rmt_4d_array <- function(rmt_4d_array,
                                   ...) {
   
   dis <- rmt_convert_btn_to_dis(btn)
-  RMODFLOW::rmt_plot(RMODFLOW::rmf_create_array(rmt_4d_array), dis = dis, mask = mask, i = i, j = j, k = k, l = l, ...)
+  RMODFLOW::rmf_plot(RMODFLOW::rmf_create_array(rmt_4d_array), dis = dis, mask = mask, i = i, j = j, k = k, l = l, ...)
 }
 
-# rmt_plot.rmt_list
-# 
+#' Plot a RMT3DMS list object
+#'
+#' @param obj a \code{RMT3DMS} object of class \code{rmt_list}
+#' @param btn a \code{RMT3DMS} btn object
+#' @param mask a 3D array with 0 or F indicating inactive cells; defaults to btn$icbund
+#' @param i row number to plot
+#' @param j column number to plot
+#' @param k layer number to plot
+#' @param variable single character or numeric indicating which column in the \code{rmt_list} object to plot. Defaults to 'id', which plots the locations of the cells.
+#' @param ... additional arguments passed to either \code{\link{RMODFLOW::rmf_plot.rmf_list}}
+#' 
+#' @return ggplot2 object or layer
+#' @method rmt_plot rmt_list
+#' 
+#' @export
+rmt_plot.rmt_list <- function(obj, 
+                              btn, 
+                              mask = btn$icbund,
+                              variable = 'id',
+                              i = NULL,
+                              j = NULL,
+                              k = NULL,
+                              ...) {
+  dis <- rmt_convert_btn_to_dis(btn)
+  RMODFLOW::rmf_plot(obj, dis = dis, i = i, j = j, k = k, variable = variable, mask = mask, ...)
+}
+
+#' Plot a MT3D ucn file object
+#'
+#' @param ucn \code{RMT3DMS} ucn object as returned from \code{rmt_read_ucn}
+#' @param btn \code{RMT3DMS} btn object
+#' @param i row number to plot
+#' @param j column number to plot
+#' @param k layer number to plot
+#' @param l time step number to plot; defaults to plotting the final time step.
+#' @param kper integer specifying the stress-period. Use in conjunction with kstp. See details.
+#' @param kstp integer specifying the time step of kper. Use in conjunction with kper. See details.
+#' @param ... additional parameters passed to \code{\link{rmt_plot.rmf_4d_array}}
+#'
+#' @details There are two ways to specify which time step to plot. The \code{l} argument can be specified which represents the total time step number. 
+#'  The other option is to specify both \code{kper} & \code{kstp} which specify the stress-period and corresponding time step in that stress-period.
+#'  A negative \code{kstp} will plot the final time step of the stress-period.
+#'  
+#'  If no output is written for the specified time step, as controlled by the btn object, an error is thrown.
+#'
+#' @return ggplot2 object or layer
+#' @method rmt_plot ucn
+#' @export
+#'
+rmt_plot.ucn <- function(ucn, 
+                         btn,
+                         i = NULL,
+                         j = NULL,
+                         k = NULL,
+                         l = NULL,
+                         kper = NULL,
+                         kstp = NULL,
+                         ...) {
+  
+  if(inherits(ucn, 'rmt_4d_array')) {
+    # skip if ijk are specified and a time series should be plotted
+    if(!(!is.null(i) && !is.null(j) && !is.null(k))) {
+      if(is.null(l) && (is.null(kper) && is.null(kstp))) {
+        if(dim(ucn)[4] > 1) warning('Plotting final time step results.', call. = FALSE)
+        l <- dim(ucn)[4]
+      }
+      
+      if(is.null(l)) {
+        if(any(is.null(kper), is.null(kstp))) stop('Please specify either l or kstp & kper.', call. = FALSE)
+        l <- ifelse(kper == 1, 0, cumsum(btn$nstp)[kper-1]) + ifelse(kstp < 0, btn$nstp[kper], kstp)
+      }
+      
+      if(!(l %in% attr(ucn, 'nstp'))) stop('No output written for specified time step.', call. = FALSE)
+      
+      rmt_plot.rmt_4d_array(ucn, btn = btn, i=i, j=j, k=k, l=l, ...)
+      
+    } else {
+      rmt_plot.rmt_4d_array(ucn, btn = btn, i=i, j=j, k=k, l=l, ...)
+    }
+  } else if(inherits(ucn, 'rmt_3d_array')) {
+    rmt_plot.rmt_3d_array(ucn, btn = btn, i=i, j=j, k=k, ...)
+  } else if(inherits(ucn, 'rmt_2d_array')) {
+    rmt_plot.rmt_2d_array(ucn, btn = btn, i=i, j=j, ...)
+  } else {
+    stop('Array is not of class rmt_2d_array, rmt_3d_array or rmt_4d_array. Is the array subsetted ?', call. = FALSE)
+  }
+}
+  
+
+#' Plot a MT3DMS mass summary file time series
+#'
+#' @param mas \code{RMT3DMS} mas object as returned from \code{rmt_read_mas}
+#' @param variable character specifying which variable to plot. Defaults to 'all'. Allowed values are the colnames of \code{mas}.
+#' @param final logical, should only the final time step be plotted. Default to FALSE.
+#'
+#' @details plots a time series line plot of the variable. If \code{variable = 'all'}, \code{ggplot2::facet_wrap} is used to plot all variable with free y scales. 
+#'  If \code{final = TRUE}, a bar plot is returned using \code{ggplot2::geom_col} of the final time step.
+#'  
+#' @return ggplot2 object
+#' @method rmt_plot mas
+#' @export
+#'
+rmt_plot.mas <- function(mas, 
+                         variable = 'all',
+                         final = FALSE) {
+  
+  if(length(variable) != 1) stop('variable should be of length 1', call. = FALSE)
+  type <- 'line'
+  if(final) {
+    type <- 'bar'
+    mas <- mas[nrow(mas),]
+  }
+  if(variable == 'all') {
+    colnames(mas)[which(colnames(mas) == 'time')] <- 'tm'
+    df <- reshape(as.data.frame(mas), direction = 'long', varying = colnames(mas)[-1], v.names = 'value', timevar = 'variable', times = colnames(mas)[-1])
+    colnames(df)[which(colnames(df) == 'tm')] <- 'time'
+    
+    if(type == 'line') {
+      ggplot2::ggplot(df) +
+        ggplot2::geom_line(ggplot2::aes(time, value, colour = variable, group = variable)) +
+        ggplot2::facet_wrap(~variable, scales = 'free_y')
+    } else if(type == 'bar') {
+      ggplot2::ggplot(df) +
+        ggplot2::geom_col(ggplot2::aes(time, value, fill = variable)) +
+        ggplot2::facet_wrap(~variable, scales = 'free_y')
+    } else {
+      stop('type should be line or bar', call. = FALSE)
+    }
+
+    
+  } else {
+    df <- mas[, c(1, which(colnames(mas) == variable))]
+    if(type == 'line') {
+      ggplot2::ggplot(df) +
+        ggplot2::geom_line(ggplot2::aes_string('time', variable))
+    } else if(type == 'bar') {
+      ggplot2::ggplot(df) +
+        ggplot2::geom_col(ggplot2::aes_string('time', variable)) 
+    } else {
+      stop('type should be line or bar', call. = FALSE)
+    }
+  }
+  
+}
+
+#' Plot a MT3DMS concentrations observation time series
+#'
+#' @param cobs \code{RMT3DMS} cobs objected as returned from \code{rmt_read_obs}
+#' @param i row number to subset observations. Defaults to NULL.
+#' @param j column number subset observations. Defaults to NULL.
+#' @param k layer number subset observations. Defaults to NULL. 
+#' 
+#' @details The observations are named using their k-i-j indices.
+#' 
+#' @return ggplot2 object
+#' @export
+#' @method rmt_plot cobs
+#'
+rmt_plot.cobs <- function(cobs,
+                          i = NULL,
+                          j = NULL,
+                          k = NULL) {
+  
+  cobs <- as.data.frame(cobs)
+  cobs$name <- paste(cobs$k, cobs$i, cobs$j, sep = '-')
+  if(!is.null(k)) cobs <- cobs[which(cobs$k %in% k),]
+  if(!is.null(i)) cobs <- cobs[which(cobs$i %in% i),]
+  if(!is.null(j)) cobs <- cobs[which(cobs$j %in% j),]
+
+  ggplot2::ggplot(cobs) +
+    ggplot2::geom_line(ggplot2::aes(time, value, colour = name, group = name)) +
+    ggplot2::labs(colour = 'k-i-j')
+  
+}
+
 # # Do this??
 # rmt_plot.ssm 
 

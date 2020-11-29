@@ -395,6 +395,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   btn$perlen <- NULL
   btn$nstp <- NULL
   btn$tsmult <- NULL
+  btn$ssflag <- NULL
   btn$tslngh <- list()
   btn$dt0 <- NULL
   btn$mxstrn <- NULL
@@ -408,7 +409,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
     btn$nstp[i] <- as.numeric(data_set_21$variables[2])
     btn$tsmult[i] <- as.numeric(data_set_21$variables[3])
     variables <- rmti_parse_variables(btn_lines, format = 'free', character = TRUE)
-    btn$sstate[i] <- 'SSTATE' %in% toupper(variables)
+    btn$ssflag[i] <- 'SSTATE' %in% toupper(variables)
     btn_lines <- data_set_21$remaining_lines
     rm(data_set_21, variables)
     
@@ -530,7 +531,7 @@ rmt_write_btn <- function(btn,
   
   for(i in 1:btn$nper) {  
     # Data set 21
-    rmti_write_variables(btn$perlen[i], as.integer(btn$nstp[i]), btn$tsmult[i], ifelse(btn$sstate[i], 'SSTATE', ''), file = file)
+    rmti_write_variables(btn$perlen[i], as.integer(btn$nstp[i]), btn$tsmult[i], ifelse(btn$ssflag[i], 'SSTATE', ''), file = file)
     
     # Data set 22
     if(btn$tsmult[i] <= 0) {

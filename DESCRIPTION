@@ -34,3 +34,5 @@ URL: https://github.com/rogiersbart/RMT3DMS
 BugReports: https://github.com/rogiersbart/RMT3DMS/issues
 Encoding: UTF-8
 RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)

@@ -82,7 +82,7 @@ rmti_download_code <- function(code, dir, os, overwrite) {
       rui::alert("You have already installed {code} in {mt_dir}")
       install <- rui::ask("Do you want to reinstall?")
     } else if (is.null(overwrite)) {
-      rui::stop(c("{code} version already exists in {mt_dir}.",
+      rui::stop(c("{code} version already exists in {mt_dir}",
                   "Set overwrite to TRUE if you want replace it."))
     } else if (overwrite) {
       install <- TRUE

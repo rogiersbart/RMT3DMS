@@ -92,6 +92,7 @@ rmt_read_bud <- function(file = {cat('Please select MT3DMS listing file ...\n');
     stop("No budget was printed to listing file. You can change this in the BTN file.", call. = FALSE)
   }
   
+  balance <- tibble::tibble(balance)
   class(balance) <- c('cbud', class(balance))
   return(balance)
 }
@@ -161,7 +162,7 @@ rmt_read_obs <- function(file = {cat('Please select obs file ...\n'); file.choos
   ijk <- RMODFLOW::rmf_convert_id_to_ijk(df$id, dis = dis, type = 'r')
   df <- cbind(df, ijk)
   df <- df[,c('nstp', 'time', 'k', 'i', 'j', 'value')]
-  
+  df <- tibble::tibble(df)
   df$solute <- solute
   class(df) <- c('cobs', class(df))
   return(df)
