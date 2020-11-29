@@ -4,17 +4,7 @@
 \alias{rmt_plot.ucn}
 \title{Plot a MT3D ucn file object}
 \usage{
-\method{rmt_plot}{ucn}(
-  ucn,
-  btn,
-  i = NULL,
-  j = NULL,
-  k = NULL,
-  l = NULL,
-  kper = NULL,
-  kstp = NULL,
-  ...
-)
+\method{rmt_plot}{ucn}(ucn, btn, i = NULL, j = NULL, k = NULL, l = NULL, ntrans = NULL, ...)
 }
 \arguments{
 \item{ucn}{\code{RMT3DMS} ucn object as returned from \code{rmt_read_ucn}}
@@ -27,11 +17,9 @@
 
 \item{k}{layer number to plot}
 
-\item{l}{time step number to plot; defaults to plotting the final time step.}
+\item{l}{time step number to plot (index for 4th dimension); defaults to plotting the final time step. See details.}
 
-\item{kper}{integer specifying the stress-period. Use in conjunction with kstp. See details.}
-
-\item{kstp}{integer specifying the time step of kper. Use in conjunction with kper. See details.}
+\item{ntrans}{integer specifying the transport time step to plot. See details.}
 
 \item{...}{additional parameters passed to \code{\link{rmt_plot.rmf_4d_array}}}
 }
@@ -42,9 +30,9 @@ ggplot2 object or layer
 Plot a MT3D ucn file object
 }
 \details{
-There are two ways to specify which time step to plot. The \code{l} argument can be specified which represents the total time step number. 
- The other option is to specify both \code{kper} & \code{kstp} which specify the stress-period and corresponding time step in that stress-period.
- A negative \code{kstp} will plot the final time step of the stress-period.
+There are two ways to specify which time step to plot:
+ The \code{l} argument can be specified which represents the dimension index. This can be smaller than the total number of transport time steps since output may not be written for all steps. 
+ The second option is to specify \code{ntrans} which is the total transport time step number. Since output at every time step is not always written, a specified ntrans value might not be available in the array.
  
  If no output is written for the specified time step, as controlled by the btn object, an error is thrown.
 }

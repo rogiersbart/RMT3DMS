@@ -224,7 +224,7 @@ rmt_plot.rmt_3d_array <- function(rmt_3d_array,
 #' @param i row number to plot
 #' @param j column number to plot
 #' @param k layer number to plot
-#' @param l transport time step number to plot
+#' @param l transport time step number to plot (index for 4th dimension)
 #' @param mask a 3D array with 0 or F indicating inactive cells; defaults to btn$icbund
 #' @param ... arguments provided to RMODFLOW::rmf_plot.rmf_3d_array
 #' @return ggplot2 object or layer; if plot3D is TRUE, nothing is returned and the plot is made directly
@@ -277,14 +277,13 @@ rmt_plot.rmt_list <- function(obj,
 #' @param i row number to plot
 #' @param j column number to plot
 #' @param k layer number to plot
-#' @param l time step number to plot; defaults to plotting the final time step.
-#' @param kper integer specifying the stress-period. Use in conjunction with kstp. See details.
-#' @param kstp integer specifying the time step of kper. Use in conjunction with kper. See details.
+#' @param l time step number to plot (index for 4th dimension); defaults to plotting the final time step. See details.
+#' @param ntrans integer specifying the transport time step to plot. See details. 
 #' @param ... additional parameters passed to \code{\link{rmt_plot.rmf_4d_array}}
 #'
-#' @details There are two ways to specify which time step to plot. The \code{l} argument can be specified which represents the total time step number. 
-#'  The other option is to specify both \code{kper} & \code{kstp} which specify the stress-period and corresponding time step in that stress-period.
-#'  A negative \code{kstp} will plot the final time step of the stress-period.
+#' @details There are two ways to specify which time step to plot:
+#'  The \code{l} argument can be specified which represents the dimension index. This can be smaller than the total number of transport time steps since output may not be written for all steps. 
+#'  The second option is to specify \code{ntrans} which is the total transport time step number. Since output at every time step is not always written, a specified ntrans value might not be available in the array.
 #'  
 #'  If no output is written for the specified time step, as controlled by the btn object, an error is thrown.
 #'
@@ -298,24 +297,21 @@ rmt_plot.ucn <- function(ucn,
                          j = NULL,
                          k = NULL,
                          l = NULL,
-                         kper = NULL,
-                         kstp = NULL,
+                         ntrans = NULL,
                          ...) {
   
   if(inherits(ucn, 'rmt_4d_array')) {
     # skip if ijk are specified and a time series should be plotted
     if(!(!is.null(i) && !is.null(j) && !is.null(k))) {
-      if(is.null(l) && (is.null(kper) && is.null(kstp))) {
-        if(dim(ucn)[4] > 1) warning('Plotting final time step results.', call. = FALSE)
+      if(is.null(l) && is.null(ntrans)) {
+        if(dim(ucn)[4] > 1) warning('Plotting final transport time step results.', call. = FALSE)
         l <- dim(ucn)[4]
+      } else if(!is.null(l) && !is.null(ntrans)) {
+        stop('Please specify either l or ntrans', call. = FALSE)
+      } else if(!is.null(ntrans)) {
+        if(!(ntrans %in% attr(ucn, 'ntrans'))) stop('No output written for specified ntrans transport time step.', call. = FALSE)
+        l <- which(attr(ucn, 'ntrans') == ntrans)
       }
-      
-      if(is.null(l)) {
-        if(any(is.null(kper), is.null(kstp))) stop('Please specify either l or kstp & kper.', call. = FALSE)
-        l <- ifelse(kper == 1, 0, cumsum(btn$nstp)[kper-1]) + ifelse(kstp < 0, btn$nstp[kper], kstp)
-      }
-      
-      if(!(l %in% attr(ucn, 'nstp'))) stop('No output written for specified time step.', call. = FALSE)
       
       rmt_plot.rmt_4d_array(ucn, btn = btn, i=i, j=j, k=k, l=l, ...)
       

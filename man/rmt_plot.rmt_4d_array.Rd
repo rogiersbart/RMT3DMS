@@ -26,7 +26,7 @@
 
 \item{k}{layer number to plot}
 
-\item{l}{transport time step number to plot}
+\item{l}{transport time step number to plot (index for 4th dimension)}
 
 \item{mask}{a 3D array with 0 or F indicating inactive cells; defaults to btn$icbund}
 
