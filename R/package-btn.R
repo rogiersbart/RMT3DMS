@@ -214,9 +214,8 @@ rmt_create_btn <- function(nlay = 3,
   btn$ttsmult <- rmti_ifelse0(length(ttsmult) == 1, rep(ttsmult, btn$nper), ttsmult)
   btn$ttsmax <- rmti_ifelse0(length(ttsmax) == 1, rep(ttsmax, btn$nper), ttsmax)
   
-  btn$prj <- RMODFLOW::rmf_set_prj(btn, prj)
-  
   class(btn) <- c('btn', 'rmt_package')
+  btn$prj <- RMODFLOW::rmf_set_prj(btn, prj)
   return(btn)
   
 }
@@ -275,6 +274,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   # Data set 5
   data_set_5 <- rmti_parse_variables(btn_lines, n = 10, width = 2)
   btn$trnop <- as.logical(data_set_5$variables[1:10])
+  btn$trnop <- ifelse(is.na(btn$trnop), FALSE, btn$trnop)
   btn_lines <- data_set_5$remaining_lines
   rm(data_set_5)
   

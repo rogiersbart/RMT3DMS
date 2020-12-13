@@ -75,7 +75,7 @@ cchd1 <- rnorm(nrow(m$chd$data), 70, 50)
 rmt_as_list(m$chd, cchd1, kper = c(2, 3), cchd1 * 2, cchd1 / 2)
 
 # stress periods should be the same when flow object has more than 1 stress period
-\dontrun {
+\dontrun{
 rmt_as_list(m$chd, cchd1, kper = c(2, 3))
 }
 }

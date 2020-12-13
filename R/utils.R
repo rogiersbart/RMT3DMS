@@ -93,10 +93,9 @@ rmt_as_list.drn <- function(drn, cdrn, kper, ...) {
 #' # stress periods should be the same when flow object has more than 1 stress period
 # m$chd$kper <- m$chd$kper[c(1,1),]
 # m$chd$kper$kper <- c(1,2)
-#' \dontrun {
+#' \dontrun{
 #' rmt_as_list(m$chd, cchd1, kper = c(2, 3))
 #' }
-
 rmt_as_list.chd <- function(chd, cchd, kper, ...) {
   itype <- 1
   arg <- list(...)
@@ -346,12 +345,12 @@ rmt_create_array <- function(obj = NA,
   
   obj <-  NextMethod(..., drop = drop)
   
-  # l missing -> always 4d unless all other indices are given
-  if(!drop && sum(miss) > 1) {
-    if(!miss[4]) {
-      dim(obj) <- dim(obj)[miss]
-    } 
-  } 
+  # # l missing -> always 4d unless all other indices are given
+  # if(!drop && sum(miss) > 1) {
+  #   if(!miss[4]) {
+  #     dim(obj) <- dim(obj)[miss]
+  #   } 
+  # } 
   
   if (length(dim(obj)) == 2) {
     class(obj) <- replace(class(x), class(x) == 'rmt_4d_array', 'rmt_2d_array')
@@ -391,9 +390,9 @@ rmt_create_array <- function(obj = NA,
   
   obj <-  NextMethod(..., drop = drop)
   
-  if(!drop && sum(miss) > 1) {
-    dim(obj) <- dim(obj)[miss]
-  } 
+  # if(!drop && sum(miss) > 1) {
+  #   dim(obj) <- dim(obj)[miss]
+  # } 
   
   if (length(dim(obj)) == 2) {
     class(obj) <- replace(class(x), class(x) == 'rmt_3d_array', 'rmt_2d_array')
@@ -422,9 +421,9 @@ rmt_create_array <- function(obj = NA,
   
   obj <-  NextMethod(..., drop = drop)
   
-  if(!drop && sum(miss) > 1) {
-    dim(obj) <- dim(obj)[miss]
-  } 
+  # if(!drop && sum(miss) > 1) {
+  #   dim(obj) <- dim(obj)[miss]
+  # } 
   
   if (length(dim(obj)) == 2) {
     class(obj) <- class(x)

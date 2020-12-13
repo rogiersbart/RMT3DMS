@@ -39,6 +39,25 @@ rmt_install <- function(code = "all", overwrite = NULL) {
   invisible()
 }
 
+#' @rdname rmt_install
+#' @export
+#' @details [rmt_installed_codes()] shows which codes are installed in the default installation location as
+#'  set by the `RMT3DMS.path` option.
+#' @examples
+#' \dontrun{
+#' rmt_installed_codes()
+#' }
+rmt_installed_codes <- function() {
+  loc <- getOption('RMT3DMS.path')
+  codes <- vapply(list.dirs(loc, recursive = FALSE), basename, 'text')
+  if(length(codes) == 0) {
+    rui::disapprove('No codes have been installed in {loc}')
+  } else {
+    rui::approve('Following codes have been installed in {loc}:')
+    for(i in codes) rui::inform(i)
+  }
+}
+
 #' Install codes
 #'
 #' @inheritParams rmt_install
@@ -110,7 +129,8 @@ rmti_download_code <- function(code, dir, os, overwrite) {
     } else {
       unzip(temp, exdir = dir)
       unlink(temp, force = TRUE)
-      fs::file_move(file.path(dir, folder), mt_dir)
+      # fs::file_move(file.path(dir, folder), mt_dir)
+      file.rename(file.path(dir, folder), mt_dir)
     }
     rui::succeed()
     rui::inform("You can find {code} at: {.path {mt_dir}}")

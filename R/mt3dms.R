@@ -239,7 +239,7 @@ rmt_read <- function(file = {cat('Please select nam file ...\n'); file.choose()}
 #' rmt_write(m, f, verbose = FALSE)
 #' 
 #' f2 <- tempfile()
-#' \dontrun {
+#' \dontrun{
 #' rmt_write(m, f2, exclude = 'dsp')
 #' }
 rmt_write <- function(mt3dms, 

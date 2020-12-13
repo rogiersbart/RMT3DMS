@@ -334,9 +334,17 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
           
           if(is.null(nam)) stop('Please supply a MT3DMS nam object when reading EXTERNAL arrays', call. = FALSE)
           
-          fname <-  nam$fname[which(nam$nunit == iread)]
+          if(iread %in% nam$nunit) {
+            fname <- nam$fname[which(nam$nunit == iread)]
+          } else if(any(nam$nunit == 0) && iread %in% rmtd_internal_nunit$nunit) { # nunit = 0
+            ext_ftype <- rmtd_internal_nunit$ftype[which(rmtd_internal_nunit$nunit == iread)]
+            fname <- nam$fname[which(nam$ftype == ext_ftype)]
+          } else {
+            stop('nunit for EXTERNAL array not found in NAM file', call. = FALSE)
+          }
           direct <-  attr(nam, 'dir')
-          absfile <-  paste(direct, fname, sep='/')
+          absfile <-  file.path(direct, fname)
+          ext_file <- TRUE
           
           # ASCII
           if(iread > 0) {
@@ -344,7 +352,8 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
               lengths <- RMODFLOW:::rmfi_fortran_format(fmtin)
               fortranfmt <-  TRUE
             }
-            if(iread == nam$nunit[which(basename(nam$fname) == basename(file))]) { # read from current file
+            if(iread == nam$nunit[which(basename(nam$fname) == basename(file))] || normalizePath(absfile) == normalizePath(file)) { # read from current file
+              ext_file <- FALSE
               
               remaining_lines <- remaining_lines[-1] 
               if(fortranfmt) {
@@ -411,12 +420,15 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
             
             close(con)
           }
-          if(is.null(attr(nam, as.character(iread)))) {
-            attr(nam, as.character(iread)) <- nLines
-          } else {
-            attr(nam, as.character(iread)) <- attr(nam, as.character(iread)) + nLines
+          
+          if(ext_file) {
+            if(is.null(attr(nam, as.character(iread)))) {
+              attr(nam, as.character(iread)) <- nLines
+            } else {
+              attr(nam, as.character(iread)) <- attr(nam, as.character(iread)) + nLines
+            }
+            nLines <- 1
           }
-          nLines <- 1
         }
         
         remaining_lines <- remaining_lines[-c(1:nLines)]

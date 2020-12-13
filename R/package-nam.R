@@ -6,6 +6,7 @@
 #' @param ... RMT3DMS objects to be included in the nam file
 #' @param ftl path to the flow-transport link file; typically '.ftl'
 #' @param ftl_free logical; is the flow-transport link file written in free (formatted) format (TRUE) or binary (unformatted) (FALSE)? if NULL (default), it is guessed from reading \code{ftl}
+#' @param print logical; should the contents of the flow-transport link file be printed to the listing file? Defaults to FALSE.
 #' @param basename character specifying the basename of the files. The default (\code{NULL}) sets input basenames to 'input' and output to 'output'.
 #' @return Object of class mt3d_nam
 #' @details If a \code{RMT3DMS nam} object is present, it is recreated. 
@@ -19,7 +20,7 @@
 #' gcg <- rmt_create_gcg()
 #' rmt_create_nam(btn, adv, gcg, ftl = 'output.ftl', ftl_free = TRUE)
 #' 
-rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file ...\n'); file.choose()}, ftl_free = NULL, basename = NULL) {
+rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file ...\n'); file.choose()}, ftl_free = NULL, print = FALSE, basename = NULL) {
   
   fobjects <- list(...)
   if(length(fobjects) == 1 && inherits(fobjects[[1]], c('list', 'mt3dms')) && !('rmt_package' %in% class(fobjects[[1]]))) fobjects <- unclass(fobjects[[1]])
@@ -66,7 +67,7 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
   nam <- data.frame(ftype = c('LIST', ftl_ftype, rep(NA, length(fobjects))),
                     nunit = c(50, 50 + c(1, seq_along(fobjects) + 1)),
                     fname = c(paste(output, 'm3d', sep = '.'), ftl_fname, rep(NA, length(fobjects))),
-                    options = c(NA, ifelse(binary, NA, 'FREE'), rep(NA, length(fobjects))), stringsAsFactors = FALSE)
+                    options = c(NA, ifelse(binary, NA, ifelse(print, 'FREE PRINT', 'FREE')), rep(NA, length(fobjects))), stringsAsFactors = FALSE)
   
   for(i in seq_along(fobjects)) {
     nam$fname[i+2] <- paste(input, classes[i], sep = '.')
@@ -121,7 +122,8 @@ rmt_read_nam <- function(file = {cat('Please select nam file ...\n'); file.choos
   
   nam_lines <- lines[indices]
   nam_lines <- lapply(strsplit(nam_lines, ' |\t'), rmti_remove_empty_strings)
-  nam_lines <- lapply(nam_lines, function(i) rmti_ifelse0(length(unlist(i))< 4, c(unlist(i),NA), unlist(i)))
+  nam_lines <- lapply(nam_lines, function(i) rmti_ifelse0(length(unlist(i)) < 4, c(unlist(i),NA), unlist(i)))
+  nam_lines <- lapply(nam_lines, function(i) rmti_ifelse0(length(i) > 4, c(i[1:3], paste(i[4:length(i)], collapse = ' ')), i))
   
   nam <- data.frame(do.call(rbind, nam_lines), stringsAsFactors = FALSE)
   colnames(nam) <- c('ftype','nunit','fname', 'options')
@@ -129,11 +131,11 @@ rmt_read_nam <- function(file = {cat('Please select nam file ...\n'); file.choos
   nam$fname <- gsub('\"|\'', '', nam$fname)
   nam$ftype <- toupper(nam$ftype)
   
-  spaces_in_fname <- !toupper(nam[[4]]) %in% c('OLD', 'REPLACE', 'UNKNOWN', 'FREE', 'PRINT', NA)
-  if(any(spaces_in_fname)) warning('nam$option should either be FREE or PRINT for the FTL file. This warning might be generated due to whitespaces in fname which are not allowed ',
+  spaces_in_fname <- !is.na(nam[[4]]) & !grepl(paste(c('OLD', 'REPLACE', 'UNKNOWN', 'FREE', 'PRINT', 'NOPRINT'), collapse = '|'), toupper(nam[[4]]))
+  if(any(spaces_in_fname)) warning('nam$option should either be FREE and/or PRINT for the FTL file. This warning might be generated due to whitespaces in fname which are not allowed ',
                                    '(records ', paste(which(spaces_in_fname), collapse = ', '), ')', call. = FALSE)
   
-  if(any(c(1:20) %in% nam$nunit) || any(nam$unit > 100)) warning('nunit 1-20 or > 100 detected. These unit numbers are not allowed by MT3DMS.', call. = FALSE)
+  if(any(c(1:23) %in% nam$nunit) || any(nam$unit > 100)) warning('nunit 1-23 or > 100 detected. These unit numbers are not allowed by MT3DMS.', call. = FALSE)
   
   comment(nam) <- comments
   attr(nam, 'dir') <- dirname(file)
@@ -169,8 +171,8 @@ rmt_write_nam <- function(nam,
     ftype <- df$ftype[which(df$rmt %in% exclude)]
     nam <- nam[-which(nam$ftype %in% ftype), ]
   }
-  if(length(unique(nam$nunit)) < nrow(nam)) stop('Please make sure every file has a unique nunit specified', call. = FALSE)
-  if(any(c(1:20) %in% nam$nunit) || any(nam$unit > 100)) warning('nunit 1-20 or > 100 detected. These unit numbers are not allowed by MT3DMS.', call. = FALSE)
+  if(any(duplicated(nam$nunit[which(nam$nunit != 0)]))) stop('Please make sure every file has a unique or 0 nunit specified', call. = FALSE)
+  if(any(c(1:23) %in% nam$nunit) || any(nam$unit > 100)) warning('nunit 1-23 or > 100 detected. These unit numbers are not allowed by MT3DMS.', call. = FALSE)
   nam$nunit <- as.integer(nam$nunit)
   
   # try to normalize ftl
@@ -180,7 +182,7 @@ rmt_write_nam <- function(nam,
   
   # check for spaces in fname
   if(any(grepl(' |\t', nam$fname))) stop('Whitespaces are not allowed in fname', call. = FALSE)
-  spaces_in_fname <- !toupper(nam[[4]]) %in% c('OLD', 'REPLACE', 'UNKNOWN', 'FREE', 'PRINT', NA)
+  spaces_in_fname <- !is.na(nam[[4]]) & !grepl(paste(c('OLD', 'REPLACE', 'UNKNOWN', 'FREE', 'PRINT', 'NOPRINT'), collapse = '|'), toupper(nam[[4]]))
   if(any(spaces_in_fname)) warning('nam$option should either be FREE or PRINT for the FTL file. This warning might be generated due to whitespaces in fname which are not allowed ',
                                    '(records ', paste(which(spaces_in_fname), collapse = ', '), ')', call. = FALSE)
   
@@ -191,6 +193,7 @@ rmt_write_nam <- function(nam,
   
   # data set 1
   # MT3DMS does not support tab-delimited values in NAM file
-  # write.table(nam, file = file, row.names = FALSE, col.names = FALSE, quote = FALSE, na='', append=TRUE)
-  readr::write_delim(nam, path = file, append = TRUE, col_names = FALSE, quote_escape = FALSE, na = '', delim = ' ')
+  write.table(nam, file = file, row.names = FALSE, col.names = FALSE, quote = FALSE, na = '', append = TRUE, sep = ' ')
+  # readr::write_delim somehow quote escapes character vectors of length > 1
+  # readr::write_delim(nam, path = file, append = TRUE, col_names = FALSE, quote_escape = FALSE, na = '', delim = ' ')
 }

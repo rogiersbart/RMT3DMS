@@ -18,7 +18,7 @@ rmt_execute(...)
 )
 
 \method{rmt_execute}{mt3dms}(
-  modflow,
+  mt3dms,
   code = "mt3d-usgs",
   ui = NULL,
   convergence = "Program completed",

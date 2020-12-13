@@ -65,7 +65,7 @@ rmt_execute.character <- function(
 #' @param mt3dms mt3dms object
 #' @export
 rmt_execute.mt3dms <- function(
-  modflow,
+  mt3dms,
   code = "mt3d-usgs",
   ui = NULL,
   convergence = "Program completed",
@@ -122,7 +122,9 @@ rmti_find <- function(
     if (!file.exists(executable)) {
       if (file.exists(file.path(rmt_install_bin_folder, executable))) {
         folder <- rmt_install_bin_folder
-      } else if (Sys.which(executable) == "") {
+      } else if (file.exists(Sys.which(executable))) {
+        return(Sys.which(executable))
+      } else {
         rui::stop("Path to {code} executable not found.")
       }
     }
@@ -139,7 +141,9 @@ rmti_find <- function(
     if (!file.exists(executable)) {
       if (file.exists(file.path(rmt_install_bin_folder, executable))) {
         folder <- rmt_install_bin_folder
-      } else if (Sys.which(executable) == "") {
+      } else if (file.exists(Sys.which(executable))) {
+        return(Sys.which(executable))
+      } else {
         rui::stop("Path to {code} executable not found.")
       }
     }

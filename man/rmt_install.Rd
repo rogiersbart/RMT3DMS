@@ -2,9 +2,12 @@
 % Please edit documentation in R/install.R
 \name{rmt_install}
 \alias{rmt_install}
+\alias{rmt_installed_codes}
 \title{Install external codes}
 \usage{
 rmt_install(code = "all", overwrite = NULL)
+
+rmt_installed_codes()
 }
 \arguments{
 \item{code}{Character vector with the codes to install, or `"all"` (default).}
@@ -27,9 +30,15 @@ folder names are modified in order to have more consistency.
 The default installation location is `file.path(system.file(package =
 "RMT3DMS"), "code")`, but it can be altered by setting option
 `RMT3DMS.path`.
+
+[rmt_installed_codes()] shows which codes are installed in the default installation location as
+ set by the `RMT3DMS.path` option.
 }
 \examples{
 rmt_install() # Install all codes.
 rmt_install("MT3D-USGS", overwrite = TRUE) # Install MT3D-USGS.
 rmt_install("MT3DMS", overwrite = TRUE) # Install MT3DMS.
+\dontrun{
+rmt_installed_codes()
+}
 }

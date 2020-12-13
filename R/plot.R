@@ -77,20 +77,20 @@ rmt_plot.cbud <- function(cbud,
         df <- aggregate(list(value = df$value), by = list(tm = df$tm),  sum)
         p <- ggplot2::ggplot(df, ggplot2::aes(x=!!x, y=value)) + gm_line +
           ggplot2::geom_hline(yintercept = 0, colour = 'black') +
-          ggplot2::labs(title = paste('Net total mass budget'), y = paste('Mass', mass_unit), x = x_label)
+          ggplot2::labs(title = paste('Net total mass budget for species', icomp), y = paste('Mass', mass_unit), x = x_label)
       } else {
         if(type == 'bar') {
           p <- ggplot2::ggplot(df, ggplot2::aes(x=factor(!!x), y=value, colour=io, fill=io)) +
             ggplot2::geom_col() + 
             ggplot2::geom_hline(yintercept = 0, colour = 'black') +
-            ggplot2::labs(title = 'Gross total mass budget', y = paste('Mass', mass_unit), x = x_label)
+            ggplot2::labs(title = paste('Gross total mass budget for species', icomp), y = paste('Mass', mass_unit), x = x_label)
           
         } else if(type == 'area') {
           p <- ggplot2::ggplot() +
             ggplot2::geom_area(data=subset(df, io=='in'), ggplot2::aes(x=!!x ,y=value), alpha=0.7) +
             ggplot2::geom_area(data=subset(df, io=='out'), ggplot2::aes(x=!!x ,y=value), alpha=0.7) +
             ggplot2::geom_hline(yintercept = 0, colour = 'black') +
-            ggplot2::labs(title = 'Gross total mass budget', y = paste('Mass', mass_unit), x = x_label)
+            ggplot2::labs(title = paste('Gross total mass budget for species', icomp), y = paste('Mass', mass_unit), x = x_label)
           
         }
       }
@@ -98,7 +98,7 @@ rmt_plot.cbud <- function(cbud,
       # plot
       p <- ggplot2::ggplot(df, ggplot2::aes(x=!!x, y=value, group=io)) + gm_line + 
         ggplot2::geom_hline(yintercept = 0, colour = 'black') +
-        ggplot2::labs(title = rmti_ifelse0(what == 'difference', "Mass in - Mass out", "Discrepancy"), y = rmti_ifelse0(what == 'difference', paste('Mass', mass_unit), "% discrepancy"), x = x_label)
+        ggplot2::labs(title = paste(rmti_ifelse0(what == 'difference', "Mass in - Mass out", "Discrepancy"), 'for species', icomp), y = rmti_ifelse0(what == 'difference', paste('Mass', mass_unit), "% discrepancy"), x = x_label)
     }
     
     # cumulative
@@ -130,26 +130,26 @@ rmt_plot.cbud <- function(cbud,
         p <- ggplot2::ggplot(df, ggplot2::aes(x=factor(!!x), y=value, colour=flux, fill=flux)) +
           ggplot2::geom_col() +
           ggplot2::geom_hline(yintercept = 0, colour = 'black') +
-          ggplot2::labs(title = "Net cumulative mass budget", y = paste('Mass', mass_unit), x = x_label)
+          ggplot2::labs(title = paste("Net cumulative mass budget for species", icomp), y = paste('Mass', mass_unit), x = x_label)
       } else if(type == 'area') {
         p <- ggplot2::ggplot(data=df, ggplot2::aes(x=!!x ,y=value, colour = flux, fill = flux)) +
           ggplot2::geom_area(alpha=0.7) +
           ggplot2::geom_hline(yintercept = 0, colour = 'black') +
-          ggplot2::labs(title = "Net cumulative mass budget", y = paste('Mass', mass_unit), x = x_label)
+          ggplot2::labs(title = paste("Net cumulative mass budget for species", icomp), y = paste('Mass', mass_unit), x = x_label)
       }
     } else {
       if(type == 'bar') {
         p <- ggplot2::ggplot(df, ggplot2::aes(x=factor(!!x), y=value, colour=flux, fill=flux)) +
           ggplot2::geom_col() +
           ggplot2::geom_hline(yintercept = 0, colour = 'black') +
-          ggplot2::labs(title = "Gross cumulative mass budget", y = paste('Mass', mass_unit), x = x_label)
+          ggplot2::labs(title = paste("Gross cumulative mass budget for species", icomp), y = paste('Mass', mass_unit), x = x_label)
         
       } else if(type == 'area') {
         p <-  ggplot2::ggplot() +
           ggplot2::geom_area(data=subset(df, io=='in'), ggplot2::aes(x=!!x ,y=value, colour = flux, fill = flux), alpha=0.7) +
           ggplot2::geom_area(data=subset(df, io=='out'), ggplot2::aes(x=!!x ,y=value, colour = flux, fill = flux), alpha=0.7) +
           ggplot2::geom_hline(yintercept = 0, colour = 'black') +
-          ggplot2::labs(title = "Gross cumulative mass budget", y = paste('Mass', mass_unit), x = x_label)
+          ggplot2::labs(title = paste("Gross cumulative mass budget for species", icomp), y = paste('Mass', mass_unit), x = x_label)
       }
     }
   }
@@ -306,9 +306,7 @@ rmt_plot.ucn <- function(ucn,
       if(is.null(l) && is.null(ntrans)) {
         if(dim(ucn)[4] > 1) warning('Plotting final transport time step results.', call. = FALSE)
         l <- dim(ucn)[4]
-      } else if(!is.null(l) && !is.null(ntrans)) {
-        stop('Please specify either l or ntrans', call. = FALSE)
-      } else if(!is.null(ntrans)) {
+      } else if(is.null(l) && !is.null(ntrans)) {
         if(!(ntrans %in% attr(ucn, 'ntrans'))) stop('No output written for specified ntrans transport time step.', call. = FALSE)
         l <- which(attr(ucn, 'ntrans') == ntrans)
       }

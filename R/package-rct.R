@@ -197,14 +197,14 @@ rmt_create_rct <- function(btn,
     }
     
     # Data set 3
-    rct$hsc <- hsc
-    rct$ic <- ic
+    rct$hsc <- rmti_ifelse0(length(hsc) == 1, rep(hsc, rct$nea), hsc)
+    rct$ic <- rmti_ifelse0(length(ic) == 1, rep(ic, rct$nea), ic)
     
     # Data set 4
-    rct$decayrate <- decayrate
+    rct$decayrate <- matrix(decayrate, nrow = rct$nea, ncol = rct$ned)
     
     # Data set 5
-    rct$yieldc <- yieldc
+    rct$yieldc <- matrix(yieldc, nrow = rct$nea + rct$ned, ncol = rct$ned)
   }
   
   class(rct) <- c('rct','rmt_package')
@@ -444,7 +444,7 @@ rmt_write_rct <- function(rct,
   mf_style <- btn$modflowstylearrays
   
   # Data set 1
-  rmti_write_variables(rct$isothm, rct$ireact, rct$irctop, rct$igetsc, rct$ireaction, file = file, integer = TRUE)
+  rmti_write_variables(rct$isothm, rct$ireact, rct$irctop, rct$igetsc, rct$ireaction, file = file, integer = TRUE, append = FALSE)
   
   # Data set 2a
   if(rct$isothm %in% c(1,2,3,4,6,-6) || rct$ireaction == 2) {

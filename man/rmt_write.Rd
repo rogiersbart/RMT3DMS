@@ -48,7 +48,7 @@ f <- tempfile()
 rmt_write(m, f, verbose = FALSE)
 
 f2 <- tempfile()
-\dontrun {
+\dontrun{
 rmt_write(m, f2, exclude = 'dsp')
 }
 }
