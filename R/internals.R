@@ -51,16 +51,6 @@ rmti_ifelse0 <- function(test, yes, no) {
   }
 }
 
-#' Return a data.frame with itype and names columns
-#' @return a data.frame containing the 'itype' column with the integer code used by MT3D to define flux types and the 'names' column with corresponding flux names.
-#' @keywords internal
-rmti_itype <- function() {
-  itype <- data.frame(itype = c(1, 2, 3, 4, 5, 15, -1, 21, 22, 23, 26, 27, 28, 30),
-                      names = c('constant-head', 'wel', 'drn', 'riv', 'ghb', 'mass-loading', 'constant-concentration', 'str', 'res', 'fhd', 'lak', 'mnw', 'drt', 'sfr'),
-                      stringsAsFactors = FALSE)
-  return(itype)
-}
-
 #' List supported MT3DMS/MT3D-USGS packages
 #'
 #' @param type character denoting type of packages to list; possible values are \code{'usgs' (default), 'mt3dms'}
@@ -139,65 +129,68 @@ rmti_parse_ftl_header <- function(file) {
   # v <- suppressWarnings(strsplit(lines[1], '')[[1]])
   # if(length(v) == 1 && is.na(v)) binary <- TRUE
   
-  binary <- !validUTF8(lines[2])
-
-  if(binary) { # binary
-    con <- file(file, open = 'rb')
-    try({
-      v <- readChar(con, nchars = 11)
-      rec <- readBin(con, what = 'integer', n = 9)
-      if(rec[3] > 0) lg['frch'] <- TRUE
-      if(rec[4] > 0) lg['fevt'] <- TRUE
+  if(!is.na(lines[2])) {
+    binary <- !validUTF8(lines[2])
+    
+    if(binary) { # binary
+      con <- file(file, open = 'rb')
+      try({
+        v <- readChar(con, nchars = 11)
+        rec <- readBin(con, what = 'integer', n = 9)
+        if(rec[3] > 0) lg['frch'] <- TRUE
+        if(rec[4] > 0) lg['fevt'] <- TRUE
+        
+        # s <- grepl('MT3D', v, ignore.case = TRUE) # MT3DMS header
+        usgs <- grepl('MTGS', v, ignore.case = TRUE) # MT3D-USGS
+        if(usgs) {
+          npk <- readBin(con, what = 'integer', n = 1)
+          rec2 <- vector(what = 'character', length = npk)
+          for(i in 1:npk) rec2[i] <- toupper(trimws(readChar(con, nchars = 12)))
+          if('UZF' %in% rec2) lg['fuzf'] <- TRUE
+        }
+        
+        # if(s) {
+        #   version <- sub('MT3D', '', v, ignore.case = TRUE) 
+        #   vn <- as.numeric(strsplit(version, '\\.')[[1]][1])
+        #   # standard header (v < 4, not supported by MODFLOW-2005) or extended header (v >= 4)
+        #   # not necessary to read
+        #   # ext_header <- vn >= 4
+        #   # if(ext_header) rec2 <- readBin(con, what = 'integer', n = 12)
+        #   
+        # } else if(usgs) {
+        #   npk <- readBin(con, what = 'integer', n = 1)
+        #   rec2 <- vector(what = 'character', length = npk)
+        #   for(i in 1:npk) rec2[i] <- readChar(con, nchars = 12)
+        #   
+        # } else {
+        #   stop('Can only read flow-transport link with MT3DMS or MT3D-USGS headers', call. = FALSE)
+        # }
+      })
+      close(con)
       
-      # s <- grepl('MT3D', v, ignore.case = TRUE) # MT3DMS header
+    } else { # ASCII
+      rec <- rmti_parse_variables(lines, format = 'free', character = TRUE)
+      v <- trimws(rec$variables[1])
+      if(as.numeric(rec$variables[4]) > 0) lg['frch'] <- TRUE
+      if(as.numeric(rec$variables[5]) > 0) lg['fevt'] <- TRUE
+      
       usgs <- grepl('MTGS', v, ignore.case = TRUE) # MT3D-USGS
       if(usgs) {
-        npk <- readBin(con, what = 'integer', n = 1)
+        remaining_lines <- rec$remaining_lines
+        npk <- as.numeric(rmti_parse_variables(lines, format = 'free'))
         rec2 <- vector(what = 'character', length = npk)
-        for(i in 1:npk) rec2[i] <- toupper(trimws(readChar(con, nchars = 12)))
+        remaining_lines <- rec$remaining_lines
+        
+        for(i in 1:npk) {
+          pck <- rmti_parse_variables(lines, format = 'free', character = TRUE)
+          rec2[i] <- toupper(trimws(pck$variables[1]))
+          remaining_lines <- pck$remaining_lines
+        }
         if('UZF' %in% rec2) lg['fuzf'] <- TRUE
       }
-      
-      # if(s) {
-      #   version <- sub('MT3D', '', v, ignore.case = TRUE) 
-      #   vn <- as.numeric(strsplit(version, '\\.')[[1]][1])
-      #   # standard header (v < 4, not supported by MODFLOW-2005) or extended header (v >= 4)
-      #   # not necessary to read
-      #   # ext_header <- vn >= 4
-      #   # if(ext_header) rec2 <- readBin(con, what = 'integer', n = 12)
-      #   
-      # } else if(usgs) {
-      #   npk <- readBin(con, what = 'integer', n = 1)
-      #   rec2 <- vector(what = 'character', length = npk)
-      #   for(i in 1:npk) rec2[i] <- readChar(con, nchars = 12)
-      #   
-      # } else {
-      #   stop('Can only read flow-transport link with MT3DMS or MT3D-USGS headers', call. = FALSE)
-      # }
-    })
-    close(con)
-    
-  } else { # ASCII
-    rec <- rmti_parse_variables(lines, format = 'free', character = TRUE)
-    v <- trimws(rec$variables[1])
-    if(as.numeric(rec$variables[4]) > 0) lg['frch'] <- TRUE
-    if(as.numeric(rec$variables[5]) > 0) lg['fevt'] <- TRUE
-    
-    usgs <- grepl('MTGS', v, ignore.case = TRUE) # MT3D-USGS
-    if(usgs) {
-      remaining_lines <- rec$remaining_lines
-      npk <- as.numeric(rmti_parse_variables(lines, format = 'free'))
-      rec2 <- vector(what = 'character', length = npk)
-      remaining_lines <- rec$remaining_lines
-      
-      for(i in 1:npk) {
-        pck <- rmti_parse_variables(lines, format = 'free', character = TRUE)
-        rec2[i] <- toupper(trimws(pck$variables[1]))
-        remaining_lines <- pck$remaining_lines
-      }
-      if('UZF' %in% rec2) lg['fuzf'] <- TRUE
     }
   }
+  
   return(lg)
 }
 

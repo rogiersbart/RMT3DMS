@@ -30,12 +30,31 @@ rmtd_internal_nunit <- tibble::tribble(
   'LKT',     18,
   'SFT',     19,
   'LIST',    16,
-  'CNF',     17)
+  'CNF',     17
+)
+rmtd_itype <- tibble::tribble(
+ ~itype,                 ~names,
+   1,          "constant-head",
+   2,                    "wel",
+   3,                    "drn",
+   4,                    "riv",
+   5,                    "ghb",
+  15,           "mass-loading",
+  -1, "constant-concentration",
+  21,                    "str",
+  22,                    "res",
+  23,                    "fhd",
+  26,                    "lak",
+  27,                    "mnw",
+  28,                    "drt",
+  30,                    "sfr"
+)
 usethis::use_data(
   rmtd_supported_codes,
   rmtd_supported_packages,
   rmtd_guide_shortcuts,
   rmtd_internal_nunit,
+  rmtd_itype,
   internal = TRUE,
   overwrite = TRUE
 )

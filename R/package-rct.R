@@ -35,6 +35,8 @@
 #' @param decayrate matrix with \code{nea} rows and \code{ned} columns specifying the decay rates of each EA corresponding to each ED.
 #' @param yieldc matrix with \code{nea + ned} rows and \code{ned} columns specifying the yield coefficient of each component corresponding to each ED.
 #'
+#' @details If \code{irctop < 2}, all 3D variables should be given as 1D vectors with one value per layer.
+#'
 #' @return an object of class \code{rct}
 #' @export
 #' @seealso \code{\link{rmt_read_rct}}, \code{\link{rmt_write_rct}}
@@ -78,88 +80,158 @@ rmt_create_rct <- function(btn,
   # Data set 1
   rct$isothm <- isothm
   rct$ireact <- ireact
-  rct$irctop <- irctop # TODO fix this at 2; i.e. not user-defined
-  # if(rct$irctop < 2) stop('Only 3d specification of reaction variables is currently supported. Please set irctop >= 2', call. = FALSE)
+  rct$irctop <- irctop 
   rct$igetsc <- igetsc
   rct$ireaction <- ireaction
   
   # Data set 2a
   if(rct$isothm %in% c(1,2,3,4,6,-6) || rct$ireaction == 2) {
-    rct$rhob <- rmt_create_array(rhob, dim = c(btn$nrow, btn$ncol, btn$nlay))
+    if(rct$irctp < 2) {
+      rct$rhob <- rmti_ifelse0(length(rhob) == 1, rep(rhob, btn$nlay), rhob)
+    } else {
+      rct$rhob <- rmt_create_array(rhob, dim = c(btn$nrow, btn$ncol, btn$nlay))
+    }
   }
   
   # Data set 2b
   if(rct$isothm %in% c(5,6,-6)) {
-    rct$prsity2 <- rmt_create_array(prsity2, dim = c(btn$nrow, btn$ncol, btn$nlay))
+    if(rct$irctp < 2) {
+      rct$prsity2 <- rmti_ifelse0(length(prsity2) == 1, rep(prsity2, btn$nlay), prsity2)
+    } else {
+      rct$prsity2 <- rmt_create_array(prsity2, dim = c(btn$nrow, btn$ncol, btn$nlay))
+    }
   }
   
   # Data set 2c
   if(rct$igetsc > 0) {
-    if(!is.list(srconc) && btn$ncomp == 1) {
-      rct$srconc <- list(rmt_create_array(srconc, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+    if(rct$irctop < 2) {
+      if(!is.list(srconc) && btn$ncomp == 1) {
+        rct$srconc <- list(rmti_ifelse0(length(srconc) == 1, rep(srconc, btn$nlay), srconc))
+      } else {
+        if(!is.list(srconc) && btn$ncomp > 1) stop('srconc should be a list with ncomp 1D vectors', call. = FALSE)
+        rct$srconc <- lapply(seq_len(btn$ncomp), function(i) rmti_ifelse0(length(srconc[[i]]) == 1, rep(srconc[[i]], btn$nlay), srconc[[i]]))
+      }
     } else {
-      if(!is.list(srconc) && btn$ncomp > 1) stop('srconc should be a list with ncomp 3D arrays', call. = FALSE)
-      rct$srconc <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(srconc[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      if(!is.list(srconc) && btn$ncomp == 1) {
+        rct$srconc <- list(rmt_create_array(srconc, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      } else {
+        if(!is.list(srconc) && btn$ncomp > 1) stop('srconc should be a list with ncomp 3D arrays', call. = FALSE)
+        rct$srconc <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(srconc[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      }
     }
   }
   
   # Data set 3a
   if(rct$isothm != 0) {
-    if(!is.list(sp1) && btn$ncomp == 1) {
-      rct$sp1 <- list(rmt_create_array(sp1, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+    if(rct$irctop < 2) {
+      if(!is.list(sp1) && btn$ncomp == 1) {
+        rct$sp1 <- list(rmti_ifelse0(length(sp1) == 1, rep(sp1, btn$nlay), sp1))
+      } else {
+        if(!is.list(sp1) && btn$ncomp > 1) stop('sp1 should be a list with ncomp 1D vectors', call. = FALSE)
+        rct$sp1 <- lapply(seq_len(btn$ncomp), function(i) rmti_ifelse0(length(sp1[[i]]) == 1, rep(sp1[[i]], btn$nlay), sp1[[i]]))
+      }
     } else {
-      if(!is.list(sp1) && btn$ncomp > 1) stop('sp1 should be a list with ncomp 3D arrays', call. = FALSE)
-      rct$sp1 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(sp1[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      if(!is.list(sp1) && btn$ncomp == 1) {
+        rct$sp1 <- list(rmt_create_array(sp1, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      } else {
+        if(!is.list(sp1) && btn$ncomp > 1) stop('sp1 should be a list with ncomp 3D arrays', call. = FALSE)
+        rct$sp1 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(sp1[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      }
     }
   }
   
   # Data set 3b
   if(rct$isothm == -6) {
-    if(!is.list(sp1im) && btn$ncomp == 1) {
-      rct$sp1im <- list(rmt_create_array(sp1im, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+    if(rct$irctop < 2) {
+      if(!is.list(sp1im) && btn$ncomp == 1) {
+        rct$sp1im <- list(rmti_ifelse0(length(sp1im) == 1, rep(sp1im, btn$nlay), sp1im))
+      } else {
+        if(!is.list(sp1im) && btn$ncomp > 1) stop('sp1im should be a list with ncomp 1D vectors', call. = FALSE)
+        rct$sp1im <- lapply(seq_len(btn$ncomp), function(i) rmti_ifelse0(length(sp1im[[i]]) == 1, rep(sp1im[[i]], btn$nlay), sp1im[[i]]))
+      }
     } else {
-      if(!is.list(sp1im) && btn$ncomp > 1) stop('sp1im should be a list with ncomp 3D arrays', call. = FALSE)
-      rct$sp1im <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(sp1im[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      if(!is.list(sp1im) && btn$ncomp == 1) {
+        rct$sp1im <- list(rmt_create_array(sp1im, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      } else {
+        if(!is.list(sp1im) && btn$ncomp > 1) stop('sp1im should be a list with ncomp 3D arrays', call. = FALSE)
+        rct$sp1im <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(sp1im[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      }
     }
   }
   
   # Data set 4
   if(rct$isothm != 0) {
-    if(!is.list(sp2) && btn$ncomp == 1) {
-      rct$sp2 <- list(rmt_create_array(sp2, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+    if(rct$irctop < 2) {
+      if(!is.list(sp2) && btn$ncomp == 1) {
+        rct$sp2 <- list(rmti_ifelse0(length(sp2) == 1, rep(sp2, btn$nlay), sp2))
+      } else {
+        if(!is.list(sp2) && btn$ncomp > 1) stop('sp2 should be a list with ncomp 1D vectors', call. = FALSE)
+        rct$sp2 <- lapply(seq_len(btn$ncomp), function(i) rmti_ifelse0(length(sp2[[i]]) == 1, rep(sp2[[i]], btn$nlay), sp2[[i]]))
+      }
     } else {
-      if(!is.list(sp2) && btn$ncomp > 1) stop('sp2 should be a list with ncomp 3D arrays', call. = FALSE)
-      rct$sp2 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(sp2[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      if(!is.list(sp2) && btn$ncomp == 1) {
+        rct$sp2 <- list(rmt_create_array(sp2, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      } else {
+        if(!is.list(sp2) && btn$ncomp > 1) stop('sp2 should be a list with ncomp 3D arrays', call. = FALSE)
+        rct$sp2 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(sp2[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      }
     }
   }
   
   # Data set 5
   if(rct$ireact > 0) {
-    if(!is.list(rc1) && btn$ncomp == 1) {
-      rct$rc1 <- list(rmt_create_array(rc1, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+    if(rct$irctop < 2) {
+      if(!is.list(rc1) && btn$ncomp == 1) {
+        rct$rc1 <- list(rmti_ifelse0(length(rc1) == 1, rep(rc1, btn$nlay), rc1))
+      } else {
+        if(!is.list(rc1) && btn$ncomp > 1) stop('rc1 should be a list with ncomp 1D vectors', call. = FALSE)
+        rct$rc1 <- lapply(seq_len(btn$ncomp), function(i) rmti_ifelse0(length(rc1[[i]]) == 1, rep(rc1[[i]], btn$nlay), rc1[[i]]))
+      }
     } else {
-      if(!is.list(rc1) && btn$ncomp > 1) stop('rc1 should be a list with ncomp 3D arrays', call. = FALSE)
-      rct$rc1 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(rc1[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      if(!is.list(rc1) && btn$ncomp == 1) {
+        rct$rc1 <- list(rmt_create_array(rc1, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      } else {
+        if(!is.list(rc1) && btn$ncomp > 1) stop('rc1 should be a list with ncomp 3D arrays', call. = FALSE)
+        rct$rc1 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(rc1[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      }
     }
   }
   
   # Data set 6
   if(rct$ireact > 0) {
-    if(!is.list(rc2) && btn$ncomp == 1) {
-      rct$rc2 <- list(rmt_create_array(rc2, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+    if(rct$irctop < 2) {
+      if(!is.list(rc2) && btn$ncomp == 1) {
+        rct$rc2 <- list(rmti_ifelse0(length(rc2) == 1, rep(rc2, btn$nlay), rc2))
+      } else {
+        if(!is.list(rc2) && btn$ncomp > 1) stop('rc2 should be a list with ncomp 1D vectors', call. = FALSE)
+        rct$rc2 <- lapply(seq_len(btn$ncomp), function(i) rmti_ifelse0(length(rc2[[i]]) == 1, rep(rc2[[i]], btn$nlay), rc2[[i]]))
+      }
     } else {
-      if(!is.list(rc2) && btn$ncomp > 1) stop('rc2 should be a list with ncomp 3D arrays', call. = FALSE)
-      rct$rc2 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(rc2[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      if(!is.list(rc2) && btn$ncomp == 1) {
+        rct$rc2 <- list(rmt_create_array(rc2, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      } else {
+        if(!is.list(rc2) && btn$ncomp > 1) stop('rc2 should be a list with ncomp 3D arrays', call. = FALSE)
+        rct$rc2 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(rc2[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      }
     }
   }
   
   # Data set 7
   if(rct$ireact == 2) {
-    if(!is.list(rc3) && btn$ncomp == 1) {
-      rct$rc3 <- list(rmt_create_array(rc3, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+    if(rct$irctop < 2) {
+      if(!is.list(rc3) && btn$ncomp == 1) {
+        rct$rc3 <- list(rmti_ifelse0(length(rc3) == 1, rep(rc3, btn$nlay), rc3))
+      } else {
+        if(!is.list(rc3) && btn$ncomp > 1) stop('rc3 should be a list with ncomp 1D vectors', call. = FALSE)
+        rct$rc3 <- lapply(seq_len(btn$ncomp), function(i) rmti_ifelse0(length(rc3[[i]]) == 1, rep(rc3[[i]], btn$nlay), rc3[[i]]))
+      }
     } else {
-      if(!is.list(rc3) && btn$ncomp > 1) stop('rc3 should be a list with ncomp 3D arrays', call. = FALSE)
-      rct$rc3 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(rc3[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      if(!is.list(rc3) && btn$ncomp == 1) {
+        rct$rc3 <- list(rmt_create_array(rc3, dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      } else {
+        if(!is.list(rc3) && btn$ncomp > 1) stop('rc3 should be a list with ncomp 3D arrays', call. = FALSE)
+        rct$rc3 <- lapply(seq_len(btn$ncomp), function(i) rmt_create_array(rc3[[i]], dim = c(btn$nrow, btn$ncol, btn$nlay)))
+      }
     }
   }
   
@@ -241,7 +313,11 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   
   # Data set 2A
   if(rct$isothm %in% c(1,2,3,4,6,-6) || rct$ireaction == 2) {
-    data_set_2a <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+    if(rct$irctop < 2) {
+      data_set_2a <- rmti_parse_array(rct_lines, nrow = 1, ncol = btn$nlay, nlay = 1, ndim = 1, file = file, ...)
+    } else {
+      data_set_2a <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+    }
     rct$rhob <- data_set_2a$array
     rct_lines <- data_set_2a$remaining_lines
     rm(data_set_2a)
@@ -249,7 +325,11 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   
   # Data set 2B
   if(rct$isothm %in% c(5,6,-6)) {
-    data_set_2b <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+    if(rct$irctop < 2) {
+      data_set_2b <- rmti_parse_array(rct_lines, nrow = 1, ncol = btn$nlay, nlay = 1, ndim = 1, file = file, ...)
+    } else {
+      data_set_2b <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+    }
     rct$prsity2 <- data_set_2b$array
     rct_lines <- data_set_2b$remaining_lines
     rm(data_set_2b)
@@ -259,7 +339,11 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   if(rct$igetsc > 0) {
     rct$srconc <- list()
     for(species in 1:btn$ncomp) {
-      data_set_2c <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      if(rct$irctop < 2) {
+        data_set_2c <- rmti_parse_array(rct_lines, nrow = 1, ncol = btn$nlay, nlay = 1, ndim = 1, file = file, ...)
+      } else {
+        data_set_2c <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      }
       rct$srconc[[species]] <- data_set_2c$array
       rct_lines <- data_set_2c$remaining_lines
       rm(data_set_2c)
@@ -270,7 +354,11 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   if(rct$isothm != 0) {
     rct$sp1 <- list()
     for(species in 1:btn$ncomp) {
-      data_set_3a <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      if(rct$irctop < 2) {
+        data_set_3a <- rmti_parse_array(rct_lines, nrow = 1, ncol = btn$nlay, nlay = 1, ndim = 1, file = file, ...)
+      } else {
+        data_set_3a <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      }
       rct$sp1[[species]] <- data_set_3a$array
       rct_lines <- data_set_3a$remaining_lines
       rm(data_set_3a)
@@ -281,7 +369,11 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   if(rct$isothm == -6) {
     rct$sp1im <- list()
     for(species in 1:btn$ncomp) {
-      data_set_3b <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      if(rct$irctop < 2) {
+        data_set_3b <- rmti_parse_array(rct_lines, nrow = 1, ncol = btn$nlay, nlay = 1, ndim = 1, file = file, ...)
+      } else {
+        data_set_3b <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      }
       rct$sp1im[[species]] <- data_set_3b$array
       rct_lines <- data_set_3b$remaining_lines
       rm(data_set_3b)
@@ -292,7 +384,11 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   if(rct$isothm != 0) {
     rct$sp2 <- list()
     for(species in 1:btn$ncomp) {
-      data_set_4 <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      if(rct$irctop < 2) {
+        data_set_4 <- rmti_parse_array(rct_lines, nrow = 1, ncol = btn$nlay, nlay = 1, ndim = 1, file = file, ...)
+      } else {
+        data_set_4 <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      }
       rct$sp2[[species]] <- data_set_4$array
       rct_lines <- data_set_4$remaining_lines
       rm(data_set_4)
@@ -303,7 +399,11 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   if(rct$ireact > 0) {
     rct$rc1 <- list()
     for(species in 1:btn$ncomp) {
-      data_set_5 <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      if(rct$irctop < 2) {
+        data_set_5 <- rmti_parse_array(rct_lines, nrow = 1, ncol = btn$nlay, nlay = 1, ndim = 1, file = file, ...)
+      } else {
+        data_set_5 <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      }
       rct$rc1[[species]] <- data_set_5$array
       rct_lines <- data_set_5$remaining_lines
       rm(data_set_5)
@@ -314,7 +414,11 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   if(rct$ireact > 0) {
     rct$rc2 <- list()
     for(species in 1:btn$ncomp) {
-      data_set_6 <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      if(rct$irctop < 2) {
+        data_set_6 <- rmti_parse_array(rct_lines, nrow = 1, ncol = btn$nlay, nlay = 1, ndim = 1, file = file, ...)
+      } else {
+        data_set_6 <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      }
       rct$rc2[[species]] <- data_set_6$array
       rct_lines <- data_set_6$remaining_lines
       rm(data_set_6)
@@ -325,7 +429,11 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   if(rct$ireact == 2) {
     rct$rc3 <- list()
     for(species in 1:btn$ncomp) {
-      data_set_7 <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      if(rct$irctop < 2) {
+        data_set_7 <- rmti_parse_array(rct_lines, nrow = 1, ncol = btn$nlay, nlay = 1, ndim = 1, file = file, ...)
+      } else {
+        data_set_7 <- rmti_parse_array(rct_lines, nrow = btn$nrow, ncol = btn$ncol, nlay = btn$nlay, ndim = 3, file = file, ...)
+      }
       rct$rc3[[species]] <- data_set_7$array
       rct_lines <- data_set_7$remaining_lines
       rm(data_set_7)
@@ -334,7 +442,7 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
   
   # Data set 8
   if(rct$ireact == 3) {
-    rct$yld <- vector(mode = 'numeric', length = btn$ncom - 1)
+    rct$yld <- vector(mode = 'numeric', length = btn$ncomp - 1)
     for(species in 1:(btn$ncomp - 1)) {
       data_set_8 <- rmti_parse_variables(rct_lines, n = 1)
       rct$rc3[species] <- as.numeric(data_set_8$variables[1])

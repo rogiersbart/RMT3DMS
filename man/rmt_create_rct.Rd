@@ -107,6 +107,9 @@ an object of class \code{rct}
 \description{
 \code{rmt_create_rct} creates an \code{RMT3DMS} rct object.
 }
+\details{
+If \code{irctop < 2}, all 3D variables should be given as 1D vectors with one value per layer.
+}
 \seealso{
 \code{\link{rmt_read_rct}}, \code{\link{rmt_write_rct}}
 }

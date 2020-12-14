@@ -128,7 +128,7 @@ rmt_read <- function(file = {cat('Please select nam file ...\n'); file.choose()}
   # RCT
   if('RCT'%in% ftype) {
     if(verbose) print_reading('RCT', file = fname[which(mt3dms$nam$ftype == 'RCT')])
-    mt3dms$gcg <- rmt_read_rct(file = fname[which(mt3dms$nam$ftype == 'RCT'), btn = mt3dms$btn], nam = mt3dms$nam, precision = precision)
+    mt3dms$rct <- rmt_read_rct(file = fname[which(mt3dms$nam$ftype == 'RCT')], btn = mt3dms$btn, nam = mt3dms$nam, precision = precision)
     ftype <- ftype[-which(ftype == 'RCT')]
   }
   

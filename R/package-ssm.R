@@ -176,7 +176,7 @@ rmt_create_ssm <- function(..., btn, crch = NULL, cevt = NULL, mxss = prod(btn$n
     if(any(!errors)) stop('Please make sure all arguments are of class rmt_list with defined kper attributes', call. = FALSE)
 
     # initialize emtpy point lists for each itype
-    itype <- rmti_itype()
+    itype <- rmtd_itype
     points <- structure(rep(list(NULL), nrow(itype)), names = itype$names)
     
     ## helper functions
