@@ -220,7 +220,7 @@ rmt_create_btn <- function(nlay = 3,
   
 }
 
-#' Read anMT3DMS basic transport package file
+#' Read a MT3DMS basic transport package file
 #' 
 #' \code{rmt_read_btn} reads in a MT3DMS basic transport package file and returns it as a \link{RMT3DMS} btn object.
 #' 

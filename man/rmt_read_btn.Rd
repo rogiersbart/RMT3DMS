@@ -2,7 +2,7 @@
 % Please edit documentation in R/package-btn.R
 \name{rmt_read_btn}
 \alias{rmt_read_btn}
-\title{Read anMT3DMS basic transport package file}
+\title{Read a MT3DMS basic transport package file}
 \usage{
 rmt_read_btn(
   file = {     cat("Please select btn file ...\\n")     file.choose() },

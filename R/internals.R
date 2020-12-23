@@ -245,16 +245,6 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
         cnst <- as.numeric(header$variables[2])
         fmtin <-  trimws(paste0(strsplit(remaining_lines[1], split = '')[[1]][21:40], collapse = ''))
         
-        # take only what is within first and last parentheses,
-        # RMODFLOW:::rmfi_fortran_format expects 'format' to be enclosed in parentheses
-        if(grepl('\\(', fmtin) && grepl('\\)', fmtin)) {
-          splt <- strsplit(fmtin, '')[[1]]
-          fp <- grep('\\(', splt)[1]
-          lp <- grep('\\)', splt)
-          lp <- lp[length(lp)]
-          fmtin <- paste0(splt[fp:lp], collapse = '')
-        }
-        
         if(iread == 0) {  # CONSTANT
           array[,,k] <- cnst
           nLines <- 1
