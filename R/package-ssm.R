@@ -251,6 +251,7 @@ rmt_create_ssm <- function(..., btn, crch = NULL, cevt = NULL, mxss = prod(btn$n
 #' @param file filename; typically '*.ssm'
 #' @param btn \code{RMT3DMS} btn object
 #' @param ftl path the to flow-transport link file. See details.
+#' @param ftl_free logical; is the flow-transport link file written in free (formatted) format (TRUE) or binary (unformatted) (FALSE)? if NULL (default), it is guessed from reading \code{ftl}
 #' @param ... additional arguments passed to \code{rmti_parse_array}
 #' @details \code{ftl} must be supplied to ensure the correct flow terms are read.
 #' @return object of class \code{ssm}
@@ -260,6 +261,7 @@ rmt_create_ssm <- function(..., btn, crch = NULL, cevt = NULL, mxss = prod(btn$n
 rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choose()},
                          btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},
                          ftl = {cat('Please select corresponding ftl file ...\n'); file.choose()},
+                         ftl_free = NULL,
                          ...) {
   
   ssm_lines <- readr::read_lines(file)
@@ -275,10 +277,15 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
   #   ssm_lines <- data_set_1$remaining_lines
   #   rm(data_set_1)
   # } else {
-    ftl <- rmti_parse_ftl_header(ftl)
-    frch <- ftl['frch']
-    fevt <- ftl['fevt']
-    fuzf <- ftl['fuzf']
+    if(is.null(ftl_free)) {
+      binary <- NULL
+    } else {
+      binary <- !ftl_free
+    }
+    ftl.l <- rmti_parse_ftl_header(ftl, binary = binary)
+    frch <- ftl.l['frch']
+    fevt <- ftl.l['fevt']
+    fuzf <- ftl.l['fuzf']
     ssm_lines <- ssm_lines[-1]
   # }
   # UZF not yet supported
@@ -340,9 +347,10 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
       
       # handle multispecies columns which may be free format
       df[[ncol(df)]] <- gsub(',', ' ', df[[ncol(df)]])
-      cols2 <- do.call(readr::cols_only, as.list(rep('d', btn$ncomp)))
-      lc <- as.data.frame(readr::read_table2(df[[ncol(df)]], col_names = FALSE, col_types = cols2))
-      df <- cbind(df[-ncol(df)], lc)
+      # cols2 <- do.call(readr::cols_only, as.list(rep('d', btn$ncomp)))
+      # lc <- as.data.frame(readr::read_table2(df[[ncol(df)]], col_names = FALSE, col_types = cols2))
+      lc <- as.numeric(rmti_parse_variables(df[[ncol(df)]], n = btn$ncomp, format = 'free', character = TRUE)$variables)
+      df <- cbind(df[-ncol(df)], matrix(lc, nrow = 1))
       colnames(df) <- c('k', 'i', 'j', 'dummy', 'itype', paste0('css', 1:btn$ncomp))
       
     } else {

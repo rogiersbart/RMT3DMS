@@ -17,3 +17,6 @@ object of class gcg
 \description{
 \code{rmt_read_gcg} reads in an MT3DMS generalized conjugate gradient solver package file and returns it as an \code{\link{RMT3DMS}} gcg object.
 }
+\seealso{
+\code{\link{rmt_create_gcg}}, \code{\link{rmt_write_gcg}}
+}

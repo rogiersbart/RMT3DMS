@@ -4,7 +4,15 @@
 \alias{rmt_create}
 \title{Create an \code{RMT3DMS} mt3dms object}
 \usage{
-rmt_create(..., recreate_nam = FALSE, ftl, ftl_free = NULL, basename = NULL)
+rmt_create(
+  ...,
+  recreate_nam = FALSE,
+  ftl,
+  ftl_free = NULL,
+  print = FALSE,
+  basename = NULL,
+  reset_timprs = FALSE
+)
 }
 \arguments{
 \item{...}{(list of) \code{RMT3DMS} objects of class \code{rmt_package} to be included in the mt3dms object. If a \code{nam} object is not provided, it is added automatically.}
@@ -16,6 +24,8 @@ rmt_create(..., recreate_nam = FALSE, ftl, ftl_free = NULL, basename = NULL)
 \item{ftl_free}{logical; is the flow-transport link file in the \code{nam} object written in free (formatted) format (TRUE) or binary (unformatted) (FALSE)? if NULL (default), it is guessed from reading \code{ftl}. Only used when a \code{nam} object is not supplied or when \code{recreate_nam = TRUE}.}
 
 \item{basename}{character specifying the basename of the files if the nam object is (re)created. The default (\code{NULL}) sets input basenames to 'input' and output to 'output'.}
+
+\item{reset_timprs}{logical, when a \code{tob} object is present, should the observed times be added to \code{btn$timprs} in order to write output at correct times? Defaults to FALSE. Note that this also resets \code{btn$nprs}}
 }
 \value{
 a \code{mt3dms} object which is a list containing all MT3DMS/MT3D-USGS packages

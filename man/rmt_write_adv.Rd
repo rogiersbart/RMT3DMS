@@ -22,3 +22,6 @@ rmt_write_adv(
 \description{
 Write an MT3DMS advection package file
 }
+\seealso{
+\code{\link{rmt_read_adv}}, \code{\link{rmt_create_adv}}
+}

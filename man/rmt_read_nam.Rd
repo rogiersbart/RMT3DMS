@@ -18,5 +18,5 @@ object of class mt3d_nam
 \code{rmt_read_nam} reads in a MT3DMS name file and returns it as an \code{\link{RMT3DMS}} nam object.
 }
 \seealso{
-\code{\link{rmt_read_nam}}, \code{\link{rmt_write_nam}}
+\code{\link{rmt_create _nam}}, \code{\link{rmt_write_nam}}
 }

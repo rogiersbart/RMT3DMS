@@ -16,6 +16,9 @@ rmt_installed_codes()
 `NULL` (default), the user is asked what to do in an interactive session.
 An error message is issued otherwise.}
 }
+\value{
+[rmt_installed_codes()] returns an invisible character vector with installed code names.
+}
 \description{
 This function installs external codes that are used by [RMT3DMS].
 }

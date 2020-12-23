@@ -22,3 +22,6 @@ rmt_write_gcg(
 \description{
 Write an MT3DMS generalized conjugate gradient solver package file
 }
+\seealso{
+\code{\link{rmt_read_gcg}}, \code{\link{rmt_create_gcg}}
+}

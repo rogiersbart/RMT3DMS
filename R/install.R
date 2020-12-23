@@ -43,6 +43,7 @@ rmt_install <- function(code = "all", overwrite = NULL) {
 #' @export
 #' @details [rmt_installed_codes()] shows which codes are installed in the default installation location as
 #'  set by the `RMT3DMS.path` option.
+#' @return [rmt_installed_codes()] returns an invisible character vector with installed code names.
 #' @examples
 #' \dontrun{
 #' rmt_installed_codes()
@@ -56,6 +57,7 @@ rmt_installed_codes <- function() {
     rui::approve('Following codes have been installed in {loc}:')
     for(i in codes) rui::inform(i)
   }
+  return(invisible(codes))
 }
 
 #' Install codes

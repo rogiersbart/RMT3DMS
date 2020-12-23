@@ -51,7 +51,9 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
     ftl_fname <- ftl
     if(is.null(ftl_free)) {
       ftl.lines <- readr::read_lines(ftl, n_max = 4)
+      # TODO this is a weak check for binary
       binary <- !validUTF8(ftl.lines[2])
+      if(ftl.lines[2] == '') binary <- TRUE
     } else {
       binary <- !ftl_free
     }
@@ -74,13 +76,22 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
     nam$ftype[i+2] <- df$ftype[classes[i] == df$rmt]
   }
   
-  # TODO check for additional output files
-  # if('TOB' %in% nam$ftype) {
-  #   hob <- fobjects[[which(nam$ftype=='HOB')-1]]
-  #   if(hob$iuhobsv != 0) {
-  #     nam <- rbind(nam, data.frame(ftype = 'DATA', nunit = hob$iuhobsv, fname = paste(output, 'hpr', sep = '.'), options = NA))  
-  #   }
-  # }
+  # check for additional output files
+  if('TOB' %in% nam$ftype) {
+    tob <- fobjects[[which(nam$ftype=='TOB')-2]]
+    if(tob$inconcobs > 0) {
+      if(tob$inconcobs %in% nam$nunit) stop('tob$inconcobs unit number already in use by package ', nam$ftype[which(nam$nunit == tob$inconcobs)],
+                                            '. Please set tob$inconcobs to an unused unit number.', call. = FALSE)
+    }
+    if(tob$influxobs > 0) {
+      if(tob$influxobs %in% nam$nunit) stop('tob$influxobs unit number already in use by package ', nam$ftype[which(nam$nunit == tob$influxobs)],
+                                            '. Please set tob$influxobs to an unused unit number.', call. = FALSE)
+    }
+    if(tob$insaveobs > 0) {
+      if(tob$insaveobs %in% nam$nunit) stop('tob$insaveobs unit number already in use by package ', nam$ftype[which(nam$nunit == tob$insaveobs)],
+                                            '. Please set tob$insaveobs to an unused unit number.', call. = FALSE)
+    }
+  }
   
   # TODO set user-defined output names if necessary
   
@@ -97,7 +108,7 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
 #' @param file filename; typically '*.mt_nam'
 #' @return object of class mt3d_nam
 #' @export
-#' @seealso \code{\link{rmt_read_nam}}, \code{\link{rmt_write_nam}}
+#' @seealso \code{\link{rmt_create _nam}}, \code{\link{rmt_write_nam}}
 #' @examples
 rmt_read_nam <- function(file = {cat('Please select nam file ...\n'); file.choose()}) {
   
@@ -152,7 +163,7 @@ rmt_read_nam <- function(file = {cat('Please select nam file ...\n'); file.choos
 #' @param exclude character vector with packages names to exclude from the simulation. Defaults to NULL
 #' @return \code{NULL}
 #' @export
-#' @seealso \code{\link{rmt_read_nam}}, \code{\link{rmt_write_nam}}
+#' @seealso \code{\link{rmt_read_nam}}, \code{\link{rmt_create_nam}}
 #' @examples 
 #' btn <- rmt_create_btn()
 #' adv <- rmt_create_adv()

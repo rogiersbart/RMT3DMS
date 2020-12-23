@@ -97,6 +97,7 @@ rmt_create_adv <- function(mixelm = -1,
 #' @param file filename; typically '*.adv'
 #' @return object of class adv
 #' @export
+#' @seealso \code{\link{rmt_create_adv}}, \code{\link{rmt_write_adv}}
 rmt_read_adv <- function(file = {cat('Please select adv file ...\n'); file.choose()}) {
   
   adv_lines <- readr::read_lines(file)
@@ -166,11 +167,12 @@ rmt_read_adv <- function(file = {cat('Please select adv file ...\n'); file.choos
 #' @param file filename to write to; typically '*.adv'
 #' @return \code{NULL}
 #' @export
+#' @seealso \code{\link{rmt_read_adv}}, \code{\link{rmt_create_adv}}
 rmt_write_adv <- function(adv,
                       file = {cat('Please select adv file to overwrite or provide new filename ...\n'); file.choose()}) {
   
   # Data set 1
-  rmti_write_variables(as.integer(adv$mixelm), adv$percel, ifelse(adv$mixelm %in% c(1,3), as.integer(adv$mxpart), ''), ifelse(adv$mixelm == 0, as.integer(adv$nadvfd), ''), file = file, append = FALSE)
+  rmti_write_variables(as.integer(adv$mixelm), adv$percel, ifelse(adv$mixelm %in% c(1,3), as.integer(adv$mxpart), 0), ifelse(adv$mixelm == 0, as.integer(adv$nadvfd), ''), file = file, append = FALSE)
   
   # Data set 2
   if(adv$mixelm %in% c(1,2,3)) {  

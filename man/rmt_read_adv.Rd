@@ -17,3 +17,6 @@ object of class adv
 \description{
 \code{rmt_read_adv} reads in an MT3DMS advection package file and returns it as an \code{\link{RMT3DMS}} adv object.
 }
+\seealso{
+\code{\link{rmt_create_adv}}, \code{\link{rmt_write_adv}}
+}

@@ -10,7 +10,8 @@ rmtd_supported_packages <- tibble::tribble(
   'DSP',  'dsp',
   'GCG',  'gcg', 
   'RCT',  'rct',
-  'SSM',  'ssm'
+  'SSM',  'ssm',
+  'TOB',  'tob'
 )
 rmtd_internal_nunit <- tibble::tribble(
   ~ftype, ~nunit,

@@ -36,5 +36,5 @@ rmt_write_nam(nam, file = f, exclude = 'dsp')
 
 }
 \seealso{
-\code{\link{rmt_read_nam}}, \code{\link{rmt_write_nam}}
+\code{\link{rmt_read_nam}}, \code{\link{rmt_create_nam}}
 }

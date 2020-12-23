@@ -4,10 +4,12 @@
 \alias{rmti_parse_ftl_header}
 \title{Read the package header from a flow-transport link file}
 \usage{
-rmti_parse_ftl_header(file)
+rmti_parse_ftl_header(file, binary = NULL)
 }
 \arguments{
 \item{file}{pathname to the flow-transport link file, typically '*.ftl'}
+
+\item{binary}{is the FTL file binary?}
 }
 \value{
 logical vector of length 3, indicating if the rch, evt or uzf packages are active in the flow simulation

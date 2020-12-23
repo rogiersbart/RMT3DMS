@@ -2,7 +2,7 @@
 % Please edit documentation in R/package-btn.R
 \name{rmt_create_btn}
 \alias{rmt_create_btn}
-\title{Create an \code{RMT3DMS} btn object}
+\title{Create a \code{RMT3DMS} btn object}
 \usage{
 rmt_create_btn(
   nlay = 3,
@@ -156,7 +156,7 @@ rmt_create_btn(
 an object of class \code{btn}
 }
 \description{
-\code{rmt_create_btn} creates an \code{RMT3DMS} btn object.
+\code{rmt_create_btn} creates a \code{RMT3DMS} btn object.
 }
 \examples{
 rmt_create_btn()

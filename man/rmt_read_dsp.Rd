@@ -24,3 +24,6 @@ object of class dsp
 \description{
 \code{rmt_read_dsp} reads in an MT3DMS dispersion package file and returns it as an \code{\link{RMT3DMS}} dsp object.
 }
+\seealso{
+\code{\link{rmt_create_dsp}}, \code{\link{rmt_write_dsp}}
+}

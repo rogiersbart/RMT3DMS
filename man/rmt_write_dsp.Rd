@@ -32,3 +32,6 @@ rmt_write_dsp(
 \description{
 Write an MT3DMS dispersion package file
 }
+\seealso{
+\code{\link{rmt_read_dsp}}, \code{\link{rmt_create_dsp}}
+}

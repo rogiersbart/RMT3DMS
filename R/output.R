@@ -24,7 +24,7 @@ rmt_read_bud <- function(file = {cat('Please select MT3DMS listing file ...\n');
     get_timing <- function(header_vector) {
       icomp <- as.numeric(strsplit(gsub('<|>', '', header_vector[1]), 'NO\\.')[[1]][2])
       # tnstp <- as.numeric(strsplit(header_vector[5], 'NO\\.')[[1]][2])
-      time <- as.numeric(rmti_remove_empty_strings(strsplit(strsplit(header_vector[8], '=')[[1]][2], '\\s+')[[1]])[1])
+      time <- as.numeric(rmti_remove_empty_strings(strsplit(paste0(strsplit(strsplit(header_vector[8], '=')[[1]][2], '')[[1]][1:15], collapse = ''), '\\s+')[[1]])[1])
       
       timing_line <- strsplit(header_vector[11],',')[[1]]
       tstp <- as.numeric(strsplit(timing_line[1],'TRANSPORT STEP')[[1]][2])
@@ -251,3 +251,192 @@ rmt_read_ucn <- function(file = {cat('Please select ucn file ...\n'); file.choos
   class(ucn) <- c('ucn', class(ucn))
   return(ucn)
 }
+
+
+#' Read a MT3DMS observed concentration file
+#'
+#' \code{rmt_read_ocn} reads in an MT3DMS observed concentration file and returns it as an \code{\link{RMT3DMS}} ocn object.
+#'
+#' @param file filename; typically '*.ocn'
+#' @details Writing and type of OCN output is set in the TOB file.
+#' @return object of class ocn and data.frame
+#' @export
+#' @seealso \code{\link{rmt_read_mfx}}, \code{\link{rmt_read_pst}} and \code{\link{rmt_create_tob}}
+rmt_read_ocn <- function(file = {cat('Please select ocn file ...\n'); file.choose()}) {
+  
+  ocn_lines <- readr::read_lines(file)
+  
+  sp_id <- grep('STRESS PERIOD', ocn_lines)
+  wellid <- grep('WELLID', ocn_lines)
+  strt_id <- wellid + 2
+  end_id <- c(sp_id[-1] - 4, length(ocn_lines) - 1)
+  
+  # check if last line is not empty
+  if(length(rmti_remove_empty_strings(ocn_lines[length(ocn_lines)])) != 0) end_id[length(end_id)] <- end_id[length(end_id)] + 1
+
+  # check for written statistics
+  stats <- grep('PROBABILITY OF UN-CORRELATION =', ocn_lines[end_id])
+  if(length(stats) > 0) end_id[stats] <- end_id[stats] - 8
+  
+  res <- any(grepl('WEIGHT', ocn_lines))
+  logd <- any(grepl('LogCAL', ocn_lines))
+  nms <- c('stress_period', 'time_step', 'transport_step', 'total_elapsed_time', 'wellid', 'x_grid', 'y_grid', 'layer', 'row', 'column',
+           'species', 'calculated')
+  if(res) nms <- c(nms, 'observed', 'weight', ifelse(logd, 'log_residual', 'residual'))
+  cpr <- setNames(data.frame(matrix(ncol = length(nms), nrow = 0)), nms)
+  
+  # helper function
+  read_data <- function(sp, start, end) {
+    stress <- as.numeric(strsplit(ocn_lines[sp], ':')[[1]][2])
+    fts <- as.numeric(strsplit(ocn_lines[sp + 1], ':')[[1]][2])
+    tts <- as.numeric(strsplit(ocn_lines[sp + 2], ':')[[1]][2])
+    time <- as.numeric(strsplit(ocn_lines[sp + 3], ':')[[1]][2])
+    
+    empty <- grepl('No obs wells active at', ocn_lines[start])
+    if(length(rmti_remove_empty_strings(strsplit(ocn_lines[start], ' ')[[1]])) == 0) empty <- TRUE
+    if(empty) return(NULL)
+    
+    df <- cpr
+    for(i in 1:(end-start+1)) {
+      ln <- start + i - 1
+      no_obs <- grepl('no observed conc given', ocn_lines[ln])
+      vl <- rmti_remove_empty_strings(strsplit(ocn_lines[ln], ' ')[[1]])
+      name <- vl[1]
+      if(res) {
+        if(no_obs) {
+          nums <- c(vl[2:8], rep(NA, 3))
+        } else {
+          nums <- vl[2:11]
+        }
+      } else {
+        nums <- vl[2:8]
+      }
+      
+      df[i, nms[1]] <- stress
+      df[i, nms[2]] <- fts
+      df[i, nms[3]] <- tts
+      df[i, nms[4]] <- time
+      df[i, nms[5]] <- name
+      df[i, nms[6:length(nms)]] <- as.numeric(nums)
+    }
+
+    return(df)
+  }
+  
+  df.lst <- lapply(1:length(sp_id), function(i) read_data(sp_id[i], strt_id[i], end_id[i]))
+  cpr.df <- do.call(rbind, df.lst)
+  if(is.null(cpr.df)) cpr.df <- cpr
+  cpr.df <- tibble::tibble(cpr.df)
+  class(cpr.df) <- c('ocn', class(cpr.df))
+  return(cpr.df)
+}
+
+#' Read a MT3DMS mass flux file
+#'
+#' \code{rmt_read_mfx} reads in an MT3DMS mass flux file and returns it as an \code{\link{RMT3DMS}} mfx object.
+#'
+#' @param file filename; typically '*.mfx'
+#' @details Writing and type of MFX output is set in the TOB file.
+#' @return object of class mfx and data.frame
+#' @export
+#' @seealso \code{\link{rmt_read_mfx}}, \code{\link{rmt_read_pst}} and \code{\link{rmt_create_tob}}
+rmt_read_mfx <- function(file = {cat('Please select mfx file ...\n'); file.choose()}) {
+  
+  mfx_lines <- readr::read_lines(file)
+  
+  sp_id <- grep('STRESS PERIOD', mfx_lines)
+  groupid <- grep('NO.', mfx_lines)
+  strt_id <- groupid + 2
+  end_id <- c(sp_id[-1] - 4, length(mfx_lines) - 1)
+  
+  # check if last line is not empty
+  if(length(rmti_remove_empty_strings(mfx_lines[length(mfx_lines)])) != 0) end_id[length(end_id)] <- end_id[length(end_id)] + 1
+  
+  # check for written statistics
+  stats <- grep('PROBABILITY OF UN-CORRELATION =', mfx_lines[end_id])
+  if(length(stats) > 0) end_id[stats] <- end_id[stats] - 8
+  
+  res <- any(grepl('WEIGHT', mfx_lines))
+  logd <- any(grepl('LogCAL', mfx_lines)) # not possible
+  nms <- c('stress_period', 'time_step', 'transport_step', 'total_elapsed_time', 'group.no', 'name', 'time', 'species', 'calculated')
+  if(res) nms <- c(nms, 'observed', 'weight', ifelse(logd, 'log_residual', 'residual'))
+  cpr <- setNames(data.frame(matrix(ncol = length(nms), nrow = 0)), nms)
+  
+  # helper function
+  read_data <- function(sp, start, end) {
+    stress <- as.numeric(strsplit(mfx_lines[sp], ':')[[1]][2])
+    fts <- as.numeric(strsplit(mfx_lines[sp + 1], ':')[[1]][2])
+    tts <- as.numeric(strsplit(mfx_lines[sp + 2], ':')[[1]][2])
+    time <- as.numeric(strsplit(mfx_lines[sp + 3], ':')[[1]][2])
+    
+    empty <- grepl('No flux object active at', mfx_lines[start])
+    if(length(rmti_remove_empty_strings(strsplit(mfx_lines[start], ' ')[[1]])) == 0) empty <- TRUE
+    if(empty) return(NULL)
+    
+    df <- cpr
+    for(i in 1:(end-start+1)) {
+      ln <- start + i - 1
+      no_obs <- grepl('no observed flux given', mfx_lines[ln])
+      vl <- rmti_remove_empty_strings(strsplit(mfx_lines[ln], ' ')[[1]])
+      group <- as.numeric(vl[1])
+      name <- vl[2]
+      if(res) {
+        if(no_obs) {
+          nums <- c(vl[3:5], rep(NA, 3))
+        } else {
+          nums <- vl[3:8]
+        }
+      } else {
+        nums <- vl[3:5]
+      }
+      
+      df[i, nms[1]] <- stress
+      df[i, nms[2]] <- fts
+      df[i, nms[3]] <- tts
+      df[i, nms[4]] <- time
+      df[i, nms[5]] <- group
+      df[i, nms[6]] <- name
+      df[i, nms[7:length(nms)]] <- as.numeric(nums)
+    }
+    
+    return(df)
+  }
+  
+  df.lst <- lapply(1:length(sp_id), function(i) read_data(sp_id[i], strt_id[i], end_id[i]))
+  cpr.df <- do.call(rbind, df.lst)
+  if(is.null(cpr.df)) cpr.df <- cpr
+  cpr.df <- tibble::tibble(cpr.df)
+  class(cpr.df) <- c('mfx', class(cpr.df))
+  return(cpr.df)
+}
+
+# rmt_read_pst <- function(file, precision = 'single') {
+#   
+#   nbytes <- ifelse(precision == 'single', 4, 8)
+#   read <- TRUE
+#   l <- 0
+#   
+#   con <- file(file,open='rb')
+#   (text <- readChar(con, nchar = 4))
+#   (text <- readChar(con, nchar = 15))
+#   (text <- readChar(con, nchar = 12))
+#   
+#   close(con)
+#   
+#   try({
+#     
+#     (text <- readChar(con, nchar = 6))
+#     
+#     
+#     ntrans_i <- readBin(con, what = 'integer', n = 1)
+#     kstp_i <- readBin(con, what = 'integer', n = 1)
+#     kper_i <- readBin(con, what = 'integer', n = 1)
+#     time_i <- readBin(con, what = 'numeric', n = 1, size = nbytes)
+#     if(!length(text != 0)) read <- FALSE
+#     
+#   })
+#   close(con)
+#   
+#   
+#   
+# }

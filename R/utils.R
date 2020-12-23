@@ -287,6 +287,46 @@ rmt_convert_btn_to_dis <- function(btn,
   return(dis)
 }
 
+#' Convert a tob object to a locations data frame
+#'
+#' \code{rmt_convert_tob_to_locations} converts a tob object holding concentration observations to a locations data frame 
+#'
+#' @param hob \code{RMT3DMS} tob object
+#' @param btn \code{RMT3DMS} btn object
+#' @param prj prj object
+#' @details returned z coordinate represents the center of the cell, not the top or bottom of the well screen. 
+#'          The returned locations represent the concentration observations, not the mass flux observations.
+#' @return a data frame containing name, screened layer proportion pr, cell indices k, i, j and x, y & z coordinates
+#' @export
+#' @seealso \code{\link{rmt_create_tob}}
+rmt_convert_tob_to_locations <- function(tob,
+                                         btn,
+                                         prj = RMODFLOW::rmf_get_prj(btn)) {
+  
+  if(tob$inconcobs == 0) stop('tob object does not contain concentration observations', call. = FALSE)
+  tob$concentrations <- tob$concentrations[!duplicated(tob$concentrations$name),]
+  if(any(lengths(tob$concentrations$layer) > 1)) {
+    m_id <- which(lengths(tob$concentrations$layer) > 1)
+    df <- tob$concentrations[-m_id, ]
+    df$layer <- unlist(df$layer)
+    df$pr <- unlist(df$pr)
+    df_m <- lapply(m_id, function(i) as.data.frame(lapply(tob$concentrations[i, ], unlist)))
+    df_m <- do.call(rbind, df_m)
+    df <- rbind(df, df_m) 
+  } else {
+    df <- tob$concentrations
+    df$layer <- unlist(df$layer)
+    df$pr <- unlist(df$pr)
+  }
+  
+  dis <- rmt_convert_btn_to_dis(btn, prj = prj)
+  # TODO top & bottom filter
+  coords <- RMODFLOW::rmf_convert_grid_to_xyz(i = df$row, j = df$column, k = df$layer, roff = df$roff, coff=df$coff, dis = dis, prj = prj)
+  locations <- cbind(subset(df, select = c('name', 'pr', 'layer', 'row', 'column')), coords)
+  locations <- setNames(locations, c('name', 'pr', 'k', 'i', 'j', 'x', 'y', 'z'))
+  return(locations)
+}
+
 #' Convert a RMODFLOW object to a RMT3DMS object
 #'
 #' \code{rmf_convert_rmf_to_rmt} adds the corresponding RMT3DMS class to an RMODFLOW object 

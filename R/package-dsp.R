@@ -64,6 +64,7 @@ rmt_create_dsp <- function(btn,
 #' @param ... optional arguments passed to \code{\link{rmti_parse_array}}
 #' @return object of class dsp
 #' @export
+#' @seealso \code{\link{rmt_create_dsp}}, \code{\link{rmt_write_dsp}}
 rmt_read_dsp <- function(file = {cat('Please select dsp file ...\n'); file.choose()},
                      btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},
                      ...) {
@@ -71,8 +72,14 @@ rmt_read_dsp <- function(file = {cat('Please select dsp file ...\n'); file.choos
   dsp_lines <- readr::read_lines(file)
   dsp <- list()
   
+  # Data set 0
+  data_set_0 <- rmti_parse_comments(dsp_lines)
+  comment(dsp) <- data_set_0$comments
+  dsp_lines <- data_set_0$remaining_lines
+  rm(data_set_0)  
+  
   # options
-  options <- rmti_parse_variables(dsp_lines, character = TRUE, format = 'free')
+  options <- rmti_parse_variables(dsp_lines, n = 0, character = TRUE, format = 'free')
   options$variables <- sub('\\$', '', options$variables)
   dsp$multidiffusion <- 'MULTIDIFFUSION' %in% toupper(options$variables)
   dsp$nocross <- 'NOCROSS' %in% toupper(options$variables)
@@ -126,6 +133,7 @@ rmt_read_dsp <- function(file = {cat('Please select dsp file ...\n'); file.choos
 #' @param ... arguments passed to \code{rmti_write_array}. 
 #' @return \code{NULL}
 #' @export
+#' @seealso \code{\link{rmt_read_dsp}}, \code{\link{rmt_create_dsp}}
 rmt_write_dsp <- function(dsp,
                       file = {cat('Please select dsp file to overwrite or provide new filename ...\n'); file.choose()},
                       btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},
@@ -134,18 +142,20 @@ rmt_write_dsp <- function(dsp,
   
   mf_style <- btn$modflowstylearrays
   
+  # Data set 0
+  v <- packageDescription("RMT3DMS")$Version
+  cat(paste('# MT3DMS Dispersion Package file created by RMT3DMS, version',v,'\n'), file=file)
+  cat(paste('#', comment(dsp)), '\n', file=file, append=TRUE)
+  
+  # keywords
   if(dsp$multidiffusion || dsp$nocross) {
     rmti_write_variables('$', ifelse(dsp$multidiffusion, 'MULTIDIFFUSION', ''), ifelse(dsp$nocross, 'NOCROSS', ''), 
-                         file = file, format = 'free', append = FALSE)
-    # Data set 1
-    rmti_write_array(dsp$al, file = file, iprn = iprn, mf_style = mf_style, ...)
-    
-  } else {
-    
-    # Data set 1
-    rmti_write_array(dsp$al, file = file, iprn = iprn, append = FALSE, mf_style = mf_style, ...)
+                         file = file, format = 'free')
   }
-
+  
+  # Data set 1
+  rmti_write_array(dsp$al, file = file, iprn = iprn, mf_style = mf_style, ...)
+  
   # Data set 2
   rmti_write_array(dsp$trpt, file = file, iprn = iprn, mf_style = mf_style, ...)
   

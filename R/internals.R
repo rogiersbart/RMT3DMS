@@ -113,6 +113,7 @@ rmti_parse_comments <- function(remaining_lines, id = NULL) {
 #' Read the package header from a flow-transport link file
 #'
 #' @param file pathname to the flow-transport link file, typically '*.ftl'
+#' @param binary is the FTL file binary?
 #'
 #' @return logical vector of length 3, indicating if the rch, evt or uzf packages are active in the flow simulation
 #' @details This function is used in \code{\link{rmt_read_ssm}} as a replacement for reading data set 1. It is used to determine if
@@ -120,9 +121,9 @@ rmti_parse_comments <- function(remaining_lines, id = NULL) {
 #'          \code{rmti_parse_ftl_header} can only be used with flow-transport link files using MT3DMS or MT3D-USGS headers.
 #'          The UZF package can only be used with MT3D-USGS.
 #' @keywords internal
-rmti_parse_ftl_header <- function(file) {
+rmti_parse_ftl_header <- function(file, binary = NULL) {
   
-  lines <- readr::read_lines(file)
+  lines <- readr::read_lines(file, n_max = 40)
   lg <- structure(rep(FALSE, 3), names = c('frch', 'fevt', 'fuzf'))
   
   # binary <- FALSE
@@ -130,8 +131,12 @@ rmti_parse_ftl_header <- function(file) {
   # if(length(v) == 1 && is.na(v)) binary <- TRUE
   
   if(!is.na(lines[2])) {
-    binary <- !validUTF8(lines[2])
-    
+    if(is.null(binary)) {
+      # TODO this is a weak check for binary
+      binary <- !validUTF8(lines[2])
+      if(lines[2] == '') binary <- TRUE
+    }
+
     if(binary) { # binary
       con <- file(file, open = 'rb')
       try({
@@ -144,9 +149,11 @@ rmti_parse_ftl_header <- function(file) {
         usgs <- grepl('MTGS', v, ignore.case = TRUE) # MT3D-USGS
         if(usgs) {
           npk <- readBin(con, what = 'integer', n = 1)
-          rec2 <- vector(what = 'character', length = npk)
-          for(i in 1:npk) rec2[i] <- toupper(trimws(readChar(con, nchars = 12)))
-          if('UZF' %in% rec2) lg['fuzf'] <- TRUE
+          if(npk > 0) {
+            rec2 <- vector(mode = 'character', length = npk)
+            for(i in 1:npk) rec2[i] <- toupper(trimws(readChar(con, nchars = 20)))
+            if(any(rec2 == 'UZF')) lg['fuzf'] <- TRUE
+          } 
         }
         
         # if(s) {
@@ -159,7 +166,7 @@ rmti_parse_ftl_header <- function(file) {
         #   
         # } else if(usgs) {
         #   npk <- readBin(con, what = 'integer', n = 1)
-        #   rec2 <- vector(what = 'character', length = npk)
+        #   rec2 <- vector(mode = 'character', length = npk)
         #   for(i in 1:npk) rec2[i] <- readChar(con, nchars = 12)
         #   
         # } else {
@@ -169,7 +176,7 @@ rmti_parse_ftl_header <- function(file) {
       close(con)
       
     } else { # ASCII
-      rec <- rmti_parse_variables(lines, format = 'free', character = TRUE)
+      rec <- rmti_parse_variables(lines, n = 10, format = 'free', character = TRUE)
       v <- trimws(rec$variables[1])
       if(as.numeric(rec$variables[4]) > 0) lg['frch'] <- TRUE
       if(as.numeric(rec$variables[5]) > 0) lg['fevt'] <- TRUE
@@ -177,16 +184,15 @@ rmti_parse_ftl_header <- function(file) {
       usgs <- grepl('MTGS', v, ignore.case = TRUE) # MT3D-USGS
       if(usgs) {
         remaining_lines <- rec$remaining_lines
-        npk <- as.numeric(rmti_parse_variables(lines, format = 'free'))
-        rec2 <- vector(what = 'character', length = npk)
-        remaining_lines <- rec$remaining_lines
+        # if(length(rec$variables) < 9) remaining_lines <- remaining_lines[-1]
+        ds <- rmti_parse_variables(remaining_lines, n = 1, format = 'free')
+        npk <- as.numeric(ds$variables)
+        remaining_lines <- ds$remaining_lines
         
-        for(i in 1:npk) {
-          pck <- rmti_parse_variables(lines, format = 'free', character = TRUE)
-          rec2[i] <- toupper(trimws(pck$variables[1]))
-          remaining_lines <- pck$remaining_lines
+        if(npk > 0) {
+          rec2 <- trimws(gsub('\'', '', remaining_lines[1:npk]))
+          if(any(toupper(rec2) == 'UZF')) lg['fuzf'] <- TRUE
         }
-        if('UZF' %in% rec2) lg['fuzf'] <- TRUE
       }
     }
   }
@@ -224,7 +230,7 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
       
       # MODFLOW-style free format control header
       if(header$variables[1] %in% c('CONSTANT', 'INTERNAL', 'EXTERNAL', 'OPEN/CLOSE') || skip_header) {
-        rmf_data_set <- RMODFLOW:::rmfi_parse_array(remaining_lines, nrow = nrow, ncol = ncol, nlay = 1, ndim = ndim[1:2], 
+        rmf_data_set <- RMODFLOW:::rmfi_parse_array(remaining_lines, nrow = nrow, ncol = ncol, nlay = 1, ndim = ndim, 
                                                 skip_header = skip_header, nam = nam, precision = precision, file = file, integer = integer, ...)
         array[,,k] <- rmt_convert_rmf_to_rmt(rmf_data_set$array)
         remaining_lines <- rmf_data_set$remaining_lines
@@ -238,6 +244,16 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
         iread <-  as.numeric(header$variables[1])
         cnst <- as.numeric(header$variables[2])
         fmtin <-  trimws(paste0(strsplit(remaining_lines[1], split = '')[[1]][21:40], collapse = ''))
+        
+        # take only what is within first and last parentheses,
+        # RMODFLOW:::rmfi_fortran_format expects 'format' to be enclosed in parentheses
+        if(grepl('\\(', fmtin) && grepl('\\)', fmtin)) {
+          splt <- strsplit(fmtin, '')[[1]]
+          fp <- grep('\\(', splt)[1]
+          lp <- grep('\\)', splt)
+          lp <- lp[length(lp)]
+          fmtin <- paste0(splt[fp:lp], collapse = '')
+        }
         
         if(iread == 0) {  # CONSTANT
           array[,,k] <- cnst
@@ -257,13 +273,16 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
         } else if(iread == 101) {  # INTERNAL-BLOCK
           remaining_lines <- remaining_lines[-1] 
           if(cnst == 0) cnst <-  1.0
-          nblock <- as.numeric(rmti_parse_variables(remaining_lines[1])$variables[1])
-          nLines <- 1
+          ds <- rmti_parse_variables(remaining_lines, n = 1, format = 'free')
+          nblock <- as.numeric(ds$variables[1])
+          remaining_lines <- ds$remaining_lines
+          nLines <- 0
           
           for(block in 1:nblock) {
-            block_values <- as.numeric(rmti_parse_variables(remaining_lines[nLines + 1])$variables[1:5])
+            ds2 <- rmti_parse_variables(remaining_lines, n = 5, format = 'free')
+            block_values <- as.numeric(ds2$variables[1:5])
             array[block_values[1]:block_values[2], block_values[3]:block_values[4], k] <- block_values[5]
-            nLines <- nLines + 1
+            remaining_lines <- ds2$remaining_lines
           }
           array[,,k] <- array[,,k]*cnst
           
@@ -272,17 +291,20 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
           remaining_lines <- remaining_lines[-1] 
           if(cnst == 0) cnst <-  1.0
           
-          nzone <- as.numeric(rmti_parse_variables(remaining_lines[1])$variables[1])
-          remaining_lines <- remaining_lines[-1]
-          zv <- as.numeric(rmti_parse_variables(remaining_lines[2])$variables[1:nzone])
-          remaining_lines <- remaining_lines[-1]
+          ds <- rmti_parse_variables(remaining_lines, n = 1, format = 'free')
+          nzone <- as.numeric(ds$variables[1])
+          remaining_lines <- ds$remaining_lines
+          ds2 <- rmti_parse_variables(remaining_lines, n = nzone, format = 'free')
+          zv <- as.numeric(ds2$variables[1:nzone])
+          remaining_lines <- ds2$remaining_lines
           zone <- array(dim = c(nrow, ncol))
           
           remaining_lines[1] <- paste(substring(remaining_lines[1], first = cumsum(lengths) - lengths + 1, last = cumsum(lengths)), collapse = ' ')
           nPerLine <- length(lengths)
           nLines <- (ncol %/% nPerLine + ifelse((ncol %% nPerLine)==0, 0, 1))*nrow
           if(nLines > 1) remaining_lines[2:nLines] <- vapply(2:(nLines), function(i) paste(substring(remaining_lines[i], first = cumsum(lengths) - lengths + 1, last = cumsum(lengths)), collapse = ' '), 'text')
-          zone <- cnst*matrix(as.numeric(rmti_remove_empty_strings(strsplit(paste(remaining_lines[1:nLines],collapse='\n'),' |,| ,|, |\t|\n| \n|\n ')[[1]])),nrow=nrow,ncol=ncol,byrow=TRUE)
+          # zone <- cnst*matrix(as.numeric(rmti_remove_empty_strings(strsplit(paste(remaining_lines[1:nLines],collapse='\n'),' |,| ,|, |\t|\n| \n|\n ')[[1]])),nrow=nrow,ncol=ncol,byrow=TRUE)
+          zone <- matrix(as.numeric(rmti_remove_empty_strings(strsplit(paste(remaining_lines[1:nLines],collapse='\n'),' |,| ,|, |\t|\n| \n|\n ')[[1]])),nrow=nrow,ncol=ncol,byrow=TRUE)
           
           for(nz in 1:nzone) {
             zone[which(zone == nz)] <- zv[nz] 
@@ -424,7 +446,7 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
           }
         }
         
-        remaining_lines <- remaining_lines[-c(1:nLines)]
+        if(nLines > 0) remaining_lines <- remaining_lines[-c(1:nLines)]
         
       }
     }
@@ -447,9 +469,9 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
 }
 
 #' Read MT3DMS single-line variables
-#' @param n integer; number of variables to be returned. Only used when format is \code{'fixed'}.  
+#' @param n integer; number of variables to be returned. If zero for \code{'free'} format, reads all values on a single line and does not check if n values are read or empty lines, '*' or '/' are present.
 #' @param width integer; length of a single variable. Only used when format is \code{'fixed'}.  
-#' @param nlay integer; number of layers for which values are to be read. Only use when a 1D(NLAY) variable is read which may be specified on multiple lines.
+#' @param nlay integer; number of layers for which values are to be read. Only use when a 1D(NLAY) variable is read which may be specified on multiple lines. Only used when format is \code{'fixed'}.
 #' @param character logical; should a character vector be returned. Prevents conversion from character names to numeric. Defaults to FALSE. Useful if only characters are present on the line.
 #' @param format character, either \code{'free'} or \code{'fixed'}. When 'fixed', reads character fields of length 'width' and converts to numeric. Empty fields are set to zero.
 #' @param ... ignored
@@ -457,14 +479,37 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
 #' @keywords internal
 rmti_parse_variables <- function(remaining_lines, n, width = 10, nlay = NULL, character = FALSE, format = 'fixed', ...) {
   if(format == 'free') {
-    variables <- rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(remaining_lines[1]),' |\t|,')[[1]])
-    if(!is.null(nlay)) {
-      while(length(variables) < nlay) { 
-        remaining_lines <- remaining_lines[-1]
-        variables <- append(variables, rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(remaining_lines[1]),' |\t|,')[[1]]))
+    if(n == 0) {
+      nLines <- 1
+      variables <- rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(remaining_lines[1]),' |\t|,')[[1]])
+    } else {
+      n.cnt <- nLines <- 0
+      end <- FALSE
+      variables <- vector(mode = 'character')
+      while(n.cnt < n && !end) {
+        nLines <- nLines + 1
+        values_ch <- rmti_remove_empty_strings(strsplit(paste(remaining_lines[nLines],collapse='\n'),' |\t|,')[[1]])
+        
+        # terminate if / is encountered
+        slash <- grepl('/', values_ch)
+        if(any(slash)) {
+          last_value <- which(slash)[1]
+          values_ch[last_value] <- sub('/.*', '', values_ch[last_value])
+          values_ch <- values_ch[1:last_value]
+          end <- TRUE
+        }
+        
+        values_ch <- strsplit(values_ch, '\\*')
+        values_ch <- lapply(values_ch, function(i) rmti_ifelse0(length(i) > 1, rep(i[[2]], as.numeric(i[[1]])), i))
+        variables <- c(variables, unlist(values_ch))
+        
+        n.cnt <- length(variables)
       }
+      variables <- variables[1:n]
     }
     if(!character && !any(is.na(suppressWarnings(as.numeric(variables))))) variables <- as.numeric(variables)
+    return(list(variables=variables,remaining_lines=remaining_lines[-c(1:nLines)]))
+    
   } else if(format == 'fixed') { # every value has 'width' characters; empty values are zero
     variables <- (unlist(lapply(seq(1,nchar(remaining_lines[1]), by=width), 
                                 function(i) paste0(strsplit(rmti_remove_comments_end_of_line(remaining_lines[1]),'')[[1]][i:(i+min(width, nchar(remaining_lines[1])-i+1)-1)], collapse=''))))
@@ -476,12 +521,14 @@ rmti_parse_variables <- function(remaining_lines, n, width = 10, nlay = NULL, ch
         remaining_lines <- remaining_lines[-1]
         variables <- append(variables, rmti_remove_empty_strings(strsplit(rmti_remove_comments_end_of_line(remaining_lines[1]),' |\t|,')[[1]]))
       }
-    } else if(!character && !any(is.na(suppressWarnings(as.numeric(variables))))) {
+    } else if(!character && !any(is.na(suppressWarnings(as.numeric(variables))))) { # convert to numeric
       variables <- as.numeric(variables)
       if(length(variables) < n) variables <- c(variables, rep(0, n - length(variables))) # append 0's if values are missing
+    } else { # remain as character
+      if(length(variables) < n) variables <- c(variables, rep('0', n - length(variables))) # append 0's if values are missing
     }
+    return(list(variables=variables,remaining_lines=remaining_lines[-1]))
   }
-  return(list(variables=variables,remaining_lines=remaining_lines[-1]))
 }
 
 #' Remove comments at the end of a string
@@ -592,7 +639,7 @@ rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cns
       for(i in 1:dim(array)[3])
       {
         if(prod(c(array[,,i])[1] == c(array[,,i]))==1) {
-          rmti_write_variables(0L, cnstnt * c(array)[1], file = file, append = ifelse(i == 1, append, TRUE), width = 10)
+          rmti_write_variables(0L, cnstnt * c(array[,,i])[1], file = file, append = ifelse(i == 1, append, TRUE), width = 10)
         } else {
           
           if(format == 'free') {
@@ -648,7 +695,7 @@ rmti_write_variables <- function(..., file, append=TRUE, width = 10, format = 'f
   } else if(format == 'fixed') { 
     arg <- unlist(lapply(arg, as.list), recursive = FALSE)
     if(length(width) == 1) width <- rep(width, length(arg)) 
-    arg <- lapply(1:length(arg), function(i) formatC(arg[[i]], width = width[i]))
+    arg <- lapply(1:length(arg), function(i) rmti_ifelse0(nchar(arg[[i]]) > width[i], formatC(arg[[i]], width = width[i]), paste0(paste0(rep(' ', width[i]-nchar(arg[[i]])), collapse = ''), as.character(arg[[i]]), collapse = '')))
     arg <- lapply(1:length(arg), function(i) paste0(strsplit(arg[[i]], '')[[1]][1:width[i]], collapse = ''))
     arg <- unlist(arg)
     cat(paste0(paste0(arg, collapse=''), '\n'), file=file, append=append)

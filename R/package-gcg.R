@@ -52,13 +52,14 @@ rmt_create_gcg <- function(mxiter = 1,
 #' @param file filename; typically '*.gcg'
 #' @return object of class gcg
 #' @export
+#' @seealso \code{\link{rmt_create_gcg}}, \code{\link{rmt_write_gcg}}
 rmt_read_gcg <- function(file = {cat('Please select gcg file ...\n'); file.choose()}) {
   
   gcg_lines <- readr::read_lines(file)
   gcg <- list()
   
   # Data set 1
-  data_set_1 <- rmti_parse_variables(gcg_lines, format = 'free')
+  data_set_1 <- rmti_parse_variables(gcg_lines, n = 4, format = 'free')
   gcg$mxiter <- as.numeric(data_set_1$variables[1])
   gcg$iter1 <- as.numeric(data_set_1$variables[2])
   gcg$isolve <- as.numeric(data_set_1$variables[3])
@@ -67,7 +68,7 @@ rmt_read_gcg <- function(file = {cat('Please select gcg file ...\n'); file.choos
   rm(data_set_1)
   
   # Data set 2
-  data_set_2 <- rmti_parse_variables(gcg_lines, format = 'free')
+  data_set_2 <- rmti_parse_variables(gcg_lines, n = 3, format = 'free')
   gcg$accl <- as.numeric(data_set_2$variables[1])
   gcg$cclose <- as.numeric(data_set_2$variables[2])
   gcg$iprgcg <- as.numeric(data_set_2$variables[3])
@@ -84,6 +85,7 @@ rmt_read_gcg <- function(file = {cat('Please select gcg file ...\n'); file.choos
 #' @param file filename to write to; typically '*.gcg'
 #' @return \code{NULL}
 #' @export
+#' @seealso \code{\link{rmt_read_gcg}}, \code{\link{rmt_create_gcg}}
 rmt_write_gcg <- function(gcg,
                       file = {cat('Please select gcg file to overwrite or provide new filename ...\n'); file.choose()}) {
   

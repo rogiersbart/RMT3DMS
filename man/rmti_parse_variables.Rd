@@ -15,11 +15,11 @@ rmti_parse_variables(
 )
 }
 \arguments{
-\item{n}{integer; number of variables to be returned. Only used when format is \code{'fixed'}.}
+\item{n}{integer; number of variables to be returned. If zero for \code{'free'} format, reads all values on a single line and does not check if n values are read or empty lines, '*' or '/' are present.}
 
 \item{width}{integer; length of a single variable. Only used when format is \code{'fixed'}.}
 
-\item{nlay}{integer; number of layers for which values are to be read. Only use when a 1D(NLAY) variable is read which may be specified on multiple lines.}
+\item{nlay}{integer; number of layers for which values are to be read. Only use when a 1D(NLAY) variable is read which may be specified on multiple lines. Only used when format is \code{'fixed'}.}
 
 \item{character}{logical; should a character vector be returned. Prevents conversion from character names to numeric. Defaults to FALSE. Useful if only characters are present on the line.}
 

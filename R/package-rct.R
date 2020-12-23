@@ -293,6 +293,7 @@ rmt_create_rct <- function(btn,
 #' @param ... optional arguments passed to \code{\link{rmti_parse_array}}
 #' @return object of class \code{rct}
 #' @export
+#' @seealso \code{\link{rmt_create_rct}}, \code{\link{rmt_write_rct}}
 rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choose()},
                          btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},
                          ...) {
@@ -543,6 +544,7 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
 #' @param ... arguments passed to \code{rmti_write_array}. 
 #' @return \code{NULL}
 #' @export
+#' @seealso \code{\link{rmt_read_rct}}, \code{\link{rmt_create_rct}}
 rmt_write_rct <- function(rct,
                           file = {cat('Please select rct file to overwrite or provide new filename ...\n'); file.choose()},
                           btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},

@@ -1,7 +1,7 @@
 
-#' Create an \code{RMT3DMS} btn object
+#' Create a \code{RMT3DMS} btn object
 #'
-#' \code{rmt_create_btn} creates an \code{RMT3DMS} btn object.
+#' \code{rmt_create_btn} creates a \code{RMT3DMS} btn object.
 #'
 #' @param nlay number of layers; defaults to 3
 #' @param nrow number of rows; defaults to 10
@@ -220,14 +220,15 @@ rmt_create_btn <- function(nlay = 3,
   
 }
 
-#' Read an MT3DMS basic transport package file
+#' Read anMT3DMS basic transport package file
 #' 
-#' \code{rmt_read_btn} reads in an MT3DMS basic transport package file and returns it as an \link{RMT3DMS} btn object.
+#' \code{rmt_read_btn} reads in a MT3DMS basic transport package file and returns it as a \link{RMT3DMS} btn object.
 #' 
 #' @param file filename; typically '*.btn'
 #' @param ... optional arguments passed to \code{\link{rmti_parse_array}}
 #' @return object of class btn
 #' @export
+#' @seealso \code{\link{rmt_create_btn}}, \code{\link{rmt_write_btn}}
 rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choose()}, ...) {
   
   btn_lines <- readr::read_lines(file)
@@ -240,7 +241,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   rm(data_set_0)
   
   # Data set 3
-  data_set_3 <- rmti_parse_variables(btn_lines, character = TRUE, format = 'free')
+  data_set_3 <- rmti_parse_variables(btn_lines, n = 0, character = TRUE, format = 'free')
   
   # Options in MT3D-USGS
   btn$modflowstylearrays <- 'MODFLOWSTYLEARRAYS' %in% toupper(data_set_3$variables)
@@ -260,6 +261,8 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   btn$nper <- as.numeric(data_set_3$variables[4])
   btn$ncomp <- as.numeric(data_set_3$variables[5])
   btn$mcomp <- as.numeric(data_set_3$variables[6])
+  if(btn$ncomp < 1) btn$ncomp <- 1
+  if(btn$mcomp < 1) btn$mcomp <- 1
   btn_lines <- data_set_3$remaining_lines
   rm(data_set_3)
   
@@ -353,11 +356,17 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   rm(data_set_16)
   
   # Data set 17
-  # TODO check if this works when NPRS > 8
   if(btn$nprs > 0) {
-    data_set_17 <- rmti_parse_variables(btn_lines, nlay = btn$nprs, width = 10)
-    btn$timprs <- as.numeric(data_set_17$variables[1:btn$nprs])
-    btn_lines <- data_set_17$remaining_lines
+    ntmp <- 0
+    timprs <- NULL
+    while(ntmp < btn$nprs) {
+      n <- ifelse(btn$nprs - ntmp > 8, 8, btn$nprs - ntmp)
+      data_set_17 <- rmti_parse_variables(btn_lines, n = n, width = 10)
+      timprs <- append(timprs, as.numeric(data_set_17$variables[1:n]))
+      btn_lines <- data_set_17$remaining_lines
+      ntmp <- ntmp + n
+    }
+    btn$timprs <- timprs
     rm(data_set_17)
   }
   
@@ -408,16 +417,23 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
     btn$perlen[i] <- as.numeric(data_set_21$variables[1])
     btn$nstp[i] <- as.numeric(data_set_21$variables[2])
     btn$tsmult[i] <- as.numeric(data_set_21$variables[3])
-    variables <- rmti_parse_variables(btn_lines, format = 'free', character = TRUE)
+    variables <- rmti_parse_variables(btn_lines, n = 0, format = 'free', character = TRUE)$variables
     btn$ssflag[i] <- 'SSTATE' %in% toupper(variables)
     btn_lines <- data_set_21$remaining_lines
     rm(data_set_21, variables)
     
     # Data set 22
     if(btn$tsmult[i] <= 0) {
-      data_set_22 <- rmti_parse_variables(btn_lines, nlay = btn$nstp[i], width = 10)
-      btn$tslngh[[i]] <- as.numeric(data_set_22$variables)
-      btn_lines <- data_set_22$remaining_lines
+      ntmp <- 0
+      tslngh <- NULL
+      while(ntmp < btn$nstp[i]) {
+        n <- ifelse(btn$nstp[i] - ntmp > 8, 8, btn$nstp[i] - ntmp)
+        data_set_22 <- rmti_parse_variables(btn_lines, n = n, width = 10)
+        tslngh <- append(tslngh, as.numeric(data_set_22$variables[1:n]))
+        btn_lines <- data_set_22$remaining_lines
+        ntmp <- ntmp + n
+      }
+      btn$tslngh[[i]] <- tslngh
       rm(data_set_22)
     }
     
@@ -436,7 +452,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
   return(btn)
 }
 
-#' Write an MT3DMS basic transport package file
+#' Write a MT3DMS basic transport package file
 #' 
 #' @param btn an \code{RMT3DMS} btn object
 #' @param file filename to write to; typically '*.btn'
@@ -444,6 +460,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
 #' @param ... arguments passed to \code{rmti_write_array}. 
 #' @return \code{NULL}
 #' @export
+#' @seealso \code{\link{rmt_read_btn}}, \code{\link{rmt_create_btn}}
 rmt_write_btn <- function(btn,
                       file = {cat('Please select btn file to overwrite or provide new filename ...\n'); file.choose()},
                       iprn=-1,
@@ -457,8 +474,12 @@ rmt_write_btn <- function(btn,
   cat(paste('#', comment(btn)), '\n', file=file, append=TRUE)
   
   # options
-  if(!is.null(btn$options)) rmti_write_variables(btn$options, file = file, format = 'free')
-
+  if(any(btn$modflowstylearrays, btn$drycell, btn$legacy99storage, btn$ftlprint, btn$nowetdryprint, btn$omitdrycellbudget, btn$altwtsorb)) {
+    rmti_write_variables(ifelse(btn$modflowstylearrays, 'MODFLOWSTYLEARRAYS', ''), ifelse(btn$drycell, 'DRYCELL', ''), ifelse(btn$legacy99storage, 'LEGACY99STORAGE', ''),
+                         ifelse(btn$ftlprint, 'FTLPRINT', ''), ifelse(btn$nowetdryprint, 'NOWETDRYPRINT', ''), ifelse(btn$omitdrycellbudget, 'OMITDRYCELLBUDGET', ''),
+                         ifelse(btn$altwtsorb, 'ALTWTSORB', ''), file = file, format = 'free')
+  }
+  
   # Data set 3
   rmti_write_variables(btn$nlay, btn$nrow, btn$ncol, btn$nper, btn$ncomp, btn$mcomp, file = file, integer = TRUE)
 
@@ -511,7 +532,7 @@ rmt_write_btn <- function(btn,
   if(btn$nprs > 0) {
     nLines <- (btn$nprs %/% 8 + ifelse((btn$nprs %% 8) == 0, 0, 1))
     for(i in 1:nLines) {
-      rmti_write_variables(btn$timprs[((i-1)*8+1) : ifelse((i*8) > btn$nprs, btn$nprs, (i*8))], file = file, integer = TRUE)
+      rmti_write_variables(btn$timprs[((i-1)*8+1) : ifelse((i*8) > btn$nprs, btn$nprs, (i*8))], file = file)
     }
   }
   

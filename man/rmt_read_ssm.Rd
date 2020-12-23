@@ -9,6 +9,7 @@ rmt_read_ssm(
   btn = {     cat("Please select corresponding btn file ...\\n")    
     rmt_read_btn(file.choose()) },
   ftl = {     cat("Please select corresponding ftl file ...\\n")     file.choose() },
+  ftl_free = NULL,
   ...
 )
 }
@@ -18,6 +19,8 @@ rmt_read_ssm(
 \item{btn}{\code{RMT3DMS} btn object}
 
 \item{ftl}{path the to flow-transport link file. See details.}
+
+\item{ftl_free}{logical; is the flow-transport link file written in free (formatted) format (TRUE) or binary (unformatted) (FALSE)? if NULL (default), it is guessed from reading \code{ftl}}
 
 \item{...}{additional arguments passed to \code{rmti_parse_array}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/package-btn.R
 \name{rmt_write_btn}
 \alias{rmt_write_btn}
-\title{Write an MT3DMS basic transport package file}
+\title{Write a MT3DMS basic transport package file}
 \usage{
 rmt_write_btn(
   btn,
@@ -26,5 +26,8 @@ rmt_write_btn(
 \code{NULL}
 }
 \description{
-Write an MT3DMS basic transport package file
+Write a MT3DMS basic transport package file
+}
+\seealso{
+\code{\link{rmt_read_btn}}, \code{\link{rmt_create_btn}}
 }

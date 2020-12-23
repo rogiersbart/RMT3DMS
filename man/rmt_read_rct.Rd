@@ -24,3 +24,6 @@ object of class \code{rct}
 \description{
 \code{rmt_read_rct} reads in an MT3DMS/MT3D-USGS reaction package file and returns it as an \code{\link{RMT3DMS}} rct object.
 }
+\seealso{
+\code{\link{rmt_create_rct}}, \code{\link{rmt_write_rct}}
+}

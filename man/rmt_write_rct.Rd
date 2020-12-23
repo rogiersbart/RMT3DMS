@@ -32,3 +32,6 @@ rmt_write_rct(
 \description{
 Write an MT3DMS Chemical Reaction Package file
 }
+\seealso{
+\code{\link{rmt_read_rct}}, \code{\link{rmt_create_rct}}
+}

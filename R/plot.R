@@ -35,7 +35,11 @@ rmt_plot.cbud <- function(cbud,
   cbud <- as.data.frame(cbud)
   cbud <- cbud[which(cbud$icomp == icomp), ]
   
-  if(final) cbud <- cbud[nrow(cbud),]
+  if(final) {
+    cbud <- cbud[nrow(cbud),]
+  } else if(nrow(cbud) == 1 && !final) {
+    warning('Budget printed at only one time step. Consider setting final to TRUE.', call. = FALSE)
+  }
   
   colnames(cbud)[which(colnames(cbud) == 'time')] <- 'tm'
   c_names <- !(colnames(cbud) %in% c('icomp', 'tm', 'tstp', 'kstp','kper'))
@@ -172,6 +176,110 @@ rmt_plot.ss <- function(ss) {
     ggplot2::geom_hline(yintercept=attr(ss,'threshold'),colour='gray',linetype='dashed')
 }
 
+#' Plot a MT3DMS observed concentration file
+#' 
+#' @param ocn \code{RMT3DMS} ocn object
+#' @param type plot type: 'scatter', 'residual', 'time' or 'histogram'
+#' @param hobdry value used to flag dry cells; defaults to -888
+#' @param bins number of bins to use in the histogram plot; defaults to the Freedman-Diaconis rule
+#' @method rmt_plot ocn
+#' @export
+rmt_plot.ocn <- function(ocn,type='scatter',cinact = -888, bins = NULL) {
+  if(!('observed' %in% colnames(ocn))) stop('No observed concentrations present in ocn object. Is ioutcobs set to 0 in the tob object?', call. = FALSE)
+  dat <- data.frame(simulated=ocn$calculated, observed=ocn$observed,name=ocn$wellid,time=ocn$total_elapsed_time)[which(ocn$calculated!=cinact),]
+  if('residual' %in% colnames(ocn)) {
+    dat$residual <- ocn$residual
+  } else if('log_residual' %in% colnames(ocn)) {
+    dat$residual <- ocn$log_residual
+  } else {
+    dat$residual <- dat$simulated - dat$observed
+  }
+  
+  if(type=='scatter') {
+    return(  ggplot2::ggplot(dat,ggplot2::aes(x=observed,y=simulated))+
+               ggplot2::geom_point(ggplot2::aes(colour=abs(residual)))+
+               ggplot2::geom_abline(ggplot2::aes(intercept=0,slope=1),linetype='dashed')+
+               ggplot2::scale_colour_gradientn('Misfit',colours=RMODFLOW:::rmfi_rev_rainbow(7),trans='log10')+
+               ggplot2::xlab('Observed value')+
+               ggplot2::ylab('Simulated equivalent')
+    )
+  } else if(type=='residual') {
+    return(  ggplot2::ggplot(dat,ggplot2::aes(x=name,y=residual))+
+               ggplot2::geom_bar(ggplot2::aes(fill=abs(residual)),stat='identity')+
+               ggplot2::scale_fill_gradientn('Misfit',colours=RMODFLOW:::rmfi_rev_rainbow(7),trans='log10')+
+               ggplot2::xlab('Observation name')+
+               ggplot2::ylab('Simulated equivalent - observed value')
+    )
+  } else if(type=='histogram') {
+    if(is.null(bins)) bins <- nclass.FD(dat$simulated-dat$observed)
+    
+    return(  ggplot2::ggplot(dat,ggplot2::aes(x=residual))+
+               ggplot2::geom_histogram(ggplot2::aes(fill=..count..), bins=bins)+
+               ggplot2::scale_fill_gradientn('Count',colours=RMODFLOW:::rmfi_rev_rainbow(7))+
+               ggplot2::xlab('Simulated equivalent - observed value')
+    )
+  } else if(type == 'time') {
+    return(ggplot2::ggplot(dat) +
+      ggplot2::geom_line(ggplot2::aes(x=time, y = simulated, colour = name, group = name)) +
+      ggplot2::geom_point(ggplot2::aes(x=time, y=observed, colour=name), shape = 13) +
+      ggplot2::labs(x = 'Total elapsed time', y = 'Concentration', colour = 'Name'))
+  } else {
+    stop('plot type not supported', call. = FALSE)
+  }
+}
+
+#' Plot a MT3DMS mass flux file
+#' 
+#' @param mfx \code{RMT3DMS} mfx object
+#' @param type plot type: 'scatter', 'residual', 'time' or 'histogram'
+#' @param hobdry value used to flag dry cells; defaults to -888
+#' @param bins number of bins to use in the histogram plot; defaults to the Freedman-Diaconis rule
+#' @method rmt_plot mfx
+#' @export
+rmt_plot.mfx <- function(mfx,type='scatter', bins = NULL) {
+  if(!('observed' %in% colnames(mfx))) stop('No observed concentrations present in mfx object. Is ioutflux set to 0 in the tob object?', call. = FALSE)
+  dat <- data.frame(simulated=mfx$calculated, observed=mfx$observed,name=mfx$name, time=mfx$total_elapsed_time)
+  if('residual' %in% colnames(mfx)) {
+    dat$residual <- mfx$residual
+  } else if('log_residual' %in% colnames(mfx)) { # not possible
+    dat$residual <- mfx$log_residual
+  } else {
+    dat$residual <- dat$simulated - dat$observed
+  }
+  
+  if(type=='scatter') {
+    return(  ggplot2::ggplot(dat,ggplot2::aes(x=observed,y=simulated))+
+               ggplot2::geom_point(ggplot2::aes(colour=abs(residual)))+
+               ggplot2::geom_abline(ggplot2::aes(intercept=0,slope=1),linetype='dashed')+
+               ggplot2::scale_colour_gradientn('Misfit',colours=RMODFLOW:::rmfi_rev_rainbow(7),trans='log10')+
+               ggplot2::xlab('Observed value')+
+               ggplot2::ylab('Simulated equivalent')
+    )
+  } else if(type=='residual') {
+    return(  ggplot2::ggplot(dat,ggplot2::aes(x=name,y=residual))+
+               ggplot2::geom_bar(ggplot2::aes(fill=abs(residual)),stat='identity')+
+               ggplot2::scale_fill_gradientn('Misfit',colours=RMODFLOW:::rmfi_rev_rainbow(7),trans='log10')+
+               ggplot2::xlab('Observation name')+
+               ggplot2::ylab('Simulated equivalent - observed value')
+    )
+  } else if(type=='histogram') {
+    if(is.null(bins)) bins <- nclass.FD(dat$simulated-dat$observed)
+    
+    return(  ggplot2::ggplot(dat,ggplot2::aes(x=residual))+
+               ggplot2::geom_histogram(ggplot2::aes(fill=..count..), bins=bins)+
+               ggplot2::scale_fill_gradientn('Count',colours=RMODFLOW:::rmfi_rev_rainbow(7))+
+               ggplot2::xlab('Simulated equivalent - observed value')
+    )
+  } else if(type == 'time') {
+    return(ggplot2::ggplot(dat) +
+             ggplot2::geom_line(ggplot2::aes(x=time, y = simulated, colour = name, group = name)) +
+             ggplot2::geom_point(ggplot2::aes(x=time, y=observed, colour=name), shape = 13) +
+             ggplot2::labs(x = 'Total elapsed time', y = 'Mass flux', colour = 'Name'))
+  } else {
+    stop('plot type not supported', call. = FALSE)
+  }
+}
+
 #' Plot a MT3DMS 2D array
 #' 
 #' \code{rmt_plot.rmt3dms_2d_array} plots a MODFLOW 2D array.
@@ -268,6 +376,73 @@ rmt_plot.rmt_list <- function(obj,
                               ...) {
   dis <- rmt_convert_btn_to_dis(btn)
   RMODFLOW::rmf_plot(obj, dis = dis, i = i, j = j, k = k, variable = variable, mask = mask, ...)
+}
+
+#' Plot a RMT3DMS tob object
+#'
+#' @param tob \code{RMT3DMS} tob object
+#' @param btn \code{RMT3DMS} btn object
+#' @param i row number to plot
+#' @param j column number to plot
+#' @param k layer number to plot
+#' @param prj projection file object
+#' @param what character, either 'concentrations' (default) or 'fluxes'. Denotes which observations to plot.
+#' @param ... additional arguments passed to \code{\link{rmt_plot.rmt_list}}
+#' 
+#' @details specifying all of the \code{i, j & k} arguments will plot a time series at that cell location. The observations are grouped by name.
+#' 
+#' @return ggplot2 object or layer
+#' @export
+#' @method rmt_plot tob
+#' 
+rmt_plot.tob <- function(tob,
+                         btn,
+                         i = NULL,
+                         j = NULL,
+                         k = NULL,
+                         what = 'concentrations',
+                         prj = RMODFLOW::rmf_get_prj(btn),
+                         ...) {
+  
+  if(is.null(i) && is.null(j) && is.null(k)) stop('Please provide i, j or k.', call. = FALSE)
+  
+  if(what == 'concentrations') {
+    if(tob$inconcobs == 0) stop('No concentration observations specified in tob', call. = FALSE) 
+    locations <- rmt_convert_tob_to_locations(tob, btn, prj = prj)
+  } else if(what == 'fluxes') {
+    if(tob$influxobs == 0) stop('No mass flux observations specified in tob', call. = FALSE) 
+    locations <- tob$fluxcells
+  } else {
+    stop('what should be either concentrations or fluxes', call. = FALSE)
+  }
+
+  # plot time series
+  if(!is.null(i) && !is.null(j) && !is.null(k)) {
+    locations <- locations[which(locations$i == i & locations$j == j & locations$k == k),]
+    if(what == 'concentrations') {
+      ts <- tob$concentrations
+      ts <- ts[which(ts$name %in% locations$name),]
+      names(ts)[which(names(ts) == 'cobs')] <- 'value'
+    } else {
+      ts <- tob$fluxobs
+      ts <- ts[which(ts$group %in% locations$group),]
+      names(ts)[which(names(ts) == 'flux')] <- 'value'
+    }
+
+    mp <- any(table(ts$name) > 1)
+    
+    return(ggplot2::ggplot(ts, ggplot2::aes(x = time, y = value, group = name)) +
+             rmti_ifelse0(mp, ggplot2::geom_path(ggplot2::aes(colour = name)), ggplot2::geom_point(ggplot2::aes(colour = name))))
+  } else {
+    df <- RMODFLOW::rmf_create_list(locations)
+    dis <- rmt_convert_btn_to_dis(btn, prj = prj)
+    
+    # rmf_plot.rmf_list
+    
+    if(what == 'concentrations') df <- df[, -which(colnames(df) %in% c('x', 'y', 'z'))]
+    RMODFLOW::rmf_plot(df, dis = dis, i = i, j = j, k = k, prj = prj, ...)
+    
+  }
 }
 
 #' Plot a MT3D ucn file object
