@@ -11,7 +11,8 @@ rmti_write_variables(
   append = TRUE,
   width = 10,
   format = "fixed",
-  integer = FALSE
+  integer = FALSE,
+  iprn = -1
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ rmti_write_variables(
 \item{format}{either \code{'fixed'} or \code{'free'}. Fixed format assumes fixed width character spaces for each value as determined by the width argument}
 
 \item{integer}{logical; should all values be converted to integers? MT3D does not allow for exponents in integer values}
+
+\item{iprn}{ignored}
 }
 \description{
 Write MT3DMS variables

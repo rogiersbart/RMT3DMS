@@ -669,9 +669,10 @@ rmti_write_array <- function(array, file, mf_style = FALSE, format = 'free', cns
 #' @param format either \code{'fixed'} or \code{'free'}. Fixed format assumes fixed width character spaces for each value as determined by the width argument
 #' @param width numeric vector with the character widths for each variable. If a single value, it is repeated.
 #' @param integer logical; should all values be converted to integers? MT3D does not allow for exponents in integer values
+#' @param iprn ignored
 #' @return NULL
 #' @keywords internal
-rmti_write_variables <- function(..., file, append=TRUE, width = 10, format = 'fixed', integer = FALSE) {
+rmti_write_variables <- function(..., file, append=TRUE, width = 10, format = 'fixed', integer = FALSE, iprn = -1) {
   
   arg <- list(...)
   arg <- arg[vapply(arg, function(i) all(nchar(i) > 0), TRUE)] # removes empty elements
@@ -679,7 +680,12 @@ rmti_write_variables <- function(..., file, append=TRUE, width = 10, format = 'f
   
   # sets integers in proper format since Type is converted to double when vectorized
   if(format == 'free') {
-    arg <- lapply(arg, formatC)
+    if(integer) {
+      arg <- lapply(arg, formatC)
+    } else {
+      arg <- lapply(arg, as.character)
+    }
+    
     arg <- unlist(arg)
     cat(paste0(paste(arg, sep = ' ', collapse = ' '), '\n'), file=file, append=append)
   } else if(format == 'fixed') { 
