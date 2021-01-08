@@ -89,7 +89,8 @@ rmt_read_bud <- function(file = {cat('Please select MT3DMS listing file ...\n');
     # no budget is printed
   } else {
     # check if this is actually true
-    stop("No budget was printed to listing file. You can change this in the BTN file.", call. = FALSE)
+    warning("No budget was printed to listing file. You can change this in the BTN file.", call. = FALSE)
+    return(NULL)
   }
   
   balance <- tibble::tibble(balance)
@@ -275,7 +276,9 @@ rmt_read_ocn <- function(file = {cat('Please select ocn file ...\n'); file.choos
   if(length(rmti_remove_empty_strings(ocn_lines[length(ocn_lines)])) != 0) end_id[length(end_id)] <- end_id[length(end_id)] + 1
 
   # check for written statistics
-  stats <- grep('PROBABILITY OF UN-CORRELATION =', ocn_lines[end_id])
+  stats <- grep('ROOT MEAN SQUARED RESIDUALS', ocn_lines[end_id])
+  if(length(stats) > 0) end_id[stats] <- end_id[stats] - 6
+  stats <- grep('PROBABILITY OF UN-CORRELATION', ocn_lines[end_id])
   if(length(stats) > 0) end_id[stats] <- end_id[stats] - 8
   
   res <- any(grepl('WEIGHT', ocn_lines))
@@ -299,7 +302,7 @@ rmt_read_ocn <- function(file = {cat('Please select ocn file ...\n'); file.choos
     df <- cpr
     for(i in 1:(end-start+1)) {
       ln <- start + i - 1
-      no_obs <- grepl('no observed conc given', ocn_lines[ln])
+      no_obs <- grepl('no observed conc given|obs well at a dry cell|invalid log conversion', ocn_lines[ln])
       vl <- rmti_remove_empty_strings(strsplit(ocn_lines[ln], ' ')[[1]])
       name <- vl[1]
       if(res) {
@@ -353,7 +356,9 @@ rmt_read_mfx <- function(file = {cat('Please select mfx file ...\n'); file.choos
   if(length(rmti_remove_empty_strings(mfx_lines[length(mfx_lines)])) != 0) end_id[length(end_id)] <- end_id[length(end_id)] + 1
   
   # check for written statistics
-  stats <- grep('PROBABILITY OF UN-CORRELATION =', mfx_lines[end_id])
+  stats <- grep('ROOT MEAN SQUARED RESIDUALS', mfx_lines[end_id])
+  if(length(stats) > 0) end_id[stats] <- end_id[stats] - 6
+  stats <- grep('PROBABILITY OF UN-CORRELATION', mfx_lines[end_id])
   if(length(stats) > 0) end_id[stats] <- end_id[stats] - 8
   
   res <- any(grepl('WEIGHT', mfx_lines))

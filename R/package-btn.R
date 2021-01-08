@@ -215,7 +215,7 @@ rmt_create_btn <- function(nlay = 3,
   btn$ttsmax <- rmti_ifelse0(length(ttsmax) == 1, rep(ttsmax, btn$nper), ttsmax)
   
   class(btn) <- c('btn', 'rmt_package')
-  btn$prj <- RMODFLOW::rmf_set_prj(btn, prj)
+  btn <- RMODFLOW::rmf_set_prj(btn, prj)
   return(btn)
   
 }

@@ -11,9 +11,9 @@
 
 \item{type}{plot type: 'scatter', 'residual', 'time' or 'histogram'}
 
-\item{bins}{number of bins to use in the histogram plot; defaults to the Freedman-Diaconis rule}
+\item{cinact}{value used to flag dry cells; defaults to -888}
 
-\item{hobdry}{value used to flag dry cells; defaults to -888}
+\item{bins}{number of bins to use in the histogram plot; defaults to the Freedman-Diaconis rule}
 }
 \description{
 Plot a MT3DMS observed concentration file

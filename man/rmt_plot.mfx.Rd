@@ -12,8 +12,6 @@
 \item{type}{plot type: 'scatter', 'residual', 'time' or 'histogram'}
 
 \item{bins}{number of bins to use in the histogram plot; defaults to the Freedman-Diaconis rule}
-
-\item{hobdry}{value used to flag dry cells; defaults to -888}
 }
 \description{
 Plot a MT3DMS mass flux file

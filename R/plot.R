@@ -180,7 +180,7 @@ rmt_plot.ss <- function(ss) {
 #' 
 #' @param ocn \code{RMT3DMS} ocn object
 #' @param type plot type: 'scatter', 'residual', 'time' or 'histogram'
-#' @param hobdry value used to flag dry cells; defaults to -888
+#' @param cinact value used to flag dry cells; defaults to -888
 #' @param bins number of bins to use in the histogram plot; defaults to the Freedman-Diaconis rule
 #' @method rmt_plot ocn
 #' @export
@@ -188,9 +188,9 @@ rmt_plot.ocn <- function(ocn,type='scatter',cinact = -888, bins = NULL) {
   if(!('observed' %in% colnames(ocn))) stop('No observed concentrations present in ocn object. Is ioutcobs set to 0 in the tob object?', call. = FALSE)
   dat <- data.frame(simulated=ocn$calculated, observed=ocn$observed,name=ocn$wellid,time=ocn$total_elapsed_time)[which(ocn$calculated!=cinact),]
   if('residual' %in% colnames(ocn)) {
-    dat$residual <- ocn$residual
+    dat$residual <- ocn$residual[which(ocn$calculated!=cinact)]
   } else if('log_residual' %in% colnames(ocn)) {
-    dat$residual <- ocn$log_residual
+    dat$residual <- ocn$log_residual[which(ocn$calculated!=cinact)]
   } else {
     dat$residual <- dat$simulated - dat$observed
   }
@@ -232,7 +232,6 @@ rmt_plot.ocn <- function(ocn,type='scatter',cinact = -888, bins = NULL) {
 #' 
 #' @param mfx \code{RMT3DMS} mfx object
 #' @param type plot type: 'scatter', 'residual', 'time' or 'histogram'
-#' @param hobdry value used to flag dry cells; defaults to -888
 #' @param bins number of bins to use in the histogram plot; defaults to the Freedman-Diaconis rule
 #' @method rmt_plot mfx
 #' @export
