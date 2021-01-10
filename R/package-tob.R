@@ -17,7 +17,7 @@
 #' @param ioutflux logical indicating if the residual errors between calculated and observed mass fluxes should be written to the output file. Defaults to TRUE. 
 #' @param fluxobs data.frame with name, icomp, time, weight, flux, group & iss columns. The group specifies the FluxGroup which the observation is part of. iss specifies the sink/source type and should be unique for each group.
 #' @param fluxcells data.frame with k, i, j, factor and group columns. The group specifies the FluxGroup which the observation is part of and is used to link to corresponding groups in \code{fluxobs}.
-#' @param unique_obsnam logical; should an ID number be added to obsnam for filters with concentration observations at different times? Defaults to FALSE.
+#' @param unique_obsnam logical; should an ID number be added to obsnam for filters with concentration observations at different times prefixed with an underscore? Defaults to FALSE.
 #' @param prj \code{RMODFLOW} prj object; provide if coordinates in \code{locations} are real world coordinates
 #' @param inconcobs integer specifying the unit number to save the OCN output file to when \code{locations & time_series} are defined. Defaults to 61. 
 #' @param influxobs integer specifying the unit number to save the MFX output file to when \code{fluxobs & fluxcells} are defined. Defaults to 62.
@@ -162,6 +162,10 @@ rmt_create_tob <- function(locations = NULL,
     df$cobsnam <- df$layer <- df$row <- df$column <- df$timeobs <- df$roff <- df$coff <- df$weight <- df$cobs <- rep(NA, tob$nconcobs)
     df$mlay <- df$pr <- list()
     
+    if(any(nchar(locations$name) > 12) | any(grepl('\\s+', locations$name))) {
+      stop('Concentration observation names should be maximum 12 characters and not contain spaces.', call. = FALSE)
+    }
+    
     for(i in 1:nrow(locations)) {
       # locations
       ts_id <- which(time_series$name == locations$name[i])
@@ -214,6 +218,8 @@ rmt_create_tob <- function(locations = NULL,
       df$mlay[s_lay] <- df$layer[s_lay]
       df$pr[s_lay] <- 1
     }
+    
+    if(any(nchar(df$cobsnam) > 12)) stop('Concentration observation names should be maximum 12 characters. This may be caused by unique_obsnam = TRUE', call. = FALSE)
     
     # Data
     tob$concentrations <- data.frame(name = df$cobsnam, layer = I(df$mlay), pr = I(df$pr), row = df$row, column = df$column, icomp = df$icomp, 
@@ -269,6 +275,10 @@ rmt_create_tob <- function(locations = NULL,
       if(unique_obsnam) {
         tob$fluxobs$name[obs_ids] <- paste(tob$fluxobs$name[obs_ids], c(1:length(obs_ids)), sep = '_')
       }
+    }
+    
+    if(any(nchar(tob$fluxobs$name) > 12) | any(grepl('\\s+', tob$fluxobs$name))) {
+      stop('Flux observation names should be maximum 12 characters and only contain non-blank characters. This may be caused by unique_obsnam = TRUE', call. = FALSE)
     }
     
     # names(tob$fluxobs)[which(names(tob$fluxobs) == 'name')] <- 'fobsnam'

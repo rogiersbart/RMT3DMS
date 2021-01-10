@@ -55,7 +55,7 @@ rmt_create_tob(
 
 \item{fluxcells}{data.frame with k, i, j, factor and group columns. The group specifies the FluxGroup which the observation is part of and is used to link to corresponding groups in \code{fluxobs}.}
 
-\item{unique_obsnam}{logical; should an ID number be added to obsnam for filters with concentration observations at different times? Defaults to FALSE.}
+\item{unique_obsnam}{logical; should an ID number be added to obsnam for filters with concentration observations at different times prefixed with an underscore? Defaults to FALSE.}
 
 \item{prj}{\code{RMODFLOW} prj object; provide if coordinates in \code{locations} are real world coordinates}
 

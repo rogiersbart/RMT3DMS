@@ -52,9 +52,9 @@ rmt_installed_codes <- function() {
   loc <- getOption('RMT3DMS.path')
   codes <- vapply(list.dirs(loc, recursive = FALSE), basename, 'text')
   if(length(codes) == 0) {
-    rui::disapprove('No codes have been installed in {loc}')
+    rui::disapprove('No codes have been installed in {.path {loc}}')
   } else {
-    rui::approve('Following codes have been installed in {loc}:')
+    rui::approve('Following codes have been installed in {.path {loc}}:')
     for(i in codes) rui::inform(i)
   }
   return(invisible(codes))
