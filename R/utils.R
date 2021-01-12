@@ -304,7 +304,7 @@ rmt_convert_tob_to_locations <- function(tob,
                                          prj = RMODFLOW::rmf_get_prj(btn)) {
   
   if(tob$inconcobs == 0) stop('tob object does not contain concentration observations', call. = FALSE)
-  tob$concentrations <- tob$concentrations[!duplicated(tob$concentrations$name),]
+  tob$concentrations <- tob$concentrations[!duplicated(tob$concentrations$cobsnam),]
   if(any(lengths(tob$concentrations$layer) > 1)) {
     m_id <- which(lengths(tob$concentrations$layer) > 1)
     df <- tob$concentrations[-m_id, ]
@@ -322,7 +322,7 @@ rmt_convert_tob_to_locations <- function(tob,
   dis <- rmt_convert_btn_to_dis(btn, prj = prj)
   # TODO top & bottom filter
   coords <- RMODFLOW::rmf_convert_grid_to_xyz(i = df$row, j = df$column, k = df$layer, roff = df$roff, coff=df$coff, dis = dis, prj = prj)
-  locations <- cbind(subset(df, select = c('name', 'pr', 'layer', 'row', 'column')), coords)
+  locations <- cbind(subset(df, select = c('cobsnam', 'pr', 'layer', 'row', 'column')), coords)
   locations <- setNames(locations, c('name', 'pr', 'k', 'i', 'j', 'x', 'y', 'z'))
   return(locations)
 }

@@ -224,7 +224,7 @@ rmt_create_tob <- function(locations = NULL,
     if(any(nchar(df$cobsnam) > 12)) stop('Concentration observation names should be maximum 12 characters. This may be caused by unique_obsnam = TRUE', call. = FALSE)
     
     # Data
-    tob$concentrations <- data.frame(name = df$cobsnam, layer = I(df$mlay), pr = I(df$pr), row = df$row, column = df$column, icomp = df$icomp, 
+    tob$concentrations <- data.frame(cobsnam = df$cobsnam, layer = I(df$mlay), pr = I(df$pr), row = df$row, column = df$column, icomp = df$icomp, 
                                      timeobs = df$timeobs, roff = df$roff, coff = df$coff, weight = df$weight, cobs = df$cobs, stringsAsFactors = FALSE)
   }
   
@@ -283,10 +283,10 @@ rmt_create_tob <- function(locations = NULL,
       stop('Flux observation names should be maximum 12 characters and only contain non-blank characters. This may be caused by unique_obsnam = TRUE', call. = FALSE)
     }
     
-    # names(tob$fluxobs)[which(names(tob$fluxobs) == 'name')] <- 'fobsnam'
-    # names(tob$fluxobs)[which(names(tob$fluxobs) == 'flux')] <- 'fluxobs'
-    # names(tob$fluxobs)[which(names(tob$fluxobs) == 'time')] <- 'fluxtimeobs'
-    # names(tob$fluxobs)[which(names(tob$fluxobs) == 'weight')] <- 'weight_fobs'
+    names(tob$fluxobs)[which(names(tob$fluxobs) == 'name')] <- 'fobsnam'
+    names(tob$fluxobs)[which(names(tob$fluxobs) == 'flux')] <- 'fluxobs'
+    names(tob$fluxobs)[which(names(tob$fluxobs) == 'time')] <- 'fluxtimeobs'
+    names(tob$fluxobs)[which(names(tob$fluxobs) == 'weight')] <- 'weight_fobs'
   }
   
   if(tob$inconcobs == 0 && tob$influxobs == 0) tob$insaveobs <- 0
@@ -339,9 +339,9 @@ rmt_read_tob <- function(file = {cat('Please select tob file ...\n'); file.choos
     data_set_3 <- rmti_parse_variables(tob_lines, n = 5, format = 'free')
     tob$nconcobs <- as.numeric(data_set_3$variables[1])
     tob$cscale <- as.numeric(data_set_3$variables[2])
-    tob$ioutcobs <- as.numeric(data_set_3$variables[3]) > 0
-    tob$iconclog <- as.numeric(data_set_3$variables[4]) > 0
-    tob$iconcintp <- as.numeric(data_set_3$variables[5]) > 0
+    tob$ioutcobs <- as.numeric(as.numeric(data_set_3$variables[3]) > 0)
+    tob$iconclog <- as.numeric(as.numeric(data_set_3$variables[4]) > 0)
+    tob$iconcintp <- as.numeric(as.numeric(data_set_3$variables[5]) > 0)
     tob_lines <- data_set_3$remaining_lines
     rm(data_set_3)
     
@@ -390,7 +390,7 @@ rmt_read_tob <- function(file = {cat('Please select tob file ...\n'); file.choos
     }
     
     # Data
-    tob$concentrations <- data.frame(name = df$cobsnam, layer = I(df$mlay), pr = I(df$pr), row = df$row, column = df$column, icomp = df$icomp, 
+    tob$concentrations <- data.frame(cobsnam = df$cobsnam, layer = I(df$mlay), pr = I(df$pr), row = df$row, column = df$column, icomp = df$icomp, 
                                      timeobs = df$timeobs, roff = df$roff, coff = df$coff, weight = df$weight, cobs = df$cobs, stringsAsFactors = FALSE)
     
   }
@@ -402,7 +402,7 @@ rmt_read_tob <- function(file = {cat('Please select tob file ...\n'); file.choos
     data_set_6 <- rmti_parse_variables(tob_lines, n = 3, format = 'free')
     tob$nfluxgroup <- as.numeric(data_set_6$variables[1])
     tob$fscale <- as.numeric(data_set_6$variables[2])
-    tob$ioutflux <- as.numeric(data_set_6$variables[3]) > 0
+    tob$ioutflux <- as.numeric(as.numeric(data_set_6$variables[3]) > 0)
     tob_lines <- data_set_6$remaining_lines
     rm(data_set_6)
     
@@ -419,18 +419,18 @@ rmt_read_tob <- function(file = {cat('Please select tob file ...\n'); file.choos
       tob_lines <- data_set_7$remaining_lines
       rm(data_set_7)
       
-      dfobs <- data.frame(name = rep(NA_character_, tob$nfluxtimeobs[i]), icomp = rep(NA, tob$nfluxtimeobs[i]), 
-                          time = rep(NA, tob$nfluxtimeobs[i]), weight = rep(NA, tob$nfluxtimeobs[i]), flux = rep(NA, tob$nfluxtimeobs[i]),
+      dfobs <- data.frame(fobsnam = rep(NA_character_, tob$nfluxtimeobs[i]), icomp = rep(NA, tob$nfluxtimeobs[i]), 
+                          fluxtimeobs = rep(NA, tob$nfluxtimeobs[i]), weight_fobs = rep(NA, tob$nfluxtimeobs[i]), fluxobs = rep(NA, tob$nfluxtimeobs[i]),
                           group = rep(i, tob$nfluxtimeobs[i]), iss = rep(tob$isstype[i], tob$nfluxtimeobs[i]), stringsAsFactors = FALSE)
       
       # data set 8
       for(j in 1:tob$nfluxtimeobs[i]) {
         data_set_8 <- rmti_parse_variables(tob_lines, n = 5, format = 'free')
-        dfobs$name[j] <- as.character(data_set_8$variables[1])
+        dfobs$fobsnam[j] <- as.character(data_set_8$variables[1])
         dfobs$icomp[j] <- as.numeric(data_set_8$variables[2])
-        dfobs$time[j] <- as.numeric(data_set_8$variables[3])
-        dfobs$weight[j] <- as.numeric(data_set_8$variables[4])
-        dfobs$flux[j] <- as.numeric(data_set_8$variables[5])
+        dfobs$fluxtimeobs[j] <- as.numeric(data_set_8$variables[3])
+        dfobs$weight_fobs[j] <- as.numeric(data_set_8$variables[4])
+        dfobs$fluxobs[j] <- as.numeric(data_set_8$variables[5])
         tob_lines <- data_set_8$remaining_lines
         rm(data_set_8)
       }
@@ -485,7 +485,7 @@ rmt_write_tob <- function(tob, file = {cat('Please select tob file to overwrite 
     
     for(i in 1:tob$nconcobs) {
       # data set 4
-      rmti_write_variables(tob$concentrations$name[i], ifelse(length(tob$concentrations$layer[[i]]) > 1, -length(tob$concentrations$layer[[i]]), tob$concentrations$layer[[i]]), 
+      rmti_write_variables(tob$concentrations$cobsnam[i], ifelse(length(tob$concentrations$layer[[i]]) > 1, -length(tob$concentrations$layer[[i]]), tob$concentrations$layer[[i]]), 
                            tob$concentrations$row[i], tob$concentrations$column[i], tob$concentrations$icomp[i], 
                            tob$concentrations$timeobs[i], tob$concentrations$roff[i], tob$concentrations$coff[i], tob$concentrations$weight[i],
                            tob$concentrations$cobs[i], file = file, format = 'free')
@@ -511,7 +511,7 @@ rmt_write_tob <- function(tob, file = {cat('Please select tob file to overwrite 
       
       # data set 8
       for(jj in 1:tob$nfluxtimeobs[i]) {
-        rmti_write_variables(fluxobs$name[jj], fluxobs$icomp[jj], fluxobs$time[jj], fluxobs$weight[jj], fluxobs$flux[jj], file = file, format = 'free')
+        rmti_write_variables(fluxobs$fobsnam[jj], fluxobs$icomp[jj], fluxobs$fluxtimeobs[jj], fluxobs$weight_fobs[jj], fluxobs$fluxobs[jj], file = file, format = 'free')
       }
       
       # data set 9

@@ -420,7 +420,7 @@ rmt_plot.tob <- function(tob,
     locations <- locations[which(locations$i == i & locations$j == j & locations$k == k),]
     if(what == 'concentrations') {
       ts <- tob$concentrations
-      ts <- ts[which(ts$name %in% locations$name),]
+      ts <- ts[which(ts$cobsnam %in% locations$name),]
       names(ts)[which(names(ts) == 'cobs')] <- 'value'
     } else {
       ts <- tob$fluxobs
