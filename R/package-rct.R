@@ -86,7 +86,7 @@ rmt_create_rct <- function(btn,
   
   # Data set 2a
   if(rct$isothm %in% c(1,2,3,4,6,-6) || rct$ireaction == 2) {
-    if(rct$irctp < 2) {
+    if(rct$irctop < 2) {
       rct$rhob <- rmti_ifelse0(length(rhob) == 1, rep(rhob, btn$nlay), rhob)
     } else {
       rct$rhob <- rmt_create_array(rhob, dim = c(btn$nrow, btn$ncol, btn$nlay))
@@ -95,7 +95,7 @@ rmt_create_rct <- function(btn,
   
   # Data set 2b
   if(rct$isothm %in% c(5,6,-6)) {
-    if(rct$irctp < 2) {
+    if(rct$irctop < 2) {
       rct$prsity2 <- rmti_ifelse0(length(prsity2) == 1, rep(prsity2, btn$nlay), prsity2)
     } else {
       rct$prsity2 <- rmt_create_array(prsity2, dim = c(btn$nrow, btn$ncol, btn$nlay))
