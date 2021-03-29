@@ -6,7 +6,7 @@
 #' @param mixelm integer code for the advection solution option (see details). Defaults to -1.
 #' @param percel Courant number. Defaults to 1
 #' @param mxpart maximum number of moving particles. Only used when mixelm = 1 or 3. Defaults to 1e6
-#' @param nadvfd weighting scheme for implicit finite difference (mixelm = 1 or 3). 0 or 1 (default) indicates upstream weighting, 2 is central-in-space
+#' @param nadvfd weighting scheme for implicit finite difference (mixelm = 0). 0 or 1 (default) indicates upstream weighting, 2 is central-in-space
 #' @param itrack particle-tracking method: 1 (default) = first-order Euler, 2 = fourth-order Runge-Kutta, 3 = hybrid. Only used when mixelm = 1, 2 or 3.
 #' @param wd concentration weighting factor used for operator splitting in particle tracking-based methods. Defaults to 0.5. Only used when mixelm = 1, 2 or 3.
 #' @param dceps Relative Cell Concentration Gradient below which advective transport is negligble. Defaults to 1e-5. Only used when mixelm = 1 or 3.

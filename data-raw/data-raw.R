@@ -13,6 +13,15 @@ rmtd_supported_packages <- tibble::tribble(
   'SSM',  'ssm',
   'TOB',  'tob'
 )
+rmtd_supported_output <- tibble::tribble(
+                                               ~type,   ~rmt,
+  'UNFORMATTED (SORBED/IMMOBILE) CONCENTRATION FILE',  'ucn',
+                                       'MASS BUDGET', 'cbud',
+                              'MASS BALANCE SUMMARY',  'mas',
+                        'CONCENTRATIONS OBSERVATION', 'cobs',
+                       'OBSERVED CONCENTRATION FILE',  'ocn',
+                           'OBSERVED MASS FLUX FILE',  'mfx'
+)
 rmtd_internal_nunit <- tibble::tribble(
   ~ftype, ~nunit,
   'BTN',      1,
@@ -53,6 +62,7 @@ rmtd_itype <- tibble::tribble(
 usethis::use_data(
   rmtd_supported_codes,
   rmtd_supported_packages,
+  rmtd_supported_output,
   rmtd_guide_shortcuts,
   rmtd_internal_nunit,
   rmtd_itype,

@@ -30,7 +30,7 @@ rmt_create_adv(
 
 \item{mxpart}{maximum number of moving particles. Only used when mixelm = 1 or 3. Defaults to 1e6}
 
-\item{nadvfd}{weighting scheme for implicit finite difference (mixelm = 1 or 3). 0 or 1 (default) indicates upstream weighting, 2 is central-in-space}
+\item{nadvfd}{weighting scheme for implicit finite difference (mixelm = 0). 0 or 1 (default) indicates upstream weighting, 2 is central-in-space}
 
 \item{itrack}{particle-tracking method: 1 (default) = first-order Euler, 2 = fourth-order Runge-Kutta, 3 = hybrid. Only used when mixelm = 1, 2 or 3.}
 

@@ -7,7 +7,7 @@
 rmti_list_packages(type = "usgs")
 }
 \arguments{
-\item{type}{character denoting type of packages to list; possible values are \code{'usgs' (default), 'mt3dms'}}
+\item{type}{character denoting type of packages to list; possible values are \code{'usgs' (default), 'mt3dms', 'output'}}
 }
 \value{
 data.frame with ftype and rmt columns denoting the MT3DMS and \code{RMT3DMS} abbreviations for the requested packages
@@ -16,7 +16,7 @@ data.frame with ftype and rmt columns denoting the MT3DMS and \code{RMT3DMS} abb
 List supported MT3DMS/MT3D-USGS packages
 }
 \details{
-'usgs' holds all packages; 'mt3dms' is a subset
+'usgs' holds all packages; 'mt3dms' is a subset, 'output' lists all supported output types
 }
 \note{
 this function should be updated every time a new MT3DMS package is supported in \code{RMT3DMS}

@@ -25,6 +25,15 @@ rmt_create <- function(..., recreate_nam = FALSE, ftl, ftl_free = NULL, print = 
   
   mt3dms <- list(...)
   if(length(mt3dms) == 1 && inherits(mt3dms[[1]], c('list', 'mt3dms')) && !('rmt_package' %in% class(mt3dms[[1]]))) mt3dms <- unclass(mt3dms[[1]])
+  
+  # drop output objects
+  output_classes <- rmti_list_packages(type = 'output')
+  any_output <- vapply(mt3dms, function(i) any(output_classes$rmt %in% class(i)), TRUE)
+  if(sum(any_output) > 1) {
+    warning('Dropping RMT3DMS output objects', call. = FALSE)
+    mt3dms <- mt3dms[!any_output]
+  }
+  
   # check if all input are rmt_packages & add all input objects
   all_rmt <- vapply(mt3dms, function(i) 'rmt_package' %in% class(i), TRUE)
   if(prod(all_rmt) == 0) stop('Please make sure all objects are RMT3DMS rmt_package objects representing MT3DMS input', call. = FALSE)
@@ -280,7 +289,7 @@ rmt_read <- function(file = {cat('Please select nam file ...\n'); file.choose()}
 #' @details All arrays use IREAD 0 or 103 (constant/free) unless \code{mt3dms$btn$modflowstylearrays = TRUE} in which case free-format headers INTERNAL or CONSTANT are used.
 #'          All packages will be written according to the filenames (fname) defined in the nam object.
 #'          To prevent any files being overwritten, it is best to write to an empty directory.
-#' @seealso \code{\link{rmt_create}}, \code{\link{rmt_write}}
+#' @seealso \code{\link{rmt_create}}, \code{\link{rmt_read}}
 #' @examples
 #' btn <- rmt_create_btn()
 #' adv <- rmt_create_adv()

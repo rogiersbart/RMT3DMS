@@ -53,11 +53,11 @@ rmti_ifelse0 <- function(test, yes, no) {
 
 #' List supported MT3DMS/MT3D-USGS packages
 #'
-#' @param type character denoting type of packages to list; possible values are \code{'usgs' (default), 'mt3dms'}
+#' @param type character denoting type of packages to list; possible values are \code{'usgs' (default), 'mt3dms', 'output'}
 #'
 #' @return data.frame with ftype and rmt columns denoting the MT3DMS and \code{RMT3DMS} abbreviations for the requested packages
 #' @keywords internal
-#' @details 'usgs' holds all packages; 'mt3dms' is a subset
+#' @details 'usgs' holds all packages; 'mt3dms' is a subset, 'output' lists all supported output types
 #' @note this function should be updated every time a new MT3DMS package is supported in \code{RMT3DMS}
 rmti_list_packages <- function(type = 'usgs') {
   
@@ -72,8 +72,12 @@ rmti_list_packages <- function(type = 'usgs') {
   # MT3DMS
   mt3dms <- c('btn', 'adv', 'dsp', 'ssm', 'rct', 'gcg', 'tob', 'hss')
   
-  # subset
-  df <- subset(df, rmt %in% get(type))
+  # subset or output
+  if(type == 'output') {
+    df <- rmtd_supported_output
+  } else {
+    df <- subset(df, rmt %in% get(type))
+  }
 
   return(df)
 }

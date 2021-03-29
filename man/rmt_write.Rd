@@ -56,5 +56,5 @@ rmt_write(m, f2, exclude = 'dsp')
 }
 }
 \seealso{
-\code{\link{rmt_create}}, \code{\link{rmt_write}}
+\code{\link{rmt_create}}, \code{\link{rmt_read}}
 }
