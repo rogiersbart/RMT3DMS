@@ -288,6 +288,25 @@ rmt_read_ocn <- function(file = {cat('Please select ocn file ...\n'); file.choos
   if(res) nms <- c(nms, 'observed', 'weight', ifelse(logd, 'log_residual', 'residual'))
   cpr <- setNames(data.frame(matrix(ncol = length(nms), nrow = 0)), nms)
   
+  # 
+  # MT3D-USGS writes NCOMP copies of output for each step in a multispecies simulation
+  # Code below finds steps that are unique (first copy written)
+  read_timing <- function(sp) {
+    stress <- as.numeric(strsplit(ocn_lines[sp], ':')[[1]][2])
+    fts <- as.numeric(strsplit(ocn_lines[sp + 1], ':')[[1]][2])
+    tts <- as.numeric(strsplit(ocn_lines[sp + 2], ':')[[1]][2])
+    return(c(stress, fts, tts))
+  }
+  timing.lst <- lapply(1:length(sp_id), function(i) read_timing(sp_id[i]))
+  timing.df <- data.frame(do.call(rbind, timing.lst))
+  timing.ids <- which(!duplicated(timing.df))
+  
+  # subset, using only the first copies written
+  sp_id <- sp_id[timing.ids]
+  strt_id <- strt_id[timing.ids]
+  end_id <- end_id[timing.ids]
+  # 
+  
   # helper function
   read_data <- function(sp, start, end) {
     stress <- as.numeric(strsplit(ocn_lines[sp], ':')[[1]][2])
@@ -366,6 +385,25 @@ rmt_read_mfx <- function(file = {cat('Please select mfx file ...\n'); file.choos
   nms <- c('stress_period', 'time_step', 'transport_step', 'total_elapsed_time', 'group.no', 'name', 'time', 'species', 'calculated')
   if(res) nms <- c(nms, 'observed', 'weight', ifelse(logd, 'log_residual', 'residual'))
   cpr <- setNames(data.frame(matrix(ncol = length(nms), nrow = 0)), nms)
+  
+  # 
+  # MT3D-USGS writes NCOMP copies of output for each step in a multispecies simulation
+  # Code below finds steps that are unique (first copy written)
+  read_timing <- function(sp) {
+    stress <- as.numeric(strsplit(mfx_lines[sp], ':')[[1]][2])
+    fts <- as.numeric(strsplit(mfx_lines[sp + 1], ':')[[1]][2])
+    tts <- as.numeric(strsplit(mfx_lines[sp + 2], ':')[[1]][2])
+    return(c(stress, fts, tts))
+  }
+  timing.lst <- lapply(1:length(sp_id), function(i) read_timing(sp_id[i]))
+  timing.df <- data.frame(do.call(rbind, timing.lst))
+  timing.ids <- which(!duplicated(timing.df))
+  
+  # subset, using only the first copies written
+  sp_id <- sp_id[timing.ids]
+  strt_id <- strt_id[timing.ids]
+  end_id <- end_id[timing.ids]
+  # 
   
   # helper function
   read_data <- function(sp, start, end) {
