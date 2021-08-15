@@ -341,7 +341,7 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
     if(btn$ncomp > 1) {
       widths <- readr::fwf_widths(c(rep(10, 5), NA))
       cols <- do.call(readr::cols_only, as.list(c(rep('i', 3), rep('d', 2), 'c')))
-      df <- as.data.frame(readr::read_fwf(lines, widths, col_types = cols))
+      df <- as.data.frame(readr::read_fwf(I(lines), widths, col_types = cols))
       
       df <- replace(df, which(is.na(df), arr.ind = TRUE), 0)
       
@@ -356,7 +356,7 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
     } else {
       widths <- readr::fwf_widths(c(rep(10, 5)))
       cols <- do.call(readr::cols_only, as.list(c(rep('i', 3), rep('d', 2))))
-      df <- as.data.frame(readr::read_fwf(lines, widths, col_types = cols))
+      df <- as.data.frame(readr::read_fwf(I(lines), widths, col_types = cols))
       
       df <- replace(df, which(is.na(df), arr.ind = TRUE), 0)
       colnames(df) <- c('k', 'i', 'j', 'css1', 'itype')
@@ -577,7 +577,7 @@ rmt_write_ssm <- function(ssm,
         fmt <- paste0(c(rep('%10i', 3), '%10g', '%10i', rep('%10g', btn$ncomp)), collapse = '')
       }
       dff <- do.call('sprintf', c(df, fmt))
-      readr::write_lines(dff, path = file, append = TRUE)
+      readr::write_lines(dff, file = file, append = TRUE)
     }
 
   }

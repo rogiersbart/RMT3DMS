@@ -127,7 +127,7 @@ rmti_parse_comments <- function(remaining_lines, id = NULL) {
 #' @keywords internal
 rmti_parse_ftl_header <- function(file, binary = NULL) {
   
-  lines <- readr::read_lines(file, n_max = 40)
+  lines <- suppressWarnings(readr::read_lines(file, n_max = 40, lazy = FALSE)) # warning from readr with parsing issues if file is binary
   lg <- structure(rep(FALSE, 3), names = c('frch', 'fevt', 'fuzf'))
   
   # binary <- FALSE

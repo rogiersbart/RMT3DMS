@@ -386,7 +386,7 @@ rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choos
     
     widths <- readr::fwf_widths(c(rep(10, 3)))
     cols <- do.call(readr::cols_only, as.list(rep('i', 3)))
-    df <- as.data.frame(readr::read_fwf(lines, widths, col_types = cols))
+    df <- as.data.frame(readr::read_fwf(I(lines), widths, col_types = cols))
     df <- replace(df, which(is.na(df), arr.ind = TRUE), 0)
     colnames(df) <- c('k', 'i', 'j')
     btn$obs <- df[1:nobs,]
@@ -544,7 +544,7 @@ rmt_write_btn <- function(btn,
     # readr (fast)
     fmt <- paste0(rep('%10i', 3), collapse = '')
     dff <- do.call('sprintf', c(btn$obs[,c('k','i','j')], fmt))
-    readr::write_lines(dff, path = file, append = TRUE)
+    readr::write_lines(dff, file = file, append = TRUE)
   }
   
   # Data set 20
