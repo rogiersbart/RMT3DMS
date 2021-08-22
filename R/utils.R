@@ -223,7 +223,7 @@ rmt_convert_dis_to_btn <- function(dis, nper = dis$nper, perlen = dis$perlen[1:n
 #' btn <- rmt_create_btn(nper = 2, perlen = c(1000, 500))
 #' rmt_convert_btn_to_dis(btn, nper = 1, perlen = 1, nstp = 1, tsmult = 1)
 #' 
-#' otherwise converts to dis object with only first stress period steady-state
+#' # otherwise converts to dis object with only first stress period steady-state
 #' rmt_convert_btn_to_dis(btn)
 #' 
 rmt_convert_btn_to_dis <- function(btn,
@@ -379,37 +379,45 @@ rmt_create_array <- function(obj = NA,
 
 #' @export
 "[.rmt_4d_array" <-  function(x, i, j, k, l, ...) {
+  attr(x, 'dimnames') <- NULL
   if(missing(i) && missing(j) && missing(k) && missing(l)) return(x)
   miss <- c(missing(i) || length(i) > 1, missing(j) || length(j) > 1, missing(k) || length(k) > 1, missing(l) || length(l) > 1)
   drop <- ifelse('drop' %in% names(list(...)), list(...)[['drop']], sum(miss) < 2)
+  drop_given <- 'drop' %in% names(list(...))
   
   obj <-  NextMethod(..., drop = drop)
   
-  # # l missing -> always 4d unless all other indices are given
-  # if(!drop && sum(miss) > 1) {
-  #   if(!miss[4]) {
-  #     dim(obj) <- dim(obj)[miss]
-  #   } 
-  # } 
+  # l missing -> always 4d unless all other indices are given
+  if(!drop && sum(miss) > 1 && !drop_given) {
+    if(!miss[4]) {
+      dim(obj) <- dim(obj)[miss]
+      rst_lbl <- TRUE
+    } else {
+      rst_lbl <- FALSE
+    }
+  } else {
+    rst_lbl <- FALSE
+  }
   
   if (length(dim(obj)) == 2) {
     class(obj) <- replace(class(x), class(x) == 'rmt_4d_array', 'rmt_2d_array')
     class(obj) <- replace(class(obj), class(obj) == 'rmf_4d_array', 'rmf_2d_array')
-  }
-  else if (length(dim(obj)) == 3) {
+    rst_lbl <- TRUE
+  } else if (length(dim(obj)) == 3) {
     class(obj) <- replace(class(x), class(x) == 'rmt_4d_array', 'rmt_3d_array')
     class(obj) <- replace(class(obj), class(obj) == 'rmf_4d_array', 'rmf_3d_array')
-  } 
-  else if (length(dim(obj)) == 4) {
+    rst_lbl <- TRUE
+  } else if (length(dim(obj)) == 4) {
     class(obj) <- class(x)
   } else {
     class(obj) <- subset(class(x), !(class(x) %in% c('rmt_4d_array', 'rmf_4d_array')))
+    rst_lbl <- TRUE
   }
   attrs <- attributes(obj)
   id <- names(attributes(x))
   id <- id[!(id %in% c('dim', 'class'))]
   if(length(id) > 0) attributes(obj) <- append(attrs, attributes(x)[id])
-  attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[rmti_ifelse0(miss[4], rmti_ifelse0(!drop && sum(miss) > 1, rep(TRUE, 4), miss), miss)]
+  if(rst_lbl) attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[rmfi_ifelse0(miss[4], rmfi_ifelse0(!drop && sum(miss) > 1, rep(TRUE, 4), miss), miss)]
   if(!missing(l)) {
     if(!is.null(attr(obj,'kstp'))) attr(obj,'kstp') <- attr(obj,'kstp')[l]
     if(!is.null(attr(obj,'kper'))) attr(obj,'kper') <- attr(obj,'kper')[l]
@@ -424,30 +432,37 @@ rmt_create_array <- function(obj = NA,
 
 #' @export
 "[.rmt_3d_array" <-  function(x, i, j, k, ...) {
+  attr(x, 'dimnames') <- NULL
   if(missing(i) && missing(j) && missing(k)) return(x)
   miss <- c(missing(i) || length(i) > 1, missing(j) || length(j) > 1, missing(k) || length(k) > 1)
   drop <- ifelse('drop' %in% names(list(...)), list(...)[['drop']], sum(miss) < 2)
+  drop_given <- 'drop' %in% names(list(...))
   
   obj <-  NextMethod(..., drop = drop)
   
-  # if(!drop && sum(miss) > 1) {
-  #   dim(obj) <- dim(obj)[miss]
-  # } 
+  if(!drop && sum(miss) > 1 && !drop_given) {
+    dim(obj) <- dim(obj)[miss]
+    rst_lbl <- TRUE
+  } else {
+    rst_lbl <- FALSE
+  }
   
   if (length(dim(obj)) == 2) {
     class(obj) <- replace(class(x), class(x) == 'rmt_3d_array', 'rmt_2d_array')
     class(obj) <- replace(class(obj), class(obj) == 'rmf_3d_array', 'rmf_2d_array')
-  }
-  else if (length(dim(obj)) == 3) {
+    rst_lbl <- TRUE
+  } else if (length(dim(obj)) == 3) {
     class(obj) <- class(x)
   } else {
     class(obj) <- subset(class(x), !(class(x) %in% c('rmt_3d_array', 'rmf_3d_array')))
+    rst_lbl <- TRUE
   }
+  
   attrs <- attributes(obj)
   id <- names(attributes(x))
   id <- id[!(id %in% c('dim', 'class'))]
   if(length(id) > 0) attributes(obj) <- append(attrs, attributes(x)[id])
-  attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[miss]
+  if(rst_lbl) attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[miss]
   if(is.null(dim(obj))) attributes(obj) <- NULL
   
   return(obj)
@@ -455,27 +470,33 @@ rmt_create_array <- function(obj = NA,
 
 #' @export
 "[.rmt_2d_array" <-  function(x, i, j, ...) {
+  attr(x, 'dimnames') <- NULL
   if(missing(i) && missing(j)) return(x)
   miss <- c(missing(i) || length(i) > 1, missing(j) || length(j) > 1)
   drop <- ifelse('drop' %in% names(list(...)), list(...)[['drop']], sum(miss) < 2)
+  drop_given <- 'drop' %in% names(list(...))
   
   obj <-  NextMethod(..., drop = drop)
   
-  # if(!drop && sum(miss) > 1) {
-  #   dim(obj) <- dim(obj)[miss]
-  # } 
+  if(!drop && sum(miss) > 1 && !drop_given) {
+    dim(obj) <- dim(obj)[miss]
+    rst_lbl <- TRUE
+  } else {
+    rst_lbl <- FALSE
+  }
   
   if (length(dim(obj)) == 2) {
     class(obj) <- class(x)
   } else {
     class(obj) <- subset(class(x), !(class(x) %in% c('rmt_2d_array', 'rmf_2d_array')))
+    rst_lbl <- TRUE
   }
   
   attrs <- attributes(obj)
   id <- names(attributes(x))
   id <- id[!(id %in% c('dim', 'class'))]
   if(length(id) > 0) attributes(obj) <- append(attrs, attributes(x)[id])
-  attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[miss]
+  if(rst_lbl) attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[miss]
   if(is.null(dim(obj))) attributes(obj) <- NULL
   
   return(obj)

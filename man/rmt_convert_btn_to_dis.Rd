@@ -51,7 +51,7 @@ rmt_convert_btn_to_dis(btn)
 btn <- rmt_create_btn(nper = 2, perlen = c(1000, 500))
 rmt_convert_btn_to_dis(btn, nper = 1, perlen = 1, nstp = 1, tsmult = 1)
 
-otherwise converts to dis object with only first stress period steady-state
+# otherwise converts to dis object with only first stress period steady-state
 rmt_convert_btn_to_dis(btn)
 
 }

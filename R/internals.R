@@ -114,6 +114,29 @@ rmti_parse_comments <- function(remaining_lines, id = NULL) {
   return(list(comments = comments, remaining_lines = remaining_lines))
 }
 
+#' Check if the FTL file is binary
+#'
+#' @param file pathname to the flow-transport link file, typically '*.ftl'
+#'
+#' @return logical indicating if the FTL file is binary or keyword 'empty' if file is empty.
+#' @keywords internal
+rmti_check_ftl_binary <- function(file) {
+  
+  lines <- readr::read_lines_raw(file, n_max = 10) # readr::read_lines might crash session
+  
+  # TODO this is a weak check for binary
+  header <- rawToChar(unlist(lines)[1:4])
+  binary <- toupper(header) %in% c('MT3D', 'MTGS')
+  # if(rawToChar(unlist(lines)[2]) == '') binary <- TRUE
+  
+  if(!binary) {
+    cnv <- unlist(lapply(lines, rawToChar))
+    binary <- ifelse(is.na(cnv[2]), 'empty', binary)
+  }
+
+  return(binary)
+}
+
 #' Read the package header from a flow-transport link file
 #'
 #' @param file pathname to the flow-transport link file, typically '*.ftl'
@@ -127,19 +150,14 @@ rmti_parse_comments <- function(remaining_lines, id = NULL) {
 #' @keywords internal
 rmti_parse_ftl_header <- function(file, binary = NULL) {
   
-  lines <- suppressWarnings(readr::read_lines(file, n_max = 40, lazy = FALSE)) # warning from readr with parsing issues if file is binary
   lg <- structure(rep(FALSE, 3), names = c('frch', 'fevt', 'fuzf'))
   
-  # binary <- FALSE
-  # v <- suppressWarnings(strsplit(lines[1], '')[[1]])
-  # if(length(v) == 1 && is.na(v)) binary <- TRUE
+  # check if ftl file is binary
+  if(is.null(binary)) {
+    binary <- rmti_check_ftl_binary(file)
+  }
   
-  if(!is.na(lines[2])) {
-    if(is.null(binary)) {
-      # TODO this is a weak check for binary
-      binary <- !validUTF8(lines[2])
-      if(lines[2] == '') binary <- TRUE
-    }
+  if(!(binary == 'empty')) {
 
     if(binary) { # binary
       con <- file(file, open = 'rb')
@@ -180,6 +198,7 @@ rmti_parse_ftl_header <- function(file, binary = NULL) {
       close(con)
       
     } else { # ASCII
+      lines <- readr::read_lines(file, n_max = 40, lazy = FALSE)
       rec <- rmti_parse_variables(lines, n = 10, format = 'free', character = TRUE)
       v <- trimws(rec$variables[1])
       if(as.numeric(rec$variables[4]) > 0) lg['frch'] <- TRUE

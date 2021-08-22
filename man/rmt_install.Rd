@@ -38,9 +38,12 @@ The default installation location is `file.path(system.file(package =
  set by the `RMT3DMS.path` option.
 }
 \examples{
+\dontrun{
 rmt_install() # Install all codes.
 rmt_install("MT3D-USGS", overwrite = TRUE) # Install MT3D-USGS.
 rmt_install("MT3DMS", overwrite = TRUE) # Install MT3DMS.
+}
+
 \dontrun{
 rmt_installed_codes()
 }

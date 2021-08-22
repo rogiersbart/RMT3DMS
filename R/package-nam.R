@@ -50,10 +50,8 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
     ftl_ftype <- 'FTL'
     ftl_fname <- ftl
     if(is.null(ftl_free)) {
-      ftl.lines <- readr::read_lines(ftl, n_max = 4)
-      # TODO this is a weak check for binary
-      binary <- !validUTF8(ftl.lines[2])
-      if(ftl.lines[2] == '') binary <- TRUE
+      binary <- rmti_check_ftl_binary(ftl)
+      if(binary == 'empty') stop('FTL file is empty', call. = FALSE)
     } else {
       binary <- !ftl_free
     }

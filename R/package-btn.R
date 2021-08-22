@@ -57,7 +57,8 @@
 #' @seealso \code{\link{rmt_read_btn}}, \code{\link{rmt_write_btn}}
 #' @examples
 #' rmt_create_btn()
-#' rmt_create_btn(nper = 3, prsity = array(rep(c(0.1, 0.01, 0.3), each = 100), dim = c(10, 10, 3)))
+#' prsity <- array(rep(c(0.1, 0.01, 0.3), each = 100), dim = c(10, 10, 3))
+#' rmt_create_btn(nper = 3, prsity = prsity)
 #' 
 #' # multi-species; sconc for species 1 is from rnorm, sconc for species 2 = 0.2
 #' sconc1 <- rmt_create_array(rnorm(100, 0.1, sd = 0.01), dim = c(10, 10, 3))

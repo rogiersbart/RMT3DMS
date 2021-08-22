@@ -19,10 +19,12 @@
 #'   An error message is issued otherwise.
 #' @export
 #' @examples
+#' \dontrun{
 #' rmt_install() # Install all codes.
 #' rmt_install("MT3D-USGS", overwrite = TRUE) # Install MT3D-USGS.
 #' rmt_install("MT3DMS", overwrite = TRUE) # Install MT3DMS.
-
+#' }
+#' 
 rmt_install <- function(code = "all", overwrite = NULL) {
   if (code[1] == "all") {
     rmti_install_code(rmtd_supported_codes, overwrite = overwrite)
@@ -33,7 +35,7 @@ rmt_install <- function(code = "all", overwrite = NULL) {
   if (!all(code %in% codes)) {
     rui::alert("Installing codes other than MT3D-USGS or MT3DMS",
                "is currently not supported.")
-    rui::stop("Issue with code name.")
+    rui::error("Issue with code name.")
   }
   rmti_install_code(code, overwrite = overwrite)
   invisible()
@@ -57,7 +59,7 @@ rmt_installed_codes <- function() {
     rui::approve('Following codes have been installed in {.path {loc}}:')
     for(i in codes) rui::inform(i)
   }
-  return(invisible(codes))
+  return(invisible(setNames(codes, NULL)))
 }
 
 #' Install codes
@@ -84,14 +86,14 @@ rmti_download_code <- function(code, dir, os, overwrite) {
     if(os == 'Windows') {
       x <- "https://water.usgs.gov/water-resources/software/MT3D-USGS/mt3dusgs1.1.0.zip"
     } else {
-      rui::stop("{code} is not available for your operating system.")
+      rui::error("{code} is not available for your operating system.")
     }
     folder <- gsub('\\.zip', '', basename(x))
   } else if(code == 'MT3DMS') {
     if(os == 'Windows') {
       x <- "https://hydro.geo.ua.edu/mt3d/mt3dms_530.exe"
     } else {
-      rui::stop("{code} is not available for your operating system.")
+      rui::error("{code} is not available for your operating system.")
     }
     folder <- gsub('\\.exe', '', basename(x))
   }
@@ -103,7 +105,7 @@ rmti_download_code <- function(code, dir, os, overwrite) {
       rui::alert("You have already installed {code} in {mt_dir}")
       install <- rui::ask("Do you want to reinstall?")
     } else if (is.null(overwrite)) {
-      rui::stop(c("{code} version already exists in {mt_dir}",
+      rui::error(c("{code} version already exists in {mt_dir}",
                   "Set overwrite to TRUE if you want replace it."))
     } else if (overwrite) {
       install <- TRUE
@@ -123,7 +125,7 @@ rmti_download_code <- function(code, dir, os, overwrite) {
       temp <- tempfile()
       download.file(x, temp, quiet = TRUE)
     }
-    rui::update("Installing {code}")
+    rui::proceed("Installing {code}")
     if(code == 'MT3DMS') {
       # MT3DMS has a self-extracting file that can be called from a terminal instead of a zip file
       out <- processx::run(file.path(temp, basename(x)), c('/auto', mt_dir), wd = temp, stdout_line_callback = NULL)

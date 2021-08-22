@@ -127,7 +127,7 @@ rmti_find <- function(
       } else if (file.exists(Sys.which(code))) {
         return(Sys.which(code))
       } else {
-        rui::stop("Path to {code} executable not found.")
+        rui::error("Path to {code} executable not found.")
       }
     }
     return(file.path(folder, executable))
@@ -148,14 +148,14 @@ rmti_find <- function(
       } else if (file.exists(Sys.which(code))) {
         return(Sys.which(code))
       } else {
-        rui::stop("Path to {code} executable not found.")
+        rui::error("Path to {code} executable not found.")
       }
     }
     return(file.path(folder, executable))
   } 
   rui::alert("Finding paths to the executables of codes other than ",
              "MT3D-USGS or MT3DMS is currently not supported.")
-  rui::stop("Issue with code path.")
+  rui::error("Issue with code path.")
 }
 
 
@@ -176,12 +176,12 @@ rmti_line_callback <- function(line, process) {
   }
   if (grepl("Specified Name does not exist", line)) {
     rui::alert(line)
-    rui::stop("Issue with the name file path.")
+    rui::error("Issue with the name file path.")
     return(invisible())
   }
   if (grepl("NAME FILE IS EMPTY", line)) {
     rui::alert(line)
-    rui::stop("Issue with the name file.")
+    rui::error("Issue with the name file.")
     return(invisible())
   }
   rui::inform(line)
