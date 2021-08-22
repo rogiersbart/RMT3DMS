@@ -417,7 +417,7 @@ rmt_create_array <- function(obj = NA,
   id <- names(attributes(x))
   id <- id[!(id %in% c('dim', 'class'))]
   if(length(id) > 0) attributes(obj) <- append(attrs, attributes(x)[id])
-  if(rst_lbl) attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[rmfi_ifelse0(miss[4], rmfi_ifelse0(!drop && sum(miss) > 1, rep(TRUE, 4), miss), miss)]
+  if(rst_lbl) attr(obj, 'dimlabels') <- attr(obj, 'dimlabels')[rmti_ifelse0(miss[4], rmti_ifelse0(!drop && sum(miss) > 1, rep(TRUE, 4), miss), miss)]
   if(!missing(l)) {
     if(!is.null(attr(obj,'kstp'))) attr(obj,'kstp') <- attr(obj,'kstp')[l]
     if(!is.null(attr(obj,'kper'))) attr(obj,'kper') <- attr(obj,'kper')[l]

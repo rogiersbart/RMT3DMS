@@ -108,7 +108,9 @@ rmt_read_bud <- function(file = {cat('Please select MT3DMS listing file ...\n');
 #' @export
 rmt_read_mas <- function(file = {cat('Please select mas file ...\n'); file.choose()}) {
   names <- c('time','total_in','total_out','sources','sinks','net_mass_from_fluid_storage','total_mass_in_aquifer','discrepancy_total_in_out','discrepancy_alternative')
-  mas <- readr::read_table(file, col_names = names, col_types = readr::cols(.default = readr::col_double()), skip = 2)
+  mas <- suppressWarnings(readr::read_table(file, col_names = FALSE, col_types = readr::cols(.default = 'd'), skip = 2)) # suppress warnings of extra empty columns
+  mas <- mas[,1:length(names)]
+  mas <- setNames(mas, names)
   class(mas) <- c('mas', class(mas))
   return(mas)
 }
