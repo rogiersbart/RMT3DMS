@@ -264,7 +264,7 @@ rmt_read_ssm <- function(file = {cat('Please select ssm file ...\n'); file.choos
                          ftl_free = NULL,
                          ...) {
   
-  ssm_lines <- readr::read_lines(file)
+  ssm_lines <- readr::read_lines(file, lazy = FALSE)
 
   # data set 1 is not compulsary. It can also be read from the ftl file. If not read from ftl file, not possible to know if uzf is active
   # rmt_read_ssm only needs to know if rch, evt or uzf are used

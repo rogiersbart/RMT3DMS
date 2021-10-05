@@ -111,7 +111,7 @@ rmt_create_nam <- function(..., ftl = {cat('Please select corresponding ftl file
 rmt_read_nam <- function(file = {cat('Please select nam file ...\n'); file.choose()}) {
   
   nam <- list()
-  lines <- readr::read_lines(file)
+  lines <- readr::read_lines(file, lazy = FALSE)
   
   # top comments
   data_set_0 <- rmti_parse_comments(lines)

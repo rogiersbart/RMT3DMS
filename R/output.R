@@ -12,7 +12,7 @@ rmt_read_bud <- function(file = {cat('Please select MT3DMS listing file ...\n');
   
   # kstp, kper, tstp, tnstp, total_time, variables
   
-  lst.lines <- readr::read_lines(file)
+  lst.lines <- readr::read_lines(file, lazy = FALSE)
   headers <- grep(">>>>>>>FOR COMPONENT NO.", lst.lines)
   enders <- grep("[TOTAL]", lst.lines, fixed = TRUE)
   
@@ -144,7 +144,7 @@ rmt_read_obs <- function(file = {cat('Please select obs file ...\n'); file.choos
   }
   
   # OBS files have wrapped format if nobs > 16. Difficult to use readr::read_table
-  lines <- readr::read_lines(file)
+  lines <- readr::read_lines(file, lazy = FALSE)
   n_rm <- nobs %/% 16 + ifelse((nobs %% 16) > 0, 1, 0) + 1 # OBS file format per line is 16; line 1 has to be removed as well
   # TODO spead up line below
   values <- as.numeric(unlist(lapply(strsplit(lines[-c(1:n_rm)], '\\s'), rmti_remove_empty_strings)))
@@ -267,7 +267,7 @@ rmt_read_ucn <- function(file = {cat('Please select ucn file ...\n'); file.choos
 #' @seealso \code{\link{rmt_read_mfx}}, \code{\link{rmt_read_pst}} and \code{\link{rmt_create_tob}}
 rmt_read_ocn <- function(file = {cat('Please select ocn file ...\n'); file.choose()}) {
   
-  ocn_lines <- readr::read_lines(file)
+  ocn_lines <- readr::read_lines(file, lazy = FALSE)
   
   sp_id <- grep('STRESS PERIOD', ocn_lines)
   wellid <- grep('WELLID', ocn_lines)
@@ -366,7 +366,7 @@ rmt_read_ocn <- function(file = {cat('Please select ocn file ...\n'); file.choos
 #' @seealso \code{\link{rmt_read_mfx}}, \code{\link{rmt_read_pst}} and \code{\link{rmt_create_tob}}
 rmt_read_mfx <- function(file = {cat('Please select mfx file ...\n'); file.choose()}) {
   
-  mfx_lines <- readr::read_lines(file)
+  mfx_lines <- readr::read_lines(file, lazy = FALSE)
   
   sp_id <- grep('STRESS PERIOD', mfx_lines)
   groupid <- grep('NO.', mfx_lines)

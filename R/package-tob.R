@@ -306,7 +306,7 @@ rmt_create_tob <- function(locations = NULL,
 #' @seealso \code{\link{rmt_create_tob}}, \code{\link{rmt_write_tob}}
 rmt_read_tob <- function(file = {cat('Please select tob file ...\n'); file.choose()}) {
   
-  tob_lines <- readr::read_lines(file)
+  tob_lines <- readr::read_lines(file, lazy = FALSE)
   tob <- list()
   
   # Data set 0

@@ -55,7 +55,7 @@ rmt_create_gcg <- function(mxiter = 1,
 #' @seealso \code{\link{rmt_create_gcg}}, \code{\link{rmt_write_gcg}}
 rmt_read_gcg <- function(file = {cat('Please select gcg file ...\n'); file.choose()}) {
   
-  gcg_lines <- readr::read_lines(file)
+  gcg_lines <- readr::read_lines(file, lazy = FALSE)
   gcg <- list()
   
   # Data set 1

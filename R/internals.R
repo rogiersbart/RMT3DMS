@@ -398,7 +398,7 @@ rmti_parse_array <- function(remaining_lines, nrow, ncol, nlay, ndim,
               }
               
             } else { # read from external file
-              external_lines <-  readr::read_lines(absfile)
+              external_lines <-  readr::read_lines(absfile, lazy = FALSE)
               # remove lines of previous arrays
               if(!is.null(attr(nam, as.character(iread)))) external_lines <- external_lines[-c(1:attr(nam, as.character(iread)))]
               

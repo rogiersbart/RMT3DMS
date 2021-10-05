@@ -69,7 +69,7 @@ rmt_read_dsp <- function(file = {cat('Please select dsp file ...\n'); file.choos
                      btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},
                      ...) {
   
-  dsp_lines <- readr::read_lines(file)
+  dsp_lines <- readr::read_lines(file, lazy = FALSE)
   dsp <- list()
   
   # Data set 0

@@ -298,7 +298,7 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
                          btn = {cat('Please select corresponding btn file ...\n'); rmt_read_btn(file.choose())},
                          ...) {
   
-  rct_lines <- readr::read_lines(file)
+  rct_lines <- readr::read_lines(file, lazy = FALSE)
   rct <- list()
   
   # Data set 1
@@ -470,7 +470,7 @@ rmt_read_rct <- function(file = {cat('Please select rct file ...\n'); file.choos
     rm(data_set_9b)
     
     rct_file <- file.path(dirname(file), rct$rec_filename)
-    rec_lines <- readr::read_lines(rct_file)
+    rec_lines <- readr::read_lines(rct_file, lazy = FALSE)
     
     # read rec_file ----
     

@@ -100,7 +100,7 @@ rmt_create_adv <- function(mixelm = -1,
 #' @seealso \code{\link{rmt_create_adv}}, \code{\link{rmt_write_adv}}
 rmt_read_adv <- function(file = {cat('Please select adv file ...\n'); file.choose()}) {
   
-  adv_lines <- readr::read_lines(file)
+  adv_lines <- readr::read_lines(file, lazy = FALSE)
   adv <- list()
   
   # Data set 1

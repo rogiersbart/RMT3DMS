@@ -3,9 +3,9 @@ Type: Package
 Title: Pre- and post-processing of MT3DMS & MT3D-USGS files
 Version: 0.3.0.9999
 Date: 2016-01-07
-Authors@R: person("Bart", "Rogiers", role = c("aut", "cre"), email = "brogiers@sckcen.be")
-Author: Bart Rogiers <brogiers@sckcen.be>
-Maintainer: Bart Rogiers <brogiers@sckcen.be>
+Authors@R: c(
+    person("Bart", "Rogiers", role = c("aut", "cre"), email = "brogiers@sckcen.be"),
+    person("Cas", "Neyens", role = "aut", email = "cas.neyens@vub.be"))
 Description: The RMT3DMS package provides a set of tools for solute transport
     modelling with MT3DMS and MT3D-USGS.
 License: GPL (>= 2)

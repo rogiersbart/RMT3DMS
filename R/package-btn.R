@@ -232,7 +232,7 @@ rmt_create_btn <- function(nlay = 3,
 #' @seealso \code{\link{rmt_create_btn}}, \code{\link{rmt_write_btn}}
 rmt_read_btn <- function(file = {cat('Please select btn file ...\n'); file.choose()}, ...) {
   
-  btn_lines <- readr::read_lines(file)
+  btn_lines <- readr::read_lines(file, lazy = FALSE)
   btn <- list()
   
   # Data set 1-2
