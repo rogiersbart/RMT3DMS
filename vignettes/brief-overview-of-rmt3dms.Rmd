@@ -1,0 +1,12 @@
+
+
+
+
+
+# file extensions and function names
+
+
+
+| file type | RMT3DMS function names and file extensions | ModelMuse file extensions |
+|-----------|--------------------------------------------|---------------------------|
+|  | mas | _mas |
