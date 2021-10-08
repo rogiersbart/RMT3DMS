@@ -1,6 +1,6 @@
 RMT3DMS
 =======
-The RMT3DMS package provides a set of tools for solute transport modelling with MT3DMS.
+The RMT3DMS package provides a set of tools for solute transport modelling with MT3DMS & MT3D-USGS.
 
 To install:
 

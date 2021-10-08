@@ -1,18 +1,38 @@
 Package: RMT3DMS
 Type: Package
-Title: Pre- and post-processing of MT3DMS files
+Title: Pre- and post-processing of MT3DMS & MT3D-USGS files
 Version: 0.3.0.9999
 Date: 2016-01-07
-Authors@R: person("Bart", "Rogiers", role = c("aut", "cre"), email = "brogiers@sckcen.be")
-Author: Bart Rogiers <brogiers@sckcen.be>
-Maintainer: Bart Rogiers <brogiers@sckcen.be>
+Authors@R: c(
+    person("Bart", "Rogiers", role = c("aut", "cre"), email = "brogiers@sckcen.be"),
+    person("Cas", "Neyens", role = "aut", email = "cas.neyens@vub.be"))
 Description: The RMT3DMS package provides a set of tools for solute transport
-    modelling with MT3DMS.
+    modelling with MT3DMS and MT3D-USGS.
 License: GPL (>= 2)
 Imports:
-    RMODFLOW,
     ggplot2,
-    readr
+    readr (>= 2.0.0),
+    RMODFLOW,
+    usethis,
+    tibble,
+    dplyr,
+    stringr,
+    purrr,
+    magrittr,
+    sf,
+    stars,
+    processx,
+    tidyr,
+    spectralscale,
+    rui,
+    lubridate
+Remotes:
+    rogiersbart/RMODFLOW@develop,
+    rogiersbart/spectralscale,
+    rogiersbart/rui
 URL: https://github.com/rogiersbart/RMT3DMS
 BugReports: https://github.com/rogiersbart/RMT3DMS/issues
-RoxygenNote: 5.0.1
+Encoding: UTF-8
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)
