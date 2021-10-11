@@ -1,17 +1,86 @@
-RMT3DMS
-=======
-The RMT3DMS package provides a set of tools for solute transport modelling with MT3DMS.
 
-To install:
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
-1. first install the devtools package: `install.packages("devtools")`
-2. load the devtools package: `library(devtools)`
-3. there is no major release of the RMT3DMS package yet
-  * to install version 0.3.0:
-    - install the RTOOLZ package: `install_github("rogiersbart/RTOOLZ@v0.3.0")`
-    - install RMODFLOW: `install_github("rogiersbart/RMT3DMS@v0.3.0")`
-  * to install the latest development version:
-    - install the RTOOLZ package: `install_github("rogiersbart/RTOOLZ")`
-    - install RMODFLOW: `install_github("rogiersbart/RMT3DMS")`
+# The {RMT3DMS} R package<br><small><font color="#999">Pre- and post-processing of MT3DMS & MT3D-USGS files</font></small>
 
-Find out more at http://rogiersbart.blogspot.com/search/label/Science, or track development at http://github.com/rogiersbart/RMT3DMS.
+<!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/RMT3DMS.svg)](https://CRAN.R-project.org/package=RMT3DMS)
+<!-- badges: end -->
+
+The {[RMT3DMS](https://rogiersbart.github.io/RMT3DMS)} R package
+provides a set of tools for solute transport modelling with
+[MT3DMS](https://hydro.geo.ua.edu/mt3d/mt3dms2.htm) &
+[MT3D-USGS](https://water.usgs.gov/ogw/mt3d-usgs/). It is closely
+related to the {[RMODFLOW](https://rogiersbart.github.io/RMODFLOW/)}
+package for groundwater flow modelling. The functionality is targeted at
+feature-parity with that of the
+[ModelMuse](https://www.usgs.gov/software/modelmuse-a-graphical-user-interface-groundwater-models)
+GUI and friends, albeit restricted to the
+[MODFLOW-2005](https://www.usgs.gov/software/modflow-2005-usgs-three-dimensional-finite-difference-ground-water-model)
+family of codes.
+
+## Install
+
+You can install the latest version of
+{[RMT3DMS](https://rogiersbart.github.io/RMT3DMS)} with any of the
+following:
+
+``` r
+renv::install("rogiersbart/RMT3DMS")
+pak::pkg_install("rogiersbart/RMT3DMS")
+remotes::install_github("rogiersbart/RMT3DMS")
+```
+
+If you don’t have {[renv](https://rstudio.github.io/renv/)},
+{[pak](https://pak.r-lib.org/)}, or
+{[remotes](https://remotes.r-lib.org/)} installed, try this instead:
+
+``` r
+install.packages("remotes")
+remotes::install_github("rogiersbart/RMT3DMS")
+```
+
+## Use
+
+Similar to {[RMODFLOW](https://rogiersbart.github.io/RMODFLOW)}, the
+{[RMT3DMS](https://rogiersbart.github.io/RMT3DMS)} package provides a
+set of functions to work on a file-by-file basis, and another to work
+with complete models. If you have an existing MT3D model, a good place
+to start is trying to read it in completely with:
+
+``` r
+library(RMT3DMS)
+my_model <- rmt_read("my-model.mt_nam")
+```
+
+And looking at the resulting object’s structure:
+
+``` r
+str(my_model)
+```
+
+You can install the solute transport codes in the default location with:
+
+``` r
+rmt_install()
+```
+
+And check if this went fine:
+
+``` r
+rmt_installed_codes()
+```
+
+To run your model, try:
+
+``` r
+rmt_execute("my-model.mt_nam")
+```
+
+## Note
+
+A more extensive introduction to the package will be available soon.
