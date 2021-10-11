@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Authors • RMT3DMS</title>
+<title>Read an MT3DMS unformatted concentration file — rmt_read_ucn • RMT3DMS</title>
 
 
 <!-- jquery -->
@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
 <!-- bootstrap-toc -->
-<link rel="stylesheet" href="bootstrap-toc.css">
-<script src="bootstrap-toc.js"></script>
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
@@ -33,15 +33,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script>
+<link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script>
 
 
 
-  <link href="extra.css" rel="stylesheet">
+  <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Authors" />
+<meta property="og:title" content="Read an MT3DMS unformatted concentration file — rmt_read_ucn" />
+<meta property="og:description" content="rmt_read_ucn reads in an MT3DMS unformatted concentration file and returns it as an RMT3DMS ucn object." />
 
 
 
@@ -60,7 +61,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-authors">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -72,7 +73,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">RMT3DMS</a>
+        <a class="navbar-link" href="../index.html">RMT3DMS</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
@@ -80,16 +81,16 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">
+  <a href="../index.html">
     <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="news/index.html">Changelog</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -110,26 +111,67 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Authors</h1>
+    <h1>Read an MT3DMS unformatted concentration file</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rogiersbart/RMT3DMS/blob/master/R/output.R'><code>R/output.R</code></a></small>
+    <div class="hidden name"><code>rmt_read_ucn.Rd</code></div>
     </div>
 
-    <ul class="list-unstyled">
-      <li>
-        <p><strong><a href='https://rogiersbart.github.io/'>Bart Rogiers</a></strong>. Maintainer, author. <a href='https://orcid.org/0000-0002-8836-0988' target='orcid.widget' aria-label='ORCID'><span class='fab fa-orcid orcid' aria-hidden='true'></span></a>
-        </p>
-      </li>
-      <li>
-        <p><strong>Cas Neyens</strong>. Author. 
-        </p>
-      </li>
-    </ul>
+    <div class="ref-description">
+    <p><code>rmt_read_ucn</code> reads in an MT3DMS unformatted concentration file and returns it as an <code>RMT3DMS</code> ucn object.</p>
+    </div>
+
+    <pre class="usage">rmt_read_ucn(
+  file = {     cat("Please select ucn file ...\n")     file.choose() },
+  btn = {     cat("Please select corresponding btn file ...\n")    
+    rmt_read_btn(file.choose()) },
+  mask = btn$icbund,
+  cinact = btn$cinact,
+  solute = NULL,
+  precision = "single"
+)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>file</th>
+      <td><p>filename; typically '*.ucn'</p></td>
+    </tr>
+    <tr>
+      <th>btn</th>
+      <td><p><code>RMT3DMS</code> btn object</p></td>
+    </tr>
+    <tr>
+      <th>mask</th>
+      <td><p>3d array which can be coerced to logical indicating active (TRUE) or inactive (FALSE) cells. Concentration of inactive cells is set to NA. Defaults to the icbund array in btn.</p></td>
+    </tr>
+    <tr>
+      <th>cinact</th>
+      <td><p>concentration value(s) indicating inactive cells. These cells are set to NA. Defaults to cinact in btn.</p></td>
+    </tr>
+    <tr>
+      <th>solute</th>
+      <td><p>optional integer used to set the species index in. By default, the code tries to guess this from the filename (e.g. 'MT3D001.UCN')</p></td>
+    </tr>
+    <tr>
+      <th>precision</th>
+      <td><p>either <code>'single'</code> (default) or <code>'double'</code>. Specifies the precision of the binary file.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>object of class ucn and rmt_4d_array</p>
 
   </div>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
+  </div>
 </div>
-
 
 
       <footer>

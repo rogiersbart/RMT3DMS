@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Authors • RMT3DMS</title>
+<title>Read a MT3DMS model — rmt_read • RMT3DMS</title>
 
 
 <!-- jquery -->
@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
 <!-- bootstrap-toc -->
-<link rel="stylesheet" href="bootstrap-toc.css">
-<script src="bootstrap-toc.js"></script>
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
@@ -33,15 +33,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script>
+<link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script>
 
 
 
-  <link href="extra.css" rel="stylesheet">
+  <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Authors" />
+<meta property="og:title" content="Read a MT3DMS model — rmt_read" />
+<meta property="og:description" content="rmt_read reads in a MT3DMS/MT3D-USGS model and returns it as a mt3dms object" />
 
 
 
@@ -60,7 +61,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-authors">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -72,7 +73,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">RMT3DMS</a>
+        <a class="navbar-link" href="../index.html">RMT3DMS</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
@@ -80,16 +81,16 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">
+  <a href="../index.html">
     <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="news/index.html">Changelog</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -110,26 +111,62 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Authors</h1>
+    <h1>Read a MT3DMS model</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rogiersbart/RMT3DMS/blob/master/R/mt3dms.R'><code>R/mt3dms.R</code></a></small>
+    <div class="hidden name"><code>rmt_read.Rd</code></div>
     </div>
 
-    <ul class="list-unstyled">
-      <li>
-        <p><strong><a href='https://rogiersbart.github.io/'>Bart Rogiers</a></strong>. Maintainer, author. <a href='https://orcid.org/0000-0002-8836-0988' target='orcid.widget' aria-label='ORCID'><span class='fab fa-orcid orcid' aria-hidden='true'></span></a>
-        </p>
-      </li>
-      <li>
-        <p><strong>Cas Neyens</strong>. Author. 
-        </p>
-      </li>
-    </ul>
+    <div class="ref-description">
+    <p><code>rmt_read</code> reads in a MT3DMS/MT3D-USGS model and returns it as a <code>mt3dms</code> object</p>
+    </div>
+
+    <pre class="usage">rmt_read(
+  file = {     cat("Please select nam file ...\n")     file.choose() },
+  output = FALSE,
+  precision = "single",
+  verbose = TRUE
+)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>file</th>
+      <td><p>NAME file; typically '*.mt_nam'</p></td>
+    </tr>
+    <tr>
+      <th>output</th>
+      <td><p>logical; should output also be read. Defaults to FALSE.</p></td>
+    </tr>
+    <tr>
+      <th>precision</th>
+      <td><p>either <code>'single'</code> or <code>'double'</code>. Specifies the precision of binary files. Defaults to <code>'single'</code>.</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>logical; should information on reading files be printed to the console ? Defaults to TRUE.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a <code>mt3dms</code> object which is a list containing all MT3DMS packages and optionally, model output</p>
+    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
+
+    <p>If the MT3DMS model does not contain a NAME file, use the <code>rmt_read_*</code> functions to read in the packages individually.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='rmt_create.html'>rmt_create</a></code>, <code><a href='rmt_write.html'>rmt_write</a></code></p></div>
 
   </div>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
+  </div>
 </div>
-
 
 
       <footer>

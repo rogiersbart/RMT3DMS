@@ -1,10 +1,14 @@
 Package: RMT3DMS
 Type: Package
 Title: Pre- and post-processing of MT3DMS & MT3D-USGS files
-Version: 0.3.0.9999
-Date: 2016-01-07
+Version: 0.4.0
 Authors@R: c(
-    person("Bart", "Rogiers", role = c("aut", "cre"), email = "brogiers@sckcen.be"),
+    person(
+    given = "Bart",
+    family = "Rogiers",
+    email = "rogiers.bart@gmail.com",
+    role = c("cre", "aut"),
+    comment = c(ORCID = "0000-0002-8836-0988")),
     person("Cas", "Neyens", role = "aut", email = "cas.neyens@vub.be"))
 Description: The RMT3DMS package provides a set of tools for solute transport
     modelling with MT3DMS and MT3D-USGS.
@@ -30,9 +34,16 @@ Remotes:
     rogiersbart/RMODFLOW@develop,
     rogiersbart/spectralscale,
     rogiersbart/rui
-URL: https://github.com/rogiersbart/RMT3DMS
+URL: https://rogiersbart.github.io/RMT3DMS,
+    https://github.com/rogiersbart/RMT3DMS
 BugReports: https://github.com/rogiersbart/RMT3DMS/issues
 Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+ByteCompile: true
 Depends: 
     R (>= 2.10)
