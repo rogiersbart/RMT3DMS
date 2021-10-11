@@ -11,7 +11,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/RMT3DMS.svg)](https://CRAN.R-project.org/package=RMT3DMS)
 <!-- badges: end -->
 
-The {[RMT3DMS](https://rogiersbart.github.io/RMT3DMS)} R package
+The {[RMT3DMS](https://rogiersbart.github.io/RMT3DMS/)} R package
 provides a set of tools for solute transport modelling with
 [MT3DMS](https://hydro.geo.ua.edu/mt3d/mt3dms2.htm) &
 [MT3D-USGS](https://water.usgs.gov/ogw/mt3d-usgs/). It is closely
@@ -26,7 +26,7 @@ family of codes.
 ## Install
 
 You can install the latest version of
-{[RMT3DMS](https://rogiersbart.github.io/RMT3DMS)} with any of the
+{[RMT3DMS](https://rogiersbart.github.io/RMT3DMS/)} with any of the
 following:
 
 ``` r
@@ -47,7 +47,7 @@ remotes::install_github("rogiersbart/RMT3DMS")
 ## Use
 
 Similar to {[RMODFLOW](https://rogiersbart.github.io/RMODFLOW)}, the
-{[RMT3DMS](https://rogiersbart.github.io/RMT3DMS)} package provides a
+{[RMT3DMS](https://rogiersbart.github.io/RMT3DMS/)} package provides a
 set of functions to work on a file-by-file basis, and another to work
 with complete models. If you have an existing MT3D model, a good place
 to start is trying to read it in completely with:
