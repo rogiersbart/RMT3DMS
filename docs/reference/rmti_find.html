@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Authors • RMT3DMS</title>
+<title>Find paths to executables — rmti_find • RMT3DMS</title>
 
 
 <!-- jquery -->
@@ -18,8 +18,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
 
 <!-- bootstrap-toc -->
-<link rel="stylesheet" href="bootstrap-toc.css">
-<script src="bootstrap-toc.js"></script>
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
@@ -33,15 +33,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script>
+<link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script>
 
 
 
-  <link href="extra.css" rel="stylesheet">
+  <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Authors" />
+<meta property="og:title" content="Find paths to executables — rmti_find" />
+<meta property="og:description" content="This function tries to locate external code executables." />
 
 
 
@@ -60,7 +61,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-authors">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -72,7 +73,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">RMT3DMS</a>
+        <a class="navbar-link" href="../index.html">RMT3DMS</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
@@ -80,16 +81,16 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">
+  <a href="../index.html">
     <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="news/index.html">Changelog</a>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -110,26 +111,54 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Authors</h1>
+    <h1>Find paths to executables</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rogiersbart/RMT3DMS/blob/master/R/execute.R'><code>R/execute.R</code></a></small>
+    <div class="hidden name"><code>rmti_find.Rd</code></div>
     </div>
 
-    <ul class="list-unstyled">
-      <li>
-        <p><strong><a href='https://rogiersbart.github.io/'>Bart Rogiers</a></strong>. Maintainer, author. <a href='https://orcid.org/0000-0002-8836-0988' target='orcid.widget' aria-label='ORCID'><span class='fab fa-orcid orcid' aria-hidden='true'></span></a>
-        </p>
-      </li>
-      <li>
-        <p><strong>Cas Neyens</strong>. Author. 
-        </p>
-      </li>
-    </ul>
+    <div class="ref-description">
+    <p>This function tries to locate external code executables.</p>
+    </div>
+
+    <pre class="usage"><span class='fu'>rmti_find</span><span class='op'>(</span>code <span class='op'>=</span> <span class='st'>"usgs"</span>, bits <span class='op'>=</span> <span class='st'>"single"</span>, form <span class='op'>=</span> <span class='st'>"b"</span><span class='op'>)</span></pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>code</th>
+      <td><p>Name of the MT3D variant to use, or path to the executable.</p></td>
+    </tr>
+    <tr>
+      <th>bits</th>
+      <td><p>Character. Can be <code>"single"</code> (ie. 32 bits) or <code>"double"</code> (i.e. 64 bits). Specifies if 32 or 64 bit executable are used for the MT3D-USGS executable.</p></td>
+    </tr>
+    <tr>
+      <th>form</th>
+      <td><p>Character. Can be <code>'s'</code> or <code>'b'</code> (default). Specifies which MT3DMS executable is used, which depends on the value of FORM in the 'filespec.inc' file during compilation. The default 'b' (for binary) should work with FTL files generated by MODFLOW-2000 and newer versions. A value of 's' (for unformatted) should work with FTL files generated by MODFLOW-88 or 96.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Path to the executable.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>It first looks for the executable in the current working directory. If not
+there, it looks in the bin subfolder of `getOption("RMT3DMS.path")`, where
+the software might have been installed by [rmt_install()]. If the executable
+cannot be found, a final attempt is made by checking the system path
+variable. If it still cannot be located, an error is thrown.</p>
 
   </div>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
+  </div>
 </div>
-
 
 
       <footer>

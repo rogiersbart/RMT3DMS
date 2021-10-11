@@ -1,7 +1,7 @@
-templates:
-  params:
-    bootswatch: united
-    
+home:
+  title: The {RMT3DMS} R package
+  description: Pre- and post-processing of MT3DMS & MT3D-USGS files
+url: https://rogiersbart.github.io/RMT3DMS
 authors:
   Bart Rogiers:
     href: https://rogiersbart.github.io/
